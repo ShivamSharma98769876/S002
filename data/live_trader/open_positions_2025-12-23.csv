@@ -1,4 +1,4 @@
 segment,mode,status,signal_type,option_symbol,option_type,strike_price,expiry,entry_time,entry_price,current_price,current_lots,current_quantity,stop_loss_points,initial_sl_price,current_sl_price,trailing_stop_points,current_pnl_points,current_pnl_value,current_return_pct,pyramiding_count,last_pyramiding_time,update_time,exit_time,exit_price,exit_reason,final_pnl_points,final_pnl_value
 NIFTY,LIVE,OPEN,SELL_CE,NIFTY26400CE,CE,26400.0,,2025-12-23T10:55:00,45.8,45.1,1,150,50.0,68.69999999999999,67.65,50.0,0.6999999999999957,104.99999999999936,1.5283842794759732,0,,2025-12-23T11:05:00,,,,,
 NIFTY,LIVE,OPEN,SELL_PE,NIFTY25DEC26000PE,PE,26000.0,2025-12-30,2025-12-23T11:08:00,45.55,45.55,1,150,50.0,68.32499999999999,68.32499999999999,50.0,0.0,0.0,0.0,0,,2025-12-23T11:08:00,,,,,
-NIFTY,LIVE,OPEN,SELL_CE,NIFTY26000CE,CE,26000.0,,2025-12-23T10:55:00,45.55,266.5,1,150,50.0,68.32499999999999,67.875,50.0,-220.95,-33142.5,-485.0713501646542,0,,2025-12-23T11:13:00,,,,,
+NIFTY,LIVE,OPEN,SELL_CE,NIFTY26000CE,CE,26000.0,,2025-12-23T10:55:00,45.55,257.65,1,150,50.0,68.32499999999999,67.875,50.0,-212.09999999999997,-31814.999999999996,-465.642151481888,0,,2025-12-23T11:58:00,,,,,

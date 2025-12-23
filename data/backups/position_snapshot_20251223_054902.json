@@ -1,0 +1,29 @@
+{
+  "timestamp": "2025-12-23T05:49:02.881579",
+  "positions": [
+    {
+      "id": 110,
+      "instrument_token": "16816898",
+      "trading_symbol": "NIFTY25DEC26400CE",
+      "exchange": "NFO",
+      "entry_time": "2025-12-23T05:26:12.631380",
+      "entry_price": 45.8,
+      "current_price": 46.35,
+      "quantity": -150,
+      "lot_size": 1,
+      "unrealized_pnl": -82.50000000000064
+    },
+    {
+      "id": 111,
+      "instrument_token": "18279170",
+      "trading_symbol": "NIFTY25DEC26000PE",
+      "exchange": "NFO",
+      "entry_time": "2025-12-23T05:40:29.444099",
+      "entry_price": 45.55,
+      "current_price": 45.25,
+      "quantity": -150,
+      "lot_size": 1,
+      "unrealized_pnl": 44.999999999999574
+    }
+  ]
+}

@@ -3,6 +3,7 @@ Main Entry Point for Risk Management System
 """
 
 import sys
+import os
 import time
 from pathlib import Path
 from src.config.config_manager import ConfigManager
@@ -130,6 +131,13 @@ def main():
         version_control = VersionControl(db_manager)
         parameter_locker = ParameterLocker(config_manager, access_control, version_control)
         
+        # Get host and port from environment variables (for Azure/local flexibility)
+        # Azure App Service sets PORT environment variable
+        # Local development can use HOST and PORT env vars or defaults
+        host = os.getenv("HOST", "127.0.0.1" if user_config.environment == "dev" else "0.0.0.0")
+        port = int(os.getenv("PORT", "5000"))
+        debug_mode = os.getenv("DEBUG", "false").lower() == "true" or (user_config.environment == "dev")
+        
         # Initialize dashboard
         dashboard = Dashboard(
             risk_monitor,
@@ -139,9 +147,9 @@ def main():
             parameter_locker,
             version_control,
             kite_client=kite_client,
-            host="127.0.0.1",
-            port=5000,
-            debug=(user_config.environment == "dev")
+            host=host,
+            port=port,
+            debug=debug_mode
         )
         
         logger.info("Risk management system initialized")
@@ -169,12 +177,12 @@ def main():
             name="Dashboard"
         )
         dashboard_thread.start()
-        logger.info("Dashboard started at http://127.0.0.1:5000")
+        logger.info(f"Dashboard started at http://{host}:{port}")
         
         # TODO: Start WebSocket connection for real-time prices
         
         logger.info("System ready and monitoring...")
-        logger.info("Dashboard: http://127.0.0.1:5000")
+        logger.info(f"Dashboard: http://{host}:{port}")
         logger.info("Press Ctrl+C to stop")
         
         # Keep running

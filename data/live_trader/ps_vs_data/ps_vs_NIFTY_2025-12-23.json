@@ -757,5 +757,565 @@
     "rsi": 67.08,
     "crossover": null,
     "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:10:39",
+    "price_strength": 63.8,
+    "volume_strength": 59.19,
+    "price": 26191.05,
+    "rsi": 60.71,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:11:39",
+    "price_strength": 60.75,
+    "volume_strength": 59.34,
+    "price": 26189.15,
+    "rsi": 57.7,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:12:39",
+    "price_strength": 55.14,
+    "volume_strength": 58.73,
+    "price": 26187.05,
+    "rsi": 49.54,
+    "crossover": "PE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:13:39",
+    "price_strength": 56.51,
+    "volume_strength": 58.89,
+    "price": 26190.2,
+    "rsi": 57.87,
+    "crossover": null,
+    "filters": {
+      "time": {
+        "passed": true,
+        "reason": "Optimal session: 09:30-15:15"
+      },
+      "atr": {
+        "passed": true,
+        "reason": "ATR acceptable: 1.09x (range: 0.73-1.50x)",
+        "current_atr": 12.074999999999948,
+        "avg_atr": 11.07619047619094
+      },
+      "rsi": {
+        "passed": true,
+        "reason": "RSI extreme filter disabled",
+        "rsi_value": 57.86616525836888
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-23T11:14:39",
+    "price_strength": 62.03,
+    "volume_strength": 59.9,
+    "price": 26196.75,
+    "rsi": 67.56,
+    "crossover": "CE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:15:39",
+    "price_strength": 62.38,
+    "volume_strength": 60.41,
+    "price": 26194.05,
+    "rsi": 62.72,
+    "crossover": null,
+    "filters": {
+      "time": {
+        "passed": true,
+        "reason": "Optimal session: 09:30-15:15"
+      },
+      "atr": {
+        "passed": true,
+        "reason": "ATR acceptable: 1.05x (range: 0.73-1.50x)",
+        "current_atr": 11.657142857142649,
+        "avg_atr": 11.067346938775918
+      },
+      "rsi": {
+        "passed": true,
+        "reason": "RSI extreme filter disabled",
+        "rsi_value": 62.717212059194104
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-23T11:16:39",
+    "price_strength": 63.65,
+    "volume_strength": 61.03,
+    "price": 26193.3,
+    "rsi": 64.93,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:17:39",
+    "price_strength": 61.93,
+    "volume_strength": 61.18,
+    "price": 26193.65,
+    "rsi": 60.21,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:18:39",
+    "price_strength": 57.22,
+    "volume_strength": 60.57,
+    "price": 26193.2,
+    "rsi": 52.5,
+    "crossover": "PE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:19:39",
+    "price_strength": 58.19,
+    "volume_strength": 60.57,
+    "price": 26194.05,
+    "rsi": 59.16,
+    "crossover": null,
+    "filters": {
+      "time": {
+        "passed": true,
+        "reason": "Optimal session: 09:30-15:15"
+      },
+      "atr": {
+        "passed": true,
+        "reason": "ATR acceptable: 0.93x (range: 0.73-1.50x)",
+        "current_atr": 10.51071428571413,
+        "avg_atr": 11.286734693877795
+      },
+      "rsi": {
+        "passed": true,
+        "reason": "RSI extreme filter disabled",
+        "rsi_value": 59.15707854140841
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-23T11:20:39",
+    "price_strength": 57.57,
+    "volume_strength": 60.37,
+    "price": 26194.4,
+    "rsi": 56.95,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:21:39",
+    "price_strength": 57.31,
+    "volume_strength": 60.14,
+    "price": 26193.45,
+    "rsi": 57.05,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:22:39",
+    "price_strength": 52.99,
+    "volume_strength": 59.08,
+    "price": 26190.95,
+    "rsi": 48.68,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:23:39",
+    "price_strength": 50.97,
+    "volume_strength": 58.05,
+    "price": 26190.15,
+    "rsi": 48.95,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:24:39",
+    "price_strength": 47.24,
+    "volume_strength": 56.53,
+    "price": 26189.95,
+    "rsi": 43.5,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:25:39",
+    "price_strength": 43.1,
+    "volume_strength": 54.67,
+    "price": 26186.85,
+    "rsi": 38.97,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:26:39",
+    "price_strength": 42.68,
+    "volume_strength": 53.19,
+    "price": 26188.25,
+    "rsi": 42.27,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:27:39",
+    "price_strength": 38.98,
+    "volume_strength": 51.19,
+    "price": 26183.75,
+    "rsi": 35.27,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:28:39",
+    "price_strength": 35.99,
+    "volume_strength": 49.13,
+    "price": 26183.9,
+    "rsi": 33.0,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:29:39",
+    "price_strength": 32.93,
+    "volume_strength": 46.96,
+    "price": 26180.2,
+    "rsi": 29.88,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:30:39",
+    "price_strength": 29.09,
+    "volume_strength": 44.52,
+    "price": 26178.3,
+    "rsi": 25.25,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:31:39",
+    "price_strength": 23.72,
+    "volume_strength": 41.63,
+    "price": 26173.35,
+    "rsi": 18.35,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:32:39",
+    "price_strength": 26.89,
+    "volume_strength": 39.99,
+    "price": 26175.15,
+    "rsi": 30.06,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:33:39",
+    "price_strength": 26.25,
+    "volume_strength": 38.06,
+    "price": 26172.15,
+    "rsi": 25.62,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:34:39",
+    "price_strength": 25.54,
+    "volume_strength": 36.17,
+    "price": 26171.45,
+    "rsi": 24.82,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:35:39",
+    "price_strength": 23.84,
+    "volume_strength": 34.18,
+    "price": 26169.2,
+    "rsi": 22.14,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:36:39",
+    "price_strength": 22.99,
+    "volume_strength": 32.38,
+    "price": 26168.8,
+    "rsi": 22.14,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:37:39",
+    "price_strength": 22.44,
+    "volume_strength": 30.73,
+    "price": 26168.75,
+    "rsi": 21.89,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:38:39",
+    "price_strength": 29.89,
+    "volume_strength": 30.68,
+    "price": 26173.3,
+    "rsi": 37.34,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:39:39",
+    "price_strength": 29.28,
+    "volume_strength": 29.94,
+    "price": 26169.0,
+    "rsi": 28.67,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:40:39",
+    "price_strength": 30.89,
+    "volume_strength": 29.64,
+    "price": 26168.7,
+    "rsi": 32.5,
+    "crossover": "CE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:41:39",
+    "price_strength": 27.59,
+    "volume_strength": 28.72,
+    "price": 26163.8,
+    "rsi": 24.28,
+    "crossover": null,
+    "filters": {
+      "time": {
+        "passed": true,
+        "reason": "Optimal session: 09:30-15:15"
+      },
+      "atr": {
+        "passed": true,
+        "reason": "ATR acceptable: 1.21x (range: 0.73-1.50x)",
+        "current_atr": 12.267857142857922,
+        "avg_atr": 10.141496598639785
+      },
+      "rsi": {
+        "passed": true,
+        "reason": "RSI extreme filter disabled",
+        "rsi_value": 24.280142291131625
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-23T11:41:39",
+    "price_strength": 27.59,
+    "volume_strength": 28.72,
+    "price": 26166.1,
+    "rsi": 34.15,
+    "crossover": "PE",
+    "filters": {
+      "time": {
+        "passed": true,
+        "reason": "Optimal session: 09:30-15:15"
+      },
+      "atr": {
+        "passed": true,
+        "reason": "ATR acceptable: 1.21x (range: 0.73-1.50x)",
+        "current_atr": 12.46785714285787,
+        "avg_atr": 10.300000000000361
+      },
+      "rsi": {
+        "passed": true,
+        "reason": "RSI extreme filter disabled",
+        "rsi_value": 34.15495341575593
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-23T11:42:39",
+    "price_strength": 30.87,
+    "volume_strength": 28.84,
+    "price": 26166.1,
+    "rsi": 34.15,
+    "crossover": null,
+    "filters": {
+      "time": {
+        "passed": true,
+        "reason": "Optimal session: 09:30-15:15"
+      },
+      "atr": {
+        "passed": true,
+        "reason": "ATR acceptable: 1.21x (range: 0.73-1.50x)",
+        "current_atr": 12.46785714285787,
+        "avg_atr": 10.300000000000361
+      },
+      "rsi": {
+        "passed": true,
+        "reason": "RSI extreme filter disabled",
+        "rsi_value": 34.15495341575593
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-23T11:42:39",
+    "price_strength": 30.87,
+    "volume_strength": 28.84,
+    "price": 26161.1,
+    "rsi": 29.51,
+    "crossover": "CE",
+    "filters": {
+      "time": {
+        "passed": true,
+        "reason": "Optimal session: 09:30-15:15"
+      },
+      "atr": {
+        "passed": true,
+        "reason": "ATR acceptable: 1.19x (range: 0.73-1.50x)",
+        "current_atr": 12.532142857143688,
+        "avg_atr": 10.488435374150063
+      },
+      "rsi": {
+        "passed": true,
+        "reason": "RSI extreme filter disabled",
+        "rsi_value": 29.50747366219497
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-23T11:43:39",
+    "price_strength": 30.19,
+    "volume_strength": 28.63,
+    "price": 26161.1,
+    "rsi": 29.51,
+    "crossover": null,
+    "filters": {
+      "time": {
+        "passed": true,
+        "reason": "Optimal session: 09:30-15:15"
+      },
+      "atr": {
+        "passed": true,
+        "reason": "ATR acceptable: 1.19x (range: 0.73-1.50x)",
+        "current_atr": 12.532142857143688,
+        "avg_atr": 10.488435374150063
+      },
+      "rsi": {
+        "passed": true,
+        "reason": "RSI extreme filter disabled",
+        "rsi_value": 29.50747366219497
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-23T11:44:39",
+    "price_strength": 28.84,
+    "volume_strength": 28.32,
+    "price": 26159.6,
+    "rsi": 27.49,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:45:39",
+    "price_strength": 38.07,
+    "volume_strength": 29.9,
+    "price": 26168.5,
+    "rsi": 47.3,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:46:39",
+    "price_strength": 44.03,
+    "volume_strength": 31.72,
+    "price": 26169.8,
+    "rsi": 49.99,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:47:39",
+    "price_strength": 47.94,
+    "volume_strength": 33.65,
+    "price": 26171.6,
+    "rsi": 51.84,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:48:39",
+    "price_strength": 56.71,
+    "volume_strength": 36.78,
+    "price": 26180.75,
+    "rsi": 65.47,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:49:39",
+    "price_strength": 59.08,
+    "volume_strength": 39.42,
+    "price": 26179.25,
+    "rsi": 61.46,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:50:39",
+    "price_strength": 60.6,
+    "volume_strength": 41.99,
+    "price": 26179.85,
+    "rsi": 62.13,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:51:39",
+    "price_strength": 59.97,
+    "volume_strength": 44.17,
+    "price": 26179.15,
+    "rsi": 59.34,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:52:39",
+    "price_strength": 62.83,
+    "volume_strength": 46.78,
+    "price": 26183.0,
+    "rsi": 65.69,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:53:39",
+    "price_strength": 61.39,
+    "volume_strength": 48.67,
+    "price": 26180.55,
+    "rsi": 59.95,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:54:39",
+    "price_strength": 56.22,
+    "volume_strength": 49.61,
+    "price": 26177.05,
+    "rsi": 51.05,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:55:39",
+    "price_strength": 57.65,
+    "volume_strength": 51.18,
+    "price": 26180.7,
+    "rsi": 59.09,
+    "crossover": null,
+    "filters": null
   }
 ]

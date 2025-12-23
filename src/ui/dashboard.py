@@ -183,6 +183,23 @@ class Dashboard:
                 api_key = self.kite_client.api_key
             return render_template('dashboard.html', api_key=api_key)
         
+        @self.app.route('/api/health', methods=['GET'])
+        def health_check():
+            """Health check endpoint for load balancers and monitoring"""
+            try:
+                return jsonify({
+                    "status": "healthy",
+                    "timestamp": datetime.now().isoformat(),
+                    "service": "disciplined-trader"
+                }), 200
+            except Exception as e:
+                logger.error(f"Health check failed: {e}")
+                return jsonify({
+                    "status": "unhealthy",
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat()
+                }), 503
+        
         @self.app.route('/api/status')
         def get_status():
             """Get current system status"""

@@ -1459,3 +1459,876 @@
 2025-12-23 11:14:41 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
 2025-12-23 11:14:41 - INFO - Outcome=HOLD (Trade Regime: Sell)
 2025-12-23 11:14:41 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:15:05 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹266.85, Lots=1, P&L=₹-33195.00 (-221.30 pts, Source: Kite API)
+2025-12-23 11:15:05 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:15:39 - INFO - Fetched LTP from Kite: ₹26191.05 at 11:15:00
+2025-12-23 11:15:39 - INFO -  ✅ Found candle from API (same window): 2025-12-23 11:10:39 [Window 11:05–11:10] (O:26188.00 H:26195.45 L:26188.00 C:26190.20)
+2025-12-23 11:15:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:15:39 - INFO -  📊 Strategy Analysis - RSI: 60.71, Price: ₹26191.05, Candles: 126
+2025-12-23 11:15:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:15:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26191.05
+2025-12-23 11:15:40 - INFO - 📈 RSI: 60.71
+2025-12-23 11:15:40 - INFO - Indicators :: PS=63.80, VS=59.19
+2025-12-23 11:15:40 - INFO - Entry Criteria :: RSI=60.71, Candle=bullish, PS=63.80, VS=59.19 @ 2025-12-23 11:10:39 [Trade Regime: Sell] ::
+2025-12-23 11:15:40 - INFO - Checks:
+2025-12-23 11:15:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:09:39, Before: 2025-12-23 11:08:39): FAIL (❌ NO BEARISH CROSSOVER: PS still above VS | Before: PS=66.67 > VS=57.79 → Current: PS=66.88 > VS=58.78 (PS needs to cross DOWN to VS for PE signal))
+2025-12-23 11:15:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:15:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:09:39, Before: 2025-12-23 11:08:39): FAIL (❌ NO BULLISH CROSSOVER: PS was already above VS | Before: PS=66.67 ≥ VS=57.79 → Current: PS=66.88 vs VS=58.78 (Bullish crossover requires PS to start below VS and cross up))
+2025-12-23 11:15:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:15:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:15:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:15:48 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹266.25, Lots=1, P&L=₹-33105.00 (-220.70 pts, Source: Kite API)
+2025-12-23 11:15:48 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:16:39 - INFO - Fetched LTP from Kite: ₹26189.15 at 11:16:00
+2025-12-23 11:16:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:11:39 [Window 11:05–11:10] (Expected: 11:10–11:15) (O:26190.80 H:26194.60 L:26186.95 C:26189.15)
+2025-12-23 11:16:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:16:39 - INFO -  📊 Strategy Analysis - RSI: 57.70, Price: ₹26189.15, Candles: 127
+2025-12-23 11:16:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:16:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26189.15
+2025-12-23 11:16:40 - INFO - 📈 RSI: 57.70
+2025-12-23 11:16:40 - INFO - Indicators :: PS=60.75, VS=59.34
+2025-12-23 11:16:40 - INFO - Entry Criteria :: RSI=57.70, Candle=bullish, PS=60.75, VS=59.34 @ 2025-12-23 11:11:39 [Trade Regime: Sell] ::
+2025-12-23 11:16:40 - INFO - Checks:
+2025-12-23 11:16:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:10:39, Before: 2025-12-23 11:09:39): FAIL (❌ NO BEARISH CROSSOVER: PS still above VS | Before: PS=66.88 > VS=58.78 → Current: PS=63.80 > VS=59.19 (PS needs to cross DOWN to VS for PE signal))
+2025-12-23 11:16:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:16:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:10:39, Before: 2025-12-23 11:09:39): FAIL (❌ NO BULLISH CROSSOVER: PS was already above VS | Before: PS=66.88 ≥ VS=58.78 → Current: PS=63.80 vs VS=59.19 (Bullish crossover requires PS to start below VS and cross up))
+2025-12-23 11:16:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:16:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:16:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:16:45 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹265.70, Lots=1, P&L=₹-33022.50 (-220.15 pts, Source: Kite API)
+2025-12-23 11:16:45 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:17:39 - INFO - Fetched LTP from Kite: ₹26187.05 at 11:17:00
+2025-12-23 11:17:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:12:39 [Window 11:05–11:10] (Expected: 11:10–11:15) (O:26191.50 H:26193.15 L:26185.45 C:26186.05)
+2025-12-23 11:17:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:17:39 - INFO -  📊 Strategy Analysis - RSI: 49.54, Price: ₹26187.05, Candles: 128
+2025-12-23 11:17:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:17:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26187.05
+2025-12-23 11:17:40 - INFO - 📈 RSI: 49.54
+2025-12-23 11:17:40 - INFO - Indicators :: PS=55.14, VS=58.73
+2025-12-23 11:17:40 - INFO - Entry Criteria :: RSI=49.54, Candle=bearish, PS=55.14, VS=58.73 @ 2025-12-23 11:12:39 [Trade Regime: Sell] ::
+2025-12-23 11:17:40 - INFO - Checks:
+2025-12-23 11:17:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:11:39, Before: 2025-12-23 11:10:39): FAIL (❌ NO BEARISH CROSSOVER: PS still above VS | Before: PS=63.80 > VS=59.19 → Current: PS=60.75 > VS=59.34 (PS needs to cross DOWN to VS for PE signal))
+2025-12-23 11:17:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:17:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:11:39, Before: 2025-12-23 11:10:39): FAIL (❌ NO BULLISH CROSSOVER: PS was already above VS | Before: PS=63.80 ≥ VS=59.19 → Current: PS=60.75 vs VS=59.34 (Bullish crossover requires PS to start below VS and cross up))
+2025-12-23 11:17:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:17:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:17:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:17:45 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹264.75, Lots=1, P&L=₹-32880.00 (-219.20 pts, Source: Kite API)
+2025-12-23 11:17:45 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:18:39 - INFO - Fetched LTP from Kite: ₹26190.20 at 11:18:00
+2025-12-23 11:18:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:13:39 [Window 11:05–11:10] (Expected: 11:10–11:15) (O:26190.70 H:26193.00 L:26184.65 C:26189.90)
+2025-12-23 11:18:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:18:39 - INFO -  📊 Strategy Analysis - RSI: 57.87, Price: ₹26190.20, Candles: 129
+2025-12-23 11:18:45 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:18:45 - INFO - 📊 Strategy Analysis - Current Price: ₹26190.20
+2025-12-23 11:18:45 - INFO - 📈 RSI: 57.87
+2025-12-23 11:18:45 - INFO - Indicators :: PS=56.51, VS=58.89
+2025-12-23 11:18:45 - INFO - Entry Criteria :: RSI=57.87, Candle=bearish, PS=56.51, VS=58.89 @ 2025-12-23 11:13:39 [Trade Regime: Sell] ::
+2025-12-23 11:18:45 - INFO - Checks:
+2025-12-23 11:18:45 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:12:39, Before: 2025-12-23 11:11:39): PASS (✅ BEARISH CROSSOVER DETECTED: PS crossed DOWN to VS | Before: PS=60.75 > VS=59.34 → Crossover: PS=55.14 ≤ VS=58.73)
+2025-12-23 11:18:45 - INFO -   PE: All entry criteria: PASS (✅ All PE entry criteria met: Bearish crossover (PS↓VS))
+2025-12-23 11:18:45 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:12:39, Before: 2025-12-23 11:11:39): FAIL (❌ NO BULLISH CROSSOVER: PS was already above VS | Before: PS=60.75 ≥ VS=59.34 → Current: PS=55.14 vs VS=58.73 (Bullish crossover requires PS to start below VS and cross up))
+2025-12-23 11:18:45 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:18:45 - INFO -   PE: Time session filter: PASS (Optimal session: 09:30-15:15)
+2025-12-23 11:18:45 - INFO -   PE: ATR volatility filter: PASS (ATR acceptable: 1.09x (range: 0.73-1.50x))
+2025-12-23 11:18:45 - INFO -   PE: RSI extreme filter (Sell CE): PASS (RSI extreme filter disabled)
+2025-12-23 11:18:45 - INFO -   PE: 1-minute PS/VS alignment: PASS (1-min PS=58.88 <= VS=59.68)
+2025-12-23 11:18:45 - INFO -   PE: 1-minute momentum filter: PASS (PS momentum=-2.22 <= -0.5 (declining))
+2025-12-23 11:18:45 - INFO -   PE: Divergence check: PASS (No divergence: 5-min diff=-2.38, 1-min diff=-0.81)
+2025-12-23 11:18:45 - INFO -   PE: Volume confirmation: PASS (Average volume is zero (cannot confirm))
+2025-12-23 11:18:45 - INFO -   PE: Using dynamic thresholds: PASS (Min=2.0%, Max=20.0%)
+2025-12-23 11:18:45 - INFO -   PE: PS/VS difference threshold: PASS (Diff: 4.05% (Range: 2.0%-20.0%, PS: 56.51, VS: 58.89))
+2025-12-23 11:18:45 - INFO - Outcome=SELL_CE (Trade Regime: Sell)
+2025-12-23 11:18:45 - INFO - ✅ SIGNAL GENERATED: SELL_CE (CE) [Trade Regime: Sell] - 
+2025-12-23 11:18:50 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹267.00, Lots=1, P&L=₹-33217.50 (-221.45 pts, Source: Kite API)
+2025-12-23 11:18:50 - INFO -  ✅ SIGNAL GENERATED: SELL_CE (CE) [Trade Regime: Sell] - [SELL] PS crosses DOWN to VS: Sell CE (price weak, CE loses value) (Crossover PS: 55.14, VS: 58.73)
+2025-12-23 11:18:50 - INFO -  ⚠️ CE position already open in LIVE mode (strike=26000). Skipping new CE entry signal. (Note: CE and PE can be open simultaneously)
+2025-12-23 11:19:39 - INFO - Fetched LTP from Kite: ₹26196.75 at 11:19:00
+2025-12-23 11:19:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:14:39 [Window 11:05–11:10] (Expected: 11:10–11:15) (O:26191.60 H:26196.90 L:26184.65 C:26196.10)
+2025-12-23 11:19:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:19:39 - INFO -  📊 Strategy Analysis - RSI: 67.56, Price: ₹26196.75, Candles: 130
+2025-12-23 11:19:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:19:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26196.75
+2025-12-23 11:19:40 - INFO - 📈 RSI: 67.56
+2025-12-23 11:19:40 - INFO - Indicators :: PS=62.03, VS=59.90
+2025-12-23 11:19:40 - INFO - Entry Criteria :: RSI=67.56, Candle=bearish, PS=62.03, VS=59.90 @ 2025-12-23 11:14:39 [Trade Regime: Sell] ::
+2025-12-23 11:19:40 - INFO - Checks:
+2025-12-23 11:19:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:13:39, Before: 2025-12-23 11:12:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=55.14 ≤ VS=58.73 → Current: PS=56.51 vs VS=58.89 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:19:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:19:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:13:39, Before: 2025-12-23 11:12:39): FAIL (❌ NO BULLISH CROSSOVER: PS still below VS | Before: PS=55.14 < VS=58.73 → Current: PS=56.51 < VS=58.89 (PS needs to cross UP to VS for CE signal))
+2025-12-23 11:19:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:19:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:19:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:19:45 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹270.75, Lots=1, P&L=₹-33780.00 (-225.20 pts, Source: Kite API)
+2025-12-23 11:19:45 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:20:39 - INFO - Fetched LTP from Kite: ₹26194.05 at 11:20:00
+2025-12-23 11:20:39 - INFO -  ✅ Found candle from API (same window): 2025-12-23 11:15:39 [Window 11:10–11:15] (O:26189.40 H:26196.95 L:26184.65 C:26194.25)
+2025-12-23 11:20:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:20:39 - INFO -  📊 Strategy Analysis - RSI: 62.72, Price: ₹26194.05, Candles: 131
+2025-12-23 11:20:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:20:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26194.05
+2025-12-23 11:20:40 - INFO - 📈 RSI: 62.72
+2025-12-23 11:20:40 - INFO - Indicators :: PS=62.38, VS=60.41
+2025-12-23 11:20:40 - INFO - Entry Criteria :: RSI=62.72, Candle=bullish, PS=62.38, VS=60.41 @ 2025-12-23 11:15:39 [Trade Regime: Sell] ::
+2025-12-23 11:20:40 - INFO - Checks:
+2025-12-23 11:20:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:14:39, Before: 2025-12-23 11:13:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=56.51 ≤ VS=58.89 → Current: PS=62.03 vs VS=59.90 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:20:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:20:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:14:39, Before: 2025-12-23 11:13:39): PASS (✅ BULLISH CROSSOVER DETECTED: PS crossed UP to VS | Before: PS=56.51 < VS=58.89 → Crossover: PS=62.03 ≥ VS=59.90)
+2025-12-23 11:20:40 - INFO -   CE: All entry criteria: PASS (✅ All CE entry criteria met: Bullish crossover (PS↑VS))
+2025-12-23 11:20:40 - INFO -   CE: Time session filter: PASS (Optimal session: 09:30-15:15)
+2025-12-23 11:20:40 - INFO -   CE: ATR volatility filter: PASS (ATR acceptable: 1.05x (range: 0.73-1.50x))
+2025-12-23 11:20:40 - INFO -   CE: RSI extreme filter (Sell PE): PASS (RSI extreme filter disabled)
+2025-12-23 11:20:40 - INFO -   CE: 1-minute PS/VS alignment: PASS (1-min PS=64.26 >= VS=60.93)
+2025-12-23 11:20:40 - INFO -   CE: 1-minute momentum filter: PASS (PS momentum=2.60 >= 0.5 (rising))
+2025-12-23 11:20:40 - INFO -   CE: Divergence check: PASS (No divergence: 5-min diff=1.97, 1-min diff=3.33)
+2025-12-23 11:20:40 - INFO -   CE: Volume confirmation: PASS (Average volume is zero (cannot confirm))
+2025-12-23 11:20:40 - INFO -   CE: Using dynamic thresholds: PASS (Min=2.0%, Max=20.0%)
+2025-12-23 11:20:40 - INFO -   CE: PS/VS difference threshold: PASS (Diff: 3.15% (Range: 2.0%-20.0%, PS: 62.38, VS: 60.41))
+2025-12-23 11:20:40 - INFO - Outcome=SELL_PE (Trade Regime: Sell)
+2025-12-23 11:20:40 - INFO - ✅ SIGNAL GENERATED: SELL_PE (PE) [Trade Regime: Sell] - 
+2025-12-23 11:20:45 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹267.75, Lots=1, P&L=₹-33330.00 (-222.20 pts, Source: Kite API)
+2025-12-23 11:20:45 - INFO -  ✅ SIGNAL GENERATED: SELL_PE (PE) [Trade Regime: Sell] - [SELL] PS crosses UP to VS: Sell PE (price strong, PE loses value) (Crossover PS: 62.03, VS: 59.90)
+2025-12-23 11:20:45 - INFO -  ⚠️ PE position already open in LIVE mode (strike=26000). Skipping new PE entry signal. (Note: CE and PE can be open simultaneously)
+2025-12-23 11:21:39 - INFO - Fetched LTP from Kite: ₹26193.30 at 11:21:00
+2025-12-23 11:21:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:16:39 [Window 11:10–11:15] (Expected: 11:15–11:20) (O:26189.00 H:26196.95 L:26184.65 C:26195.70)
+2025-12-23 11:21:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:21:39 - INFO -  📊 Strategy Analysis - RSI: 64.93, Price: ₹26193.30, Candles: 132
+2025-12-23 11:21:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:21:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26193.30
+2025-12-23 11:21:40 - INFO - 📈 RSI: 64.93
+2025-12-23 11:21:40 - INFO - Indicators :: PS=63.65, VS=61.03
+2025-12-23 11:21:40 - INFO - Entry Criteria :: RSI=64.93, Candle=bullish, PS=63.65, VS=61.03 @ 2025-12-23 11:16:39 [Trade Regime: Sell] ::
+2025-12-23 11:21:40 - INFO - Checks:
+2025-12-23 11:21:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:15:39, Before: 2025-12-23 11:14:39): FAIL (❌ NO BEARISH CROSSOVER: PS still above VS | Before: PS=62.03 > VS=59.90 → Current: PS=62.38 > VS=60.41 (PS needs to cross DOWN to VS for PE signal))
+2025-12-23 11:21:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:21:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:15:39, Before: 2025-12-23 11:14:39): FAIL (❌ NO BULLISH CROSSOVER: PS was already above VS | Before: PS=62.03 ≥ VS=59.90 → Current: PS=62.38 vs VS=60.41 (Bullish crossover requires PS to start below VS and cross up))
+2025-12-23 11:21:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:21:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:21:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:21:45 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹269.75, Lots=1, P&L=₹-33630.00 (-224.20 pts, Source: Kite API)
+2025-12-23 11:21:45 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:22:39 - INFO - Fetched LTP from Kite: ₹26193.65 at 11:22:00
+2025-12-23 11:22:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:17:39 [Window 11:10–11:15] (Expected: 11:15–11:20) (O:26186.25 H:26196.95 L:26184.65 C:26194.00)
+2025-12-23 11:22:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:22:39 - INFO -  📊 Strategy Analysis - RSI: 60.21, Price: ₹26193.65, Candles: 133
+2025-12-23 11:22:39 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:22:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26193.65
+2025-12-23 11:22:40 - INFO - 📈 RSI: 60.21
+2025-12-23 11:22:40 - INFO - Indicators :: PS=61.93, VS=61.18
+2025-12-23 11:22:40 - INFO - Entry Criteria :: RSI=60.21, Candle=bullish, PS=61.93, VS=61.18 @ 2025-12-23 11:17:39 [Trade Regime: Sell] ::
+2025-12-23 11:22:40 - INFO - Checks:
+2025-12-23 11:22:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:16:39, Before: 2025-12-23 11:15:39): FAIL (❌ NO BEARISH CROSSOVER: PS still above VS | Before: PS=62.38 > VS=60.41 → Current: PS=63.65 > VS=61.03 (PS needs to cross DOWN to VS for PE signal))
+2025-12-23 11:22:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:22:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:16:39, Before: 2025-12-23 11:15:39): FAIL (❌ NO BULLISH CROSSOVER: PS was already above VS | Before: PS=62.38 ≥ VS=60.41 → Current: PS=63.65 vs VS=61.03 (Bullish crossover requires PS to start below VS and cross up))
+2025-12-23 11:22:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:22:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:22:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:22:45 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹268.85, Lots=1, P&L=₹-33495.00 (-223.30 pts, Source: Kite API)
+2025-12-23 11:22:45 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:23:39 - INFO - Fetched LTP from Kite: ₹26193.20 at 11:23:00
+2025-12-23 11:23:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:18:39 [Window 11:10–11:15] (Expected: 11:15–11:20) (O:26190.70 H:26196.95 L:26189.50 C:26190.95)
+2025-12-23 11:23:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:23:39 - INFO -  📊 Strategy Analysis - RSI: 52.50, Price: ₹26193.20, Candles: 134
+2025-12-23 11:23:45 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:23:45 - INFO - 📊 Strategy Analysis - Current Price: ₹26193.20
+2025-12-23 11:23:45 - INFO - 📈 RSI: 52.50
+2025-12-23 11:23:45 - INFO - Indicators :: PS=57.22, VS=60.57
+2025-12-23 11:23:45 - INFO - Entry Criteria :: RSI=52.50, Candle=bullish, PS=57.22, VS=60.57 @ 2025-12-23 11:18:39 [Trade Regime: Sell] ::
+2025-12-23 11:23:45 - INFO - Checks:
+2025-12-23 11:23:45 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:17:39, Before: 2025-12-23 11:16:39): FAIL (❌ NO BEARISH CROSSOVER: PS still above VS | Before: PS=63.65 > VS=61.03 → Current: PS=61.93 > VS=61.18 (PS needs to cross DOWN to VS for PE signal))
+2025-12-23 11:23:45 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:23:45 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:17:39, Before: 2025-12-23 11:16:39): FAIL (❌ NO BULLISH CROSSOVER: PS was already above VS | Before: PS=63.65 ≥ VS=61.03 → Current: PS=61.93 vs VS=61.18 (Bullish crossover requires PS to start below VS and cross up))
+2025-12-23 11:23:45 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:23:45 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:23:45 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:23:50 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹269.00, Lots=1, P&L=₹-33517.50 (-223.45 pts, Source: Kite API)
+2025-12-23 11:23:50 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:24:39 - INFO - Fetched LTP from Kite: ₹26194.05 at 11:24:00
+2025-12-23 11:24:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:19:39 [Window 11:10–11:15] (Expected: 11:15–11:20) (O:26195.95 H:26196.55 L:26190.60 C:26194.40)
+2025-12-23 11:24:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:24:39 - INFO -  📊 Strategy Analysis - RSI: 59.16, Price: ₹26194.05, Candles: 135
+2025-12-23 11:24:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:24:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26194.05
+2025-12-23 11:24:40 - INFO - 📈 RSI: 59.16
+2025-12-23 11:24:40 - INFO - Indicators :: PS=58.19, VS=60.57
+2025-12-23 11:24:40 - INFO - Entry Criteria :: RSI=59.16, Candle=bullish, PS=58.19, VS=60.57 @ 2025-12-23 11:19:39 [Trade Regime: Sell] ::
+2025-12-23 11:24:40 - INFO - Checks:
+2025-12-23 11:24:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:18:39, Before: 2025-12-23 11:17:39): PASS (✅ BEARISH CROSSOVER DETECTED: PS crossed DOWN to VS | Before: PS=61.93 > VS=61.18 → Crossover: PS=57.22 ≤ VS=60.57)
+2025-12-23 11:24:40 - INFO -   PE: All entry criteria: PASS (✅ All PE entry criteria met: Bearish crossover (PS↓VS))
+2025-12-23 11:24:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:18:39, Before: 2025-12-23 11:17:39): FAIL (❌ NO BULLISH CROSSOVER: PS was already above VS | Before: PS=61.93 ≥ VS=61.18 → Current: PS=57.22 vs VS=60.57 (Bullish crossover requires PS to start below VS and cross up))
+2025-12-23 11:24:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:24:40 - INFO -   PE: Time session filter: PASS (Optimal session: 09:30-15:15)
+2025-12-23 11:24:40 - INFO -   PE: ATR volatility filter: PASS (ATR acceptable: 0.93x (range: 0.73-1.50x))
+2025-12-23 11:24:40 - INFO -   PE: RSI extreme filter (Sell CE): PASS (RSI extreme filter disabled)
+2025-12-23 11:24:40 - INFO -   PE: 1-minute PS/VS alignment: PASS (1-min PS=62.35 <= VS=63.67)
+2025-12-23 11:24:40 - INFO -   PE: 1-minute momentum filter: PASS (PS momentum=-1.10 <= -0.5 (declining))
+2025-12-23 11:24:40 - INFO -   PE: Divergence check: PASS (No divergence: 5-min diff=-2.38, 1-min diff=-1.32)
+2025-12-23 11:24:40 - INFO -   PE: Volume confirmation: PASS (Average volume is zero (cannot confirm))
+2025-12-23 11:24:40 - INFO -   PE: Using dynamic thresholds: PASS (Min=2.0%, Max=20.0%)
+2025-12-23 11:24:40 - INFO -   PE: PS/VS difference threshold: PASS (Diff: 3.94% (Range: 2.0%-20.0%, PS: 58.19, VS: 60.57))
+2025-12-23 11:24:40 - INFO - Outcome=SELL_CE (Trade Regime: Sell)
+2025-12-23 11:24:40 - INFO - ✅ SIGNAL GENERATED: SELL_CE (CE) [Trade Regime: Sell] - 
+2025-12-23 11:24:45 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹269.35, Lots=1, P&L=₹-33570.00 (-223.80 pts, Source: Kite API)
+2025-12-23 11:24:45 - INFO -  ✅ SIGNAL GENERATED: SELL_CE (CE) [Trade Regime: Sell] - [SELL] PS crosses DOWN to VS: Sell CE (price weak, CE loses value) (Crossover PS: 57.22, VS: 60.57)
+2025-12-23 11:24:45 - INFO -  ⚠️ CE position already open in LIVE mode (strike=26000). Skipping new CE entry signal. (Note: CE and PE can be open simultaneously)
+2025-12-23 11:25:39 - INFO - Fetched LTP from Kite: ₹26194.40 at 11:25:00
+2025-12-23 11:25:39 - INFO -  ✅ Found candle from API (same window): 2025-12-23 11:20:39 [Window 11:15–11:20] (O:26194.15 H:26196.00 L:26190.60 C:26193.55)
+2025-12-23 11:25:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:25:39 - INFO -  📊 Strategy Analysis - RSI: 56.95, Price: ₹26194.40, Candles: 136
+2025-12-23 11:25:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:25:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26194.40
+2025-12-23 11:25:40 - INFO - 📈 RSI: 56.95
+2025-12-23 11:25:40 - INFO - Indicators :: PS=57.57, VS=60.37
+2025-12-23 11:25:40 - INFO - Entry Criteria :: RSI=56.95, Candle=bearish, PS=57.57, VS=60.37 @ 2025-12-23 11:20:39 [Trade Regime: Sell] ::
+2025-12-23 11:25:40 - INFO - Checks:
+2025-12-23 11:25:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:19:39, Before: 2025-12-23 11:18:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=57.22 ≤ VS=60.57 → Current: PS=58.19 vs VS=60.57 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:25:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:25:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:19:39, Before: 2025-12-23 11:18:39): FAIL (❌ NO BULLISH CROSSOVER: PS still below VS | Before: PS=57.22 < VS=60.57 → Current: PS=58.19 < VS=60.57 (PS needs to cross UP to VS for CE signal))
+2025-12-23 11:25:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:25:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:25:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:25:47 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹269.00, Lots=1, P&L=₹-33517.50 (-223.45 pts, Source: Kite API)
+2025-12-23 11:25:47 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:26:39 - INFO - Fetched LTP from Kite: ₹26193.45 at 11:26:00
+2025-12-23 11:26:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:21:39 [Window 11:15–11:20] (Expected: 11:20–11:25) (O:26193.15 H:26196.25 L:26190.60 C:26193.60)
+2025-12-23 11:26:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:26:39 - INFO -  📊 Strategy Analysis - RSI: 57.05, Price: ₹26193.45, Candles: 137
+2025-12-23 11:26:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:26:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26193.45
+2025-12-23 11:26:40 - INFO - 📈 RSI: 57.05
+2025-12-23 11:26:40 - INFO - Indicators :: PS=57.31, VS=60.14
+2025-12-23 11:26:40 - INFO - Entry Criteria :: RSI=57.05, Candle=bearish, PS=57.31, VS=60.14 @ 2025-12-23 11:21:39 [Trade Regime: Sell] ::
+2025-12-23 11:26:40 - INFO - Checks:
+2025-12-23 11:26:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:20:39, Before: 2025-12-23 11:19:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=58.19 ≤ VS=60.57 → Current: PS=57.57 vs VS=60.37 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:26:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:26:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:20:39, Before: 2025-12-23 11:19:39): FAIL (❌ NO BULLISH CROSSOVER: PS still below VS | Before: PS=58.19 < VS=60.57 → Current: PS=57.57 < VS=60.37 (PS needs to cross UP to VS for CE signal))
+2025-12-23 11:26:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:26:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:26:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:26:45 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹267.60, Lots=1, P&L=₹-33307.50 (-222.05 pts, Source: Kite API)
+2025-12-23 11:26:45 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:27:39 - INFO - Fetched LTP from Kite: ₹26190.95 at 11:27:00
+2025-12-23 11:27:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:22:39 [Window 11:15–11:20] (Expected: 11:20–11:25) (O:26193.35 H:26196.25 L:26190.45 C:26190.50)
+2025-12-23 11:27:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:27:39 - INFO -  📊 Strategy Analysis - RSI: 48.68, Price: ₹26190.95, Candles: 138
+2025-12-23 11:27:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:27:41 - INFO - 📊 Strategy Analysis - Current Price: ₹26190.95
+2025-12-23 11:27:41 - INFO - 📈 RSI: 48.68
+2025-12-23 11:27:41 - INFO - Indicators :: PS=52.99, VS=59.08
+2025-12-23 11:27:41 - INFO - Entry Criteria :: RSI=48.68, Candle=bullish, PS=52.99, VS=59.08 @ 2025-12-23 11:22:39 [Trade Regime: Sell] ::
+2025-12-23 11:27:41 - INFO - Checks:
+2025-12-23 11:27:41 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:21:39, Before: 2025-12-23 11:20:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=57.57 ≤ VS=60.37 → Current: PS=57.31 vs VS=60.14 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:27:41 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:27:41 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:21:39, Before: 2025-12-23 11:20:39): FAIL (❌ NO BULLISH CROSSOVER: PS still below VS | Before: PS=57.57 < VS=60.37 → Current: PS=57.31 < VS=60.14 (PS needs to cross UP to VS for CE signal))
+2025-12-23 11:27:41 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:27:41 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:27:41 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:27:51 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹266.10, Lots=1, P&L=₹-33082.50 (-220.55 pts, Source: Kite API)
+2025-12-23 11:27:51 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:28:39 - INFO - Fetched LTP from Kite: ₹26190.15 at 11:28:00
+2025-12-23 11:28:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:23:39 [Window 11:15–11:20] (Expected: 11:20–11:25) (O:26193.10 H:26196.25 L:26189.50 C:26190.60)
+2025-12-23 11:28:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:28:39 - INFO -  📊 Strategy Analysis - RSI: 48.95, Price: ₹26190.15, Candles: 139
+2025-12-23 11:28:47 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:28:47 - INFO - 📊 Strategy Analysis - Current Price: ₹26190.15
+2025-12-23 11:28:47 - INFO - 📈 RSI: 48.95
+2025-12-23 11:28:47 - INFO - Indicators :: PS=50.97, VS=58.05
+2025-12-23 11:28:47 - INFO - Entry Criteria :: RSI=48.95, Candle=bearish, PS=50.97, VS=58.05 @ 2025-12-23 11:23:39 [Trade Regime: Sell] ::
+2025-12-23 11:28:47 - INFO - Checks:
+2025-12-23 11:28:47 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:22:39, Before: 2025-12-23 11:21:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=57.31 ≤ VS=60.14 → Current: PS=52.99 vs VS=59.08 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:28:47 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:28:47 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:22:39, Before: 2025-12-23 11:21:39): FAIL (❌ NO BULLISH CROSSOVER: PS still below VS | Before: PS=57.31 < VS=60.14 → Current: PS=52.99 < VS=59.08 (PS needs to cross UP to VS for CE signal))
+2025-12-23 11:28:47 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:28:47 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:28:47 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:28:55 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹264.65, Lots=1, P&L=₹-32865.00 (-219.10 pts, Source: Kite API)
+2025-12-23 11:28:55 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:29:39 - INFO - Fetched LTP from Kite: ₹26189.95 at 11:29:00
+2025-12-23 11:29:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:24:39 [Window 11:15–11:20] (Expected: 11:20–11:25) (O:26192.60 H:26196.25 L:26185.80 C:26188.50)
+2025-12-23 11:29:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:29:39 - INFO -  📊 Strategy Analysis - RSI: 43.50, Price: ₹26189.95, Candles: 140
+2025-12-23 11:29:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:29:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26189.95
+2025-12-23 11:29:40 - INFO - 📈 RSI: 43.50
+2025-12-23 11:29:40 - INFO - Indicators :: PS=47.24, VS=56.53
+2025-12-23 11:29:40 - INFO - Entry Criteria :: RSI=43.50, Candle=bearish, PS=47.24, VS=56.53 @ 2025-12-23 11:24:39 [Trade Regime: Sell] ::
+2025-12-23 11:29:40 - INFO - Checks:
+2025-12-23 11:29:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:23:39, Before: 2025-12-23 11:22:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=52.99 ≤ VS=59.08 → Current: PS=50.97 vs VS=58.05 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:29:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:29:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:23:39, Before: 2025-12-23 11:22:39): FAIL (❌ NO BULLISH CROSSOVER: PS still below VS | Before: PS=52.99 < VS=59.08 → Current: PS=50.97 < VS=58.05 (PS needs to cross UP to VS for CE signal))
+2025-12-23 11:29:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:29:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:29:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:29:50 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹265.60, Lots=1, P&L=₹-33007.50 (-220.05 pts, Source: Kite API)
+2025-12-23 11:29:50 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:30:39 - INFO - Fetched LTP from Kite: ₹26186.85 at 11:30:00
+2025-12-23 11:30:39 - INFO -  ✅ Found candle from API (same window): 2025-12-23 11:25:39 [Window 11:20–11:25] (O:26194.20 H:26196.25 L:26185.80 C:26186.55)
+2025-12-23 11:30:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:30:39 - INFO -  📊 Strategy Analysis - RSI: 38.97, Price: ₹26186.85, Candles: 141
+2025-12-23 11:30:41 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:30:42 - INFO - 📊 Strategy Analysis - Current Price: ₹26186.85
+2025-12-23 11:30:42 - INFO - 📈 RSI: 38.97
+2025-12-23 11:30:42 - INFO - Indicators :: PS=43.10, VS=54.67
+2025-12-23 11:30:42 - INFO - Entry Criteria :: RSI=38.97, Candle=bearish, PS=43.10, VS=54.67 @ 2025-12-23 11:25:39 [Trade Regime: Sell] ::
+2025-12-23 11:30:42 - INFO - Checks:
+2025-12-23 11:30:42 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:24:39, Before: 2025-12-23 11:23:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=50.97 ≤ VS=58.05 → Current: PS=47.24 vs VS=56.53 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:30:42 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:30:42 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:24:39, Before: 2025-12-23 11:23:39): FAIL (❌ NO BULLISH CROSSOVER: PS still below VS | Before: PS=50.97 < VS=58.05 → Current: PS=47.24 < VS=56.53 (PS needs to cross UP to VS for CE signal))
+2025-12-23 11:30:42 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:30:42 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:30:42 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:30:57 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹266.00, Lots=1, P&L=₹-33067.50 (-220.45 pts, Source: Kite API)
+2025-12-23 11:30:57 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:31:39 - INFO - Fetched LTP from Kite: ₹26188.25 at 11:31:00
+2025-12-23 11:31:40 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:26:39 [Window 11:20–11:25] (Expected: 11:25–11:30) (O:26193.10 H:26194.25 L:26185.80 C:26187.50)
+2025-12-23 11:31:40 - INFO -  Saved 10 new candles to database
+2025-12-23 11:31:40 - INFO -  📊 Strategy Analysis - RSI: 42.27, Price: ₹26188.25, Candles: 142
+2025-12-23 11:31:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:31:41 - INFO - 📊 Strategy Analysis - Current Price: ₹26188.25
+2025-12-23 11:31:41 - INFO - 📈 RSI: 42.27
+2025-12-23 11:31:41 - INFO - Indicators :: PS=42.68, VS=53.19
+2025-12-23 11:31:41 - INFO - Entry Criteria :: RSI=42.27, Candle=bearish, PS=42.68, VS=53.19 @ 2025-12-23 11:26:39 [Trade Regime: Sell] ::
+2025-12-23 11:31:41 - INFO - Checks:
+2025-12-23 11:31:41 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:25:39, Before: 2025-12-23 11:24:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=47.24 ≤ VS=56.53 → Current: PS=43.10 vs VS=54.67 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:31:41 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:31:41 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:25:39, Before: 2025-12-23 11:24:39): FAIL (❌ NO BULLISH CROSSOVER: PS still below VS | Before: PS=47.24 < VS=56.53 → Current: PS=43.10 < VS=54.67 (PS needs to cross UP to VS for CE signal))
+2025-12-23 11:31:41 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:31:41 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:31:41 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:32:00 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹264.55, Lots=1, P&L=₹-32850.00 (-219.00 pts, Source: Kite API)
+2025-12-23 11:32:00 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:32:39 - INFO - Fetched LTP from Kite: ₹26183.75 at 11:32:00
+2025-12-23 11:32:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:27:39 [Window 11:20–11:25] (Expected: 11:25–11:30) (O:26191.30 H:26192.80 L:26183.40 C:26184.40)
+2025-12-23 11:32:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:32:39 - INFO -  📊 Strategy Analysis - RSI: 35.27, Price: ₹26183.75, Candles: 143
+2025-12-23 11:32:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:32:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26183.75
+2025-12-23 11:32:40 - INFO - 📈 RSI: 35.27
+2025-12-23 11:32:40 - INFO - Indicators :: PS=38.98, VS=51.19
+2025-12-23 11:32:40 - INFO - Entry Criteria :: RSI=35.27, Candle=bearish, PS=38.98, VS=51.19 @ 2025-12-23 11:27:39 [Trade Regime: Sell] ::
+2025-12-23 11:32:40 - INFO - Checks:
+2025-12-23 11:32:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:26:39, Before: 2025-12-23 11:25:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=43.10 ≤ VS=54.67 → Current: PS=42.68 vs VS=53.19 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:32:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:32:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:26:39, Before: 2025-12-23 11:25:39): FAIL (❌ NO BULLISH CROSSOVER: PS still below VS | Before: PS=43.10 < VS=54.67 → Current: PS=42.68 < VS=53.19 (PS needs to cross UP to VS for CE signal))
+2025-12-23 11:32:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:32:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:32:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:32:46 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹263.20, Lots=1, P&L=₹-32647.50 (-217.65 pts, Source: Kite API)
+2025-12-23 11:32:46 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:33:39 - INFO - Fetched LTP from Kite: ₹26183.90 at 11:33:00
+2025-12-23 11:33:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:28:39 [Window 11:20–11:25] (Expected: 11:25–11:30) (O:26189.65 H:26192.30 L:26182.00 C:26183.25)
+2025-12-23 11:33:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:33:39 - INFO -  📊 Strategy Analysis - RSI: 33.00, Price: ₹26183.90, Candles: 144
+2025-12-23 11:33:47 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:33:47 - INFO - 📊 Strategy Analysis - Current Price: ₹26183.90
+2025-12-23 11:33:47 - INFO - 📈 RSI: 33.00
+2025-12-23 11:33:47 - INFO - Indicators :: PS=35.99, VS=49.13
+2025-12-23 11:33:47 - INFO - Entry Criteria :: RSI=33.00, Candle=bearish, PS=35.99, VS=49.13 @ 2025-12-23 11:28:39 [Trade Regime: Sell] ::
+2025-12-23 11:33:47 - INFO - Checks:
+2025-12-23 11:33:47 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:27:39, Before: 2025-12-23 11:26:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=42.68 ≤ VS=53.19 → Current: PS=38.98 vs VS=51.19 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:33:47 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:33:47 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:27:39, Before: 2025-12-23 11:26:39): FAIL (❌ NO BULLISH CROSSOVER: PS still below VS | Before: PS=42.68 < VS=53.19 → Current: PS=38.98 < VS=51.19 (PS needs to cross UP to VS for CE signal))
+2025-12-23 11:33:47 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:33:47 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:33:47 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:33:53 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹263.00, Lots=1, P&L=₹-32617.50 (-217.45 pts, Source: Kite API)
+2025-12-23 11:33:53 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:34:39 - INFO - Fetched LTP from Kite: ₹26180.20 at 11:34:00
+2025-12-23 11:34:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:29:39 [Window 11:20–11:25] (Expected: 11:25–11:30) (O:26189.60 H:26192.30 L:26180.95 C:26181.60)
+2025-12-23 11:34:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:34:39 - INFO -  📊 Strategy Analysis - RSI: 29.88, Price: ₹26180.20, Candles: 145
+2025-12-23 11:34:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:34:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26180.20
+2025-12-23 11:34:40 - INFO - 📈 RSI: 29.88
+2025-12-23 11:34:40 - INFO - Indicators :: PS=32.93, VS=46.96
+2025-12-23 11:34:40 - INFO - Entry Criteria :: RSI=29.88, Candle=bearish, PS=32.93, VS=46.96 @ 2025-12-23 11:29:39 [Trade Regime: Sell] ::
+2025-12-23 11:34:40 - INFO - Checks:
+2025-12-23 11:34:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:28:39, Before: 2025-12-23 11:27:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=38.98 ≤ VS=51.19 → Current: PS=35.99 vs VS=49.13 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:34:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:34:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:28:39, Before: 2025-12-23 11:27:39): FAIL (❌ NO BULLISH CROSSOVER: PS still below VS | Before: PS=38.98 < VS=51.19 → Current: PS=35.99 < VS=49.13 (PS needs to cross UP to VS for CE signal))
+2025-12-23 11:34:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:34:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:34:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:34:47 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹262.35, Lots=1, P&L=₹-32520.00 (-216.80 pts, Source: Kite API)
+2025-12-23 11:34:47 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:35:39 - INFO - Fetched LTP from Kite: ₹26178.30 at 11:35:00
+2025-12-23 11:35:39 - INFO -  ✅ Found candle from API (same window): 2025-12-23 11:30:39 [Window 11:25–11:30] (O:26187.00 H:26188.95 L:26178.40 C:26178.75)
+2025-12-23 11:35:40 - INFO -  Saved 10 new candles to database
+2025-12-23 11:35:40 - INFO -  📊 Strategy Analysis - RSI: 25.25, Price: ₹26178.30, Candles: 146
+2025-12-23 11:35:42 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:35:44 - INFO - 📊 Strategy Analysis - Current Price: ₹26178.30
+2025-12-23 11:35:44 - INFO - 📈 RSI: 25.25
+2025-12-23 11:35:44 - INFO - Indicators :: PS=29.09, VS=44.52
+2025-12-23 11:35:44 - INFO - Entry Criteria :: RSI=25.25, Candle=bearish, PS=29.09, VS=44.52 @ 2025-12-23 11:30:39 [Trade Regime: Sell] ::
+2025-12-23 11:35:44 - INFO - Checks:
+2025-12-23 11:35:44 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:29:39, Before: 2025-12-23 11:28:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=35.99 ≤ VS=49.13 → Current: PS=32.93 vs VS=46.96 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:35:44 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:35:44 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:29:39, Before: 2025-12-23 11:28:39): FAIL (❌ NO BULLISH CROSSOVER: PS still below VS | Before: PS=35.99 < VS=49.13 → Current: PS=32.93 < VS=46.96 (PS needs to cross UP to VS for CE signal))
+2025-12-23 11:35:44 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:35:45 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:35:45 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:36:20 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹253.75, Lots=1, P&L=₹-31230.00 (-208.20 pts, Source: Kite API)
+2025-12-23 11:36:20 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:36:39 - INFO - Fetched LTP from Kite: ₹26173.35 at 11:36:00
+2025-12-23 11:36:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:31:39 [Window 11:25–11:30] (Expected: 11:30–11:35) (O:26187.35 H:26188.15 L:26168.35 C:26172.60)
+2025-12-23 11:36:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:36:39 - INFO -  📊 Strategy Analysis - RSI: 18.35, Price: ₹26173.35, Candles: 147
+2025-12-23 11:36:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:36:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26173.35
+2025-12-23 11:36:40 - INFO - 📈 RSI: 18.35
+2025-12-23 11:36:40 - INFO - Indicators :: PS=23.72, VS=41.63
+2025-12-23 11:36:40 - INFO - Entry Criteria :: RSI=18.35, Candle=bearish, PS=23.72, VS=41.63 @ 2025-12-23 11:31:39 [Trade Regime: Sell] ::
+2025-12-23 11:36:40 - INFO - Checks:
+2025-12-23 11:36:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:30:39, Before: 2025-12-23 11:29:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=32.93 ≤ VS=46.96 → Current: PS=29.09 vs VS=44.52 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:36:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:36:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:30:39, Before: 2025-12-23 11:29:39): FAIL (❌ NO BULLISH CROSSOVER: PS still below VS | Before: PS=32.93 < VS=46.96 → Current: PS=29.09 < VS=44.52 (PS needs to cross UP to VS for CE signal))
+2025-12-23 11:36:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:36:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:36:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:36:50 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹256.70, Lots=1, P&L=₹-31672.50 (-211.15 pts, Source: Kite API)
+2025-12-23 11:36:50 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:37:39 - INFO - Fetched LTP from Kite: ₹26175.15 at 11:37:00
+2025-12-23 11:37:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:32:39 [Window 11:25–11:30] (Expected: 11:30–11:35) (O:26184.05 H:26186.40 L:26168.35 C:26175.95)
+2025-12-23 11:37:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:37:39 - INFO -  📊 Strategy Analysis - RSI: 30.06, Price: ₹26175.15, Candles: 148
+2025-12-23 11:37:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:37:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26175.15
+2025-12-23 11:37:40 - INFO - 📈 RSI: 30.06
+2025-12-23 11:37:40 - INFO - Indicators :: PS=26.89, VS=39.99
+2025-12-23 11:37:40 - INFO - Entry Criteria :: RSI=30.06, Candle=bearish, PS=26.89, VS=39.99 @ 2025-12-23 11:32:39 [Trade Regime: Sell] ::
+2025-12-23 11:37:40 - INFO - Checks:
+2025-12-23 11:37:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:31:39, Before: 2025-12-23 11:30:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=29.09 ≤ VS=44.52 → Current: PS=23.72 vs VS=41.63 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:37:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:37:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:31:39, Before: 2025-12-23 11:30:39): FAIL (❌ NO BULLISH CROSSOVER: PS still below VS | Before: PS=29.09 < VS=44.52 → Current: PS=23.72 < VS=41.63 (PS needs to cross UP to VS for CE signal))
+2025-12-23 11:37:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:37:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:37:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:37:48 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹257.55, Lots=1, P&L=₹-31800.00 (-212.00 pts, Source: Kite API)
+2025-12-23 11:37:48 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:38:39 - INFO - Fetched LTP from Kite: ₹26172.15 at 11:38:00
+2025-12-23 11:38:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:33:39 [Window 11:25–11:30] (Expected: 11:30–11:35) (O:26183.55 H:26184.60 L:26168.35 C:26172.35)
+2025-12-23 11:38:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:38:39 - INFO -  📊 Strategy Analysis - RSI: 25.62, Price: ₹26172.15, Candles: 149
+2025-12-23 11:38:50 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:38:50 - INFO - 📊 Strategy Analysis - Current Price: ₹26172.15
+2025-12-23 11:38:50 - INFO - 📈 RSI: 25.62
+2025-12-23 11:38:50 - INFO - Indicators :: PS=26.25, VS=38.06
+2025-12-23 11:38:51 - INFO - Entry Criteria :: RSI=25.62, Candle=bearish, PS=26.25, VS=38.06 @ 2025-12-23 11:33:39 [Trade Regime: Sell] ::
+2025-12-23 11:38:51 - INFO - Checks:
+2025-12-23 11:38:51 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:32:39, Before: 2025-12-23 11:31:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=23.72 ≤ VS=41.63 → Current: PS=26.89 vs VS=39.99 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:38:51 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:38:51 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:32:39, Before: 2025-12-23 11:31:39): FAIL (❌ NO BULLISH CROSSOVER: PS still below VS | Before: PS=23.72 < VS=41.63 → Current: PS=26.89 < VS=39.99 (PS needs to cross UP to VS for CE signal))
+2025-12-23 11:38:51 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:38:51 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:38:51 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:38:58 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹254.50, Lots=1, P&L=₹-31342.50 (-208.95 pts, Source: Kite API)
+2025-12-23 11:38:58 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:39:39 - INFO - Fetched LTP from Kite: ₹26171.45 at 11:39:00
+2025-12-23 11:39:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:34:39 [Window 11:25–11:30] (Expected: 11:30–11:35) (O:26181.15 H:26184.20 L:26168.35 C:26171.65)
+2025-12-23 11:39:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:39:39 - INFO -  📊 Strategy Analysis - RSI: 24.82, Price: ₹26171.45, Candles: 150
+2025-12-23 11:39:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:39:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26171.45
+2025-12-23 11:39:40 - INFO - 📈 RSI: 24.82
+2025-12-23 11:39:40 - INFO - Indicators :: PS=25.54, VS=36.17
+2025-12-23 11:39:40 - INFO - Entry Criteria :: RSI=24.82, Candle=bearish, PS=25.54, VS=36.17 @ 2025-12-23 11:34:39 [Trade Regime: Sell] ::
+2025-12-23 11:39:40 - INFO - Checks:
+2025-12-23 11:39:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:33:39, Before: 2025-12-23 11:32:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=26.89 ≤ VS=39.99 → Current: PS=26.25 vs VS=38.06 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:39:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:39:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:33:39, Before: 2025-12-23 11:32:39): FAIL (❌ NO BULLISH CROSSOVER: PS still below VS | Before: PS=26.89 < VS=39.99 → Current: PS=26.25 < VS=38.06 (PS needs to cross UP to VS for CE signal))
+2025-12-23 11:39:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:39:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:39:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:39:46 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹255.80, Lots=1, P&L=₹-31537.50 (-210.25 pts, Source: Kite API)
+2025-12-23 11:39:46 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:40:39 - INFO - Fetched LTP from Kite: ₹26169.20 at 11:40:00
+2025-12-23 11:40:39 - INFO -  ✅ Found candle from API (same window): 2025-12-23 11:35:39 [Window 11:30–11:35] (O:26178.05 H:26179.75 L:26168.35 C:26169.25)
+2025-12-23 11:40:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:40:39 - INFO -  📊 Strategy Analysis - RSI: 22.14, Price: ₹26169.20, Candles: 151
+2025-12-23 11:40:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:40:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26169.20
+2025-12-23 11:40:40 - INFO - 📈 RSI: 22.14
+2025-12-23 11:40:40 - INFO - Indicators :: PS=23.84, VS=34.18
+2025-12-23 11:40:40 - INFO - Entry Criteria :: RSI=22.14, Candle=bearish, PS=23.84, VS=34.18 @ 2025-12-23 11:35:39 [Trade Regime: Sell] ::
+2025-12-23 11:40:40 - INFO - Checks:
+2025-12-23 11:40:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:34:39, Before: 2025-12-23 11:33:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=26.25 ≤ VS=38.06 → Current: PS=25.54 vs VS=36.17 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:40:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:40:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:34:39, Before: 2025-12-23 11:33:39): FAIL (❌ NO BULLISH CROSSOVER: PS still below VS | Before: PS=26.25 < VS=38.06 → Current: PS=25.54 < VS=36.17 (PS needs to cross UP to VS for CE signal))
+2025-12-23 11:40:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:40:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:40:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:40:52 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹252.00, Lots=1, P&L=₹-30967.50 (-206.45 pts, Source: Kite API)
+2025-12-23 11:40:52 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:41:39 - INFO - Fetched LTP from Kite: ₹26168.80 at 11:41:00
+2025-12-23 11:41:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:36:39 [Window 11:30–11:35] (Expected: 11:35–11:40) (O:26173.15 H:26178.15 L:26168.10 C:26169.25)
+2025-12-23 11:41:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:41:39 - INFO -  📊 Strategy Analysis - RSI: 22.14, Price: ₹26168.80, Candles: 152
+2025-12-23 11:41:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:41:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26168.80
+2025-12-23 11:41:40 - INFO - 📈 RSI: 22.14
+2025-12-23 11:41:40 - INFO - Indicators :: PS=22.99, VS=32.38
+2025-12-23 11:41:40 - INFO - Entry Criteria :: RSI=22.14, Candle=bearish, PS=22.99, VS=32.38 @ 2025-12-23 11:36:39 [Trade Regime: Sell] ::
+2025-12-23 11:41:40 - INFO - Checks:
+2025-12-23 11:41:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:35:39, Before: 2025-12-23 11:34:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=25.54 ≤ VS=36.17 → Current: PS=23.84 vs VS=34.18 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:41:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:41:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:35:39, Before: 2025-12-23 11:34:39): FAIL (❌ NO BULLISH CROSSOVER: PS still below VS | Before: PS=25.54 < VS=36.17 → Current: PS=23.84 < VS=34.18 (PS needs to cross UP to VS for CE signal))
+2025-12-23 11:41:41 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:41:41 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:41:41 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:41:50 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹252.45, Lots=1, P&L=₹-31035.00 (-206.90 pts, Source: Kite API)
+2025-12-23 11:41:50 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:42:39 - INFO - Fetched LTP from Kite: ₹26168.75 at 11:42:00
+2025-12-23 11:42:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:37:39 [Window 11:30–11:35] (Expected: 11:35–11:40) (O:26174.95 H:26178.15 L:26167.85 C:26169.05)
+2025-12-23 11:42:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:42:39 - INFO -  📊 Strategy Analysis - RSI: 21.89, Price: ₹26168.75, Candles: 153
+2025-12-23 11:42:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:42:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26168.75
+2025-12-23 11:42:40 - INFO - 📈 RSI: 21.89
+2025-12-23 11:42:40 - INFO - Indicators :: PS=22.44, VS=30.73
+2025-12-23 11:42:40 - INFO - Entry Criteria :: RSI=21.89, Candle=bearish, PS=22.44, VS=30.73 @ 2025-12-23 11:37:39 [Trade Regime: Sell] ::
+2025-12-23 11:42:40 - INFO - Checks:
+2025-12-23 11:42:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:36:39, Before: 2025-12-23 11:35:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=23.84 ≤ VS=34.18 → Current: PS=22.99 vs VS=32.38 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:42:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:42:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:36:39, Before: 2025-12-23 11:35:39): FAIL (❌ NO BULLISH CROSSOVER: PS still below VS | Before: PS=23.84 < VS=34.18 → Current: PS=22.99 < VS=32.38 (PS needs to cross UP to VS for CE signal))
+2025-12-23 11:42:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:42:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:42:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:42:48 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹252.80, Lots=1, P&L=₹-31087.50 (-207.25 pts, Source: Kite API)
+2025-12-23 11:42:48 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:43:39 - INFO - Fetched LTP from Kite: ₹26173.30 at 11:43:00
+2025-12-23 11:43:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:38:39 [Window 11:30–11:35] (Expected: 11:35–11:40) (O:26171.70 H:26175.05 L:26166.80 C:26172.95)
+2025-12-23 11:43:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:43:39 - INFO -  📊 Strategy Analysis - RSI: 37.34, Price: ₹26173.30, Candles: 154
+2025-12-23 11:43:48 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:43:48 - INFO - 📊 Strategy Analysis - Current Price: ₹26173.30
+2025-12-23 11:43:48 - INFO - 📈 RSI: 37.34
+2025-12-23 11:43:48 - INFO - Indicators :: PS=29.89, VS=30.68
+2025-12-23 11:43:48 - INFO - Entry Criteria :: RSI=37.34, Candle=bearish, PS=29.89, VS=30.68 @ 2025-12-23 11:38:39 [Trade Regime: Sell] ::
+2025-12-23 11:43:48 - INFO - Checks:
+2025-12-23 11:43:48 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:37:39, Before: 2025-12-23 11:36:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=22.99 ≤ VS=32.38 → Current: PS=22.44 vs VS=30.73 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:43:48 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:43:48 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:37:39, Before: 2025-12-23 11:36:39): FAIL (❌ NO BULLISH CROSSOVER: PS still below VS | Before: PS=22.99 < VS=32.38 → Current: PS=22.44 < VS=30.73 (PS needs to cross UP to VS for CE signal))
+2025-12-23 11:43:48 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:43:48 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:43:48 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:43:54 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹254.50, Lots=1, P&L=₹-31342.50 (-208.95 pts, Source: Kite API)
+2025-12-23 11:43:54 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:44:39 - INFO - Fetched LTP from Kite: ₹26169.00 at 11:44:00
+2025-12-23 11:44:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:39:39 [Window 11:30–11:35] (Expected: 11:35–11:40) (O:26171.95 H:26175.05 L:26166.80 C:26167.65)
+2025-12-23 11:44:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:44:39 - INFO -  📊 Strategy Analysis - RSI: 28.67, Price: ₹26169.00, Candles: 155
+2025-12-23 11:44:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:44:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26169.00
+2025-12-23 11:44:40 - INFO - 📈 RSI: 28.67
+2025-12-23 11:44:40 - INFO - Indicators :: PS=29.28, VS=29.94
+2025-12-23 11:44:40 - INFO - Entry Criteria :: RSI=28.67, Candle=bullish, PS=29.28, VS=29.94 @ 2025-12-23 11:39:39 [Trade Regime: Sell] ::
+2025-12-23 11:44:40 - INFO - Checks:
+2025-12-23 11:44:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:38:39, Before: 2025-12-23 11:37:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=22.44 ≤ VS=30.73 → Current: PS=29.89 vs VS=30.68 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:44:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:44:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:38:39, Before: 2025-12-23 11:37:39): FAIL (❌ NO BULLISH CROSSOVER: PS still below VS | Before: PS=22.44 < VS=30.73 → Current: PS=29.89 < VS=30.68 (PS needs to cross UP to VS for CE signal))
+2025-12-23 11:44:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:44:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:44:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:44:46 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹251.00, Lots=1, P&L=₹-30817.50 (-205.45 pts, Source: Kite API)
+2025-12-23 11:44:46 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:45:39 - INFO - Fetched LTP from Kite: ₹26168.70 at 11:45:00
+2025-12-23 11:45:39 - INFO -  ✅ Found candle from API (same window): 2025-12-23 11:40:39 [Window 11:35–11:40] (O:26168.65 H:26175.05 L:26166.80 C:26168.80)
+2025-12-23 11:45:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:45:39 - INFO -  📊 Strategy Analysis - RSI: 32.50, Price: ₹26168.70, Candles: 156
+2025-12-23 11:45:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:45:41 - INFO - 📊 Strategy Analysis - Current Price: ₹26168.70
+2025-12-23 11:45:41 - INFO - 📈 RSI: 32.50
+2025-12-23 11:45:41 - INFO - Indicators :: PS=30.89, VS=29.64
+2025-12-23 11:45:41 - INFO - Entry Criteria :: RSI=32.50, Candle=bearish, PS=30.89, VS=29.64 @ 2025-12-23 11:40:39 [Trade Regime: Sell] ::
+2025-12-23 11:45:41 - INFO - Checks:
+2025-12-23 11:45:41 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:39:39, Before: 2025-12-23 11:38:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=29.89 ≤ VS=30.68 → Current: PS=29.28 vs VS=29.94 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:45:41 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:45:41 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:39:39, Before: 2025-12-23 11:38:39): FAIL (❌ NO BULLISH CROSSOVER: PS still below VS | Before: PS=29.89 < VS=30.68 → Current: PS=29.28 < VS=29.94 (PS needs to cross UP to VS for CE signal))
+2025-12-23 11:45:41 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:45:41 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:45:41 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:45:56 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹252.80, Lots=1, P&L=₹-31087.50 (-207.25 pts, Source: Kite API)
+2025-12-23 11:45:56 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:46:39 - INFO - Fetched LTP from Kite: ₹26163.80 at 11:46:00
+2025-12-23 11:46:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:41:39 [Window 11:35–11:40] (Expected: 11:40–11:45) (O:26167.85 H:26175.05 L:26161.95 C:26162.35)
+2025-12-23 11:46:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:46:39 - INFO -  📊 Strategy Analysis - RSI: 24.28, Price: ₹26163.80, Candles: 157
+2025-12-23 11:46:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:46:41 - INFO - 📊 Strategy Analysis - Current Price: ₹26163.80
+2025-12-23 11:46:41 - INFO - 📈 RSI: 24.28
+2025-12-23 11:46:41 - INFO - Indicators :: PS=27.59, VS=28.72
+2025-12-23 11:46:41 - INFO - Entry Criteria :: RSI=24.28, Candle=bullish, PS=27.59, VS=28.72 @ 2025-12-23 11:41:39 [Trade Regime: Sell] ::
+2025-12-23 11:46:41 - INFO - Checks:
+2025-12-23 11:46:41 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:40:39, Before: 2025-12-23 11:39:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=29.28 ≤ VS=29.94 → Current: PS=30.89 vs VS=29.64 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:46:41 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:46:41 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:40:39, Before: 2025-12-23 11:39:39): PASS (✅ BULLISH CROSSOVER DETECTED: PS crossed UP to VS | Before: PS=29.28 < VS=29.94 → Crossover: PS=30.89 ≥ VS=29.64)
+2025-12-23 11:46:41 - INFO -   CE: All entry criteria: PASS (✅ All CE entry criteria met: Bullish crossover (PS↑VS))
+2025-12-23 11:46:41 - INFO -   CE: Time session filter: PASS (Optimal session: 09:30-15:15)
+2025-12-23 11:46:41 - INFO -   CE: ATR volatility filter: PASS (ATR acceptable: 1.21x (range: 0.73-1.50x))
+2025-12-23 11:46:41 - INFO -   CE: RSI extreme filter (Sell PE): PASS (RSI extreme filter disabled)
+2025-12-23 11:46:41 - INFO -   CE: 1-minute PS/VS alignment: PASS (1-min PS=23.30 >= VS=22.92)
+2025-12-23 11:46:41 - INFO -   CE: 1-minute momentum filter: FAIL (PS momentum=-0.96 < 0.5 (rising))
+2025-12-23 11:46:41 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:46:41 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:46:55 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹251.15, Lots=1, P&L=₹-30840.00 (-205.60 pts, Source: Kite API)
+2025-12-23 11:46:55 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - Momentum filter failed: PS momentum=-0.96 < 0.5 (rising)
+2025-12-23 11:47:39 - INFO - Fetched LTP from Kite: ₹26166.10 at 11:47:00
+2025-12-23 11:47:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:42:39 [Window 11:35–11:40] (Expected: 11:40–11:45) (O:26169.25 H:26175.05 L:26161.95 C:26165.75)
+2025-12-23 11:47:40 - INFO -  Saved 10 new candles to database
+2025-12-23 11:47:40 - INFO -  📊 Strategy Analysis - RSI: 34.15, Price: ₹26166.10, Candles: 158
+2025-12-23 11:47:41 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:47:42 - INFO - 📊 Strategy Analysis - Current Price: ₹26166.10
+2025-12-23 11:47:42 - INFO - 📈 RSI: 34.15
+2025-12-23 11:47:42 - INFO - Indicators :: PS=30.87, VS=28.84
+2025-12-23 11:47:42 - INFO - Entry Criteria :: RSI=34.15, Candle=bearish, PS=30.87, VS=28.84 @ 2025-12-23 11:42:39 [Trade Regime: Sell] ::
+2025-12-23 11:47:42 - INFO - Checks:
+2025-12-23 11:47:42 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:41:39, Before: 2025-12-23 11:40:39): PASS (✅ BEARISH CROSSOVER DETECTED: PS crossed DOWN to VS | Before: PS=30.89 > VS=29.64 → Crossover: PS=27.59 ≤ VS=28.72)
+2025-12-23 11:47:42 - INFO -   PE: All entry criteria: PASS (✅ All PE entry criteria met: Bearish crossover (PS↓VS))
+2025-12-23 11:47:42 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:41:39, Before: 2025-12-23 11:40:39): FAIL (❌ NO BULLISH CROSSOVER: PS was already above VS | Before: PS=30.89 ≥ VS=29.64 → Current: PS=27.59 vs VS=28.72 (Bullish crossover requires PS to start below VS and cross up))
+2025-12-23 11:47:42 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:47:42 - INFO -   PE: Time session filter: PASS (Optimal session: 09:30-15:15)
+2025-12-23 11:47:42 - INFO -   PE: ATR volatility filter: PASS (ATR acceptable: 1.21x (range: 0.73-1.50x))
+2025-12-23 11:47:42 - INFO -   PE: RSI extreme filter (Sell CE): PASS (RSI extreme filter disabled)
+2025-12-23 11:47:42 - INFO -   PE: 1-minute PS/VS alignment: FAIL (1-min PS=24.99 > VS=22.76)
+2025-12-23 11:47:42 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:47:42 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:48:09 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹250.85, Lots=1, P&L=₹-30795.00 (-205.30 pts, Source: Kite API)
+2025-12-23 11:48:09 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - 1-minute alignment failed: 1-min PS=24.99 > VS=22.76
+2025-12-23 11:48:39 - INFO - Fetched LTP from Kite: ₹26161.10 at 11:48:00
+2025-12-23 11:48:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:43:39 [Window 11:35–11:40] (Expected: 11:40–11:45) (O:26172.85 H:26173.55 L:26161.30 C:26162.10)
+2025-12-23 11:48:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:48:39 - INFO -  📊 Strategy Analysis - RSI: 29.51, Price: ₹26161.10, Candles: 159
+2025-12-23 11:49:16 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:49:17 - INFO - 📊 Strategy Analysis - Current Price: ₹26161.10
+2025-12-23 11:49:17 - INFO - 📈 RSI: 29.51
+2025-12-23 11:49:17 - INFO - Indicators :: PS=30.19, VS=28.63
+2025-12-23 11:49:17 - INFO - Entry Criteria :: RSI=29.51, Candle=bearish, PS=30.19, VS=28.63 @ 2025-12-23 11:43:39 [Trade Regime: Sell] ::
+2025-12-23 11:49:17 - INFO - Checks:
+2025-12-23 11:49:17 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:42:39, Before: 2025-12-23 11:41:39): FAIL (❌ NO BEARISH CROSSOVER: PS was already below VS | Before: PS=27.59 ≤ VS=28.72 → Current: PS=30.87 vs VS=28.84 (Bearish crossover requires PS to start above VS and cross down))
+2025-12-23 11:49:18 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:49:18 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:42:39, Before: 2025-12-23 11:41:39): PASS (✅ BULLISH CROSSOVER DETECTED: PS crossed UP to VS | Before: PS=27.59 < VS=28.72 → Crossover: PS=30.87 ≥ VS=28.84)
+2025-12-23 11:49:18 - INFO -   CE: All entry criteria: PASS (✅ All CE entry criteria met: Bullish crossover (PS↑VS))
+2025-12-23 11:49:18 - INFO -   CE: Time session filter: PASS (Optimal session: 09:30-15:15)
+2025-12-23 11:49:18 - INFO -   CE: ATR volatility filter: PASS (ATR acceptable: 1.19x (range: 0.73-1.50x))
+2025-12-23 11:49:18 - INFO -   CE: RSI extreme filter (Sell PE): PASS (RSI extreme filter disabled)
+2025-12-23 11:49:18 - INFO -   CE: 1-minute PS/VS alignment: FAIL (1-min PS=20.30 < VS=24.10)
+2025-12-23 11:49:18 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:49:18 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:49:39 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹249.90, Lots=1, P&L=₹-30652.50 (-204.35 pts, Source: Kite API)
+2025-12-23 11:49:39 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - 1-minute alignment failed: 1-min PS=20.30 < VS=24.10
+2025-12-23 11:49:39 - INFO - Fetched LTP from Kite: ₹26159.60 at 11:49:00
+2025-12-23 11:49:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:44:39 [Window 11:35–11:40] (Expected: 11:40–11:45) (O:26168.75 H:26171.05 L:26159.20 C:26160.35)
+2025-12-23 11:49:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:49:40 - INFO -  📊 Strategy Analysis - RSI: 27.49, Price: ₹26159.60, Candles: 160
+2025-12-23 11:49:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:49:41 - INFO - 📊 Strategy Analysis - Current Price: ₹26159.60
+2025-12-23 11:49:41 - INFO - 📈 RSI: 27.49
+2025-12-23 11:49:41 - INFO - Indicators :: PS=28.84, VS=28.32
+2025-12-23 11:49:41 - INFO - Entry Criteria :: RSI=27.49, Candle=bearish, PS=28.84, VS=28.32 @ 2025-12-23 11:44:39 [Trade Regime: Sell] ::
+2025-12-23 11:49:41 - INFO - Checks:
+2025-12-23 11:49:41 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:43:39, Before: 2025-12-23 11:42:39): FAIL (❌ NO BEARISH CROSSOVER: PS still above VS | Before: PS=30.87 > VS=28.84 → Current: PS=30.19 > VS=28.63 (PS needs to cross DOWN to VS for PE signal))
+2025-12-23 11:49:41 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:49:41 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:43:39, Before: 2025-12-23 11:42:39): FAIL (❌ NO BULLISH CROSSOVER: PS was already above VS | Before: PS=30.87 ≥ VS=28.84 → Current: PS=30.19 vs VS=28.63 (Bullish crossover requires PS to start below VS and cross up))
+2025-12-23 11:49:41 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:49:41 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:49:41 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:49:54 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹250.00, Lots=1, P&L=₹-30667.50 (-204.45 pts, Source: Kite API)
+2025-12-23 11:49:54 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:50:39 - INFO - Fetched LTP from Kite: ₹26168.50 at 11:50:00
+2025-12-23 11:50:39 - INFO -  ✅ Found candle from API (same window): 2025-12-23 11:45:39 [Window 11:40–11:45] (O:26168.30 H:26171.05 L:26157.55 C:26168.90)
+2025-12-23 11:50:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:50:39 - INFO -  📊 Strategy Analysis - RSI: 47.30, Price: ₹26168.50, Candles: 161
+2025-12-23 11:50:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:50:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26168.50
+2025-12-23 11:50:40 - INFO - 📈 RSI: 47.30
+2025-12-23 11:50:40 - INFO - Indicators :: PS=38.07, VS=29.90
+2025-12-23 11:50:40 - INFO - Entry Criteria :: RSI=47.30, Candle=bearish, PS=38.07, VS=29.90 @ 2025-12-23 11:45:39 [Trade Regime: Sell] ::
+2025-12-23 11:50:40 - INFO - Checks:
+2025-12-23 11:50:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:44:39, Before: 2025-12-23 11:43:39): FAIL (❌ NO BEARISH CROSSOVER: PS still above VS | Before: PS=30.19 > VS=28.63 → Current: PS=28.84 > VS=28.32 (PS needs to cross DOWN to VS for PE signal))
+2025-12-23 11:50:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:50:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:44:39, Before: 2025-12-23 11:43:39): FAIL (❌ NO BULLISH CROSSOVER: PS was already above VS | Before: PS=30.19 ≥ VS=28.63 → Current: PS=28.84 vs VS=28.32 (Bullish crossover requires PS to start below VS and cross up))
+2025-12-23 11:50:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:50:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:50:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:50:54 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹252.50, Lots=1, P&L=₹-31042.50 (-206.95 pts, Source: Kite API)
+2025-12-23 11:50:54 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:51:39 - INFO - Fetched LTP from Kite: ₹26169.80 at 11:51:00
+2025-12-23 11:51:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:46:39 [Window 11:40–11:45] (Expected: 11:45–11:50) (O:26164.55 H:26171.35 L:26157.55 C:26170.40)
+2025-12-23 11:51:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:51:39 - INFO -  📊 Strategy Analysis - RSI: 49.99, Price: ₹26169.80, Candles: 162
+2025-12-23 11:51:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:51:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26169.80
+2025-12-23 11:51:40 - INFO - 📈 RSI: 49.99
+2025-12-23 11:51:40 - INFO - Indicators :: PS=44.03, VS=31.72
+2025-12-23 11:51:40 - INFO - Entry Criteria :: RSI=49.99, Candle=bullish, PS=44.03, VS=31.72 @ 2025-12-23 11:46:39 [Trade Regime: Sell] ::
+2025-12-23 11:51:40 - INFO - Checks:
+2025-12-23 11:51:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:45:39, Before: 2025-12-23 11:44:39): FAIL (❌ NO BEARISH CROSSOVER: PS still above VS | Before: PS=28.84 > VS=28.32 → Current: PS=38.07 > VS=29.90 (PS needs to cross DOWN to VS for PE signal))
+2025-12-23 11:51:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:51:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:45:39, Before: 2025-12-23 11:44:39): FAIL (❌ NO BULLISH CROSSOVER: PS was already above VS | Before: PS=28.84 ≥ VS=28.32 → Current: PS=38.07 vs VS=29.90 (Bullish crossover requires PS to start below VS and cross up))
+2025-12-23 11:51:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:51:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:51:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:51:46 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹255.00, Lots=1, P&L=₹-31417.50 (-209.45 pts, Source: Kite API)
+2025-12-23 11:51:46 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:52:39 - INFO - Fetched LTP from Kite: ₹26171.60 at 11:52:00
+2025-12-23 11:52:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:47:39 [Window 11:40–11:45] (Expected: 11:45–11:50) (O:26166.10 H:26173.00 L:26157.55 C:26171.40)
+2025-12-23 11:52:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:52:40 - INFO -  📊 Strategy Analysis - RSI: 51.84, Price: ₹26171.60, Candles: 163
+2025-12-23 11:52:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:52:41 - INFO - 📊 Strategy Analysis - Current Price: ₹26171.60
+2025-12-23 11:52:41 - INFO - 📈 RSI: 51.84
+2025-12-23 11:52:41 - INFO - Indicators :: PS=47.94, VS=33.65
+2025-12-23 11:52:41 - INFO - Entry Criteria :: RSI=51.84, Candle=bullish, PS=47.94, VS=33.65 @ 2025-12-23 11:47:39 [Trade Regime: Sell] ::
+2025-12-23 11:52:41 - INFO - Checks:
+2025-12-23 11:52:41 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:46:39, Before: 2025-12-23 11:45:39): FAIL (❌ NO BEARISH CROSSOVER: PS still above VS | Before: PS=38.07 > VS=29.90 → Current: PS=44.03 > VS=31.72 (PS needs to cross DOWN to VS for PE signal))
+2025-12-23 11:52:41 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:52:41 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:46:39, Before: 2025-12-23 11:45:39): FAIL (❌ NO BULLISH CROSSOVER: PS was already above VS | Before: PS=38.07 ≥ VS=29.90 → Current: PS=44.03 vs VS=31.72 (Bullish crossover requires PS to start below VS and cross up))
+2025-12-23 11:52:41 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:52:41 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:52:41 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:52:55 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹257.45, Lots=1, P&L=₹-31785.00 (-211.90 pts, Source: Kite API)
+2025-12-23 11:52:55 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:53:39 - INFO - Fetched LTP from Kite: ₹26180.75 at 11:53:00
+2025-12-23 11:53:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:48:39 [Window 11:40–11:45] (Expected: 11:45–11:50) (O:26161.00 H:26181.65 L:26157.55 C:26180.90)
+2025-12-23 11:53:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:53:39 - INFO -  📊 Strategy Analysis - RSI: 65.47, Price: ₹26180.75, Candles: 164
+2025-12-23 11:53:46 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:53:46 - INFO - 📊 Strategy Analysis - Current Price: ₹26180.75
+2025-12-23 11:53:46 - INFO - 📈 RSI: 65.47
+2025-12-23 11:53:46 - INFO - Indicators :: PS=56.71, VS=36.78
+2025-12-23 11:53:46 - INFO - Entry Criteria :: RSI=65.47, Candle=bullish, PS=56.71, VS=36.78 @ 2025-12-23 11:48:39 [Trade Regime: Sell] ::
+2025-12-23 11:53:46 - INFO - Checks:
+2025-12-23 11:53:46 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:47:39, Before: 2025-12-23 11:46:39): FAIL (❌ NO BEARISH CROSSOVER: PS still above VS | Before: PS=44.03 > VS=31.72 → Current: PS=47.94 > VS=33.65 (PS needs to cross DOWN to VS for PE signal))
+2025-12-23 11:53:46 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:53:46 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:47:39, Before: 2025-12-23 11:46:39): FAIL (❌ NO BULLISH CROSSOVER: PS was already above VS | Before: PS=44.03 ≥ VS=31.72 → Current: PS=47.94 vs VS=33.65 (Bullish crossover requires PS to start below VS and cross up))
+2025-12-23 11:53:46 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:53:46 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:53:46 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:53:52 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹259.00, Lots=1, P&L=₹-32017.50 (-213.45 pts, Source: Kite API)
+2025-12-23 11:53:52 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:54:39 - INFO - Fetched LTP from Kite: ₹26179.25 at 11:54:00
+2025-12-23 11:54:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:49:39 [Window 11:40–11:45] (Expected: 11:45–11:50) (O:26160.35 H:26182.65 L:26157.55 C:26178.95)
+2025-12-23 11:54:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:54:39 - INFO -  📊 Strategy Analysis - RSI: 61.46, Price: ₹26179.25, Candles: 165
+2025-12-23 11:54:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:54:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26179.25
+2025-12-23 11:54:40 - INFO - 📈 RSI: 61.46
+2025-12-23 11:54:40 - INFO - Indicators :: PS=59.08, VS=39.42
+2025-12-23 11:54:40 - INFO - Entry Criteria :: RSI=61.46, Candle=bullish, PS=59.08, VS=39.42 @ 2025-12-23 11:49:39 [Trade Regime: Sell] ::
+2025-12-23 11:54:40 - INFO - Checks:
+2025-12-23 11:54:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:48:39, Before: 2025-12-23 11:47:39): FAIL (❌ NO BEARISH CROSSOVER: PS still above VS | Before: PS=47.94 > VS=33.65 → Current: PS=56.71 > VS=36.78 (PS needs to cross DOWN to VS for PE signal))
+2025-12-23 11:54:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:54:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:48:39, Before: 2025-12-23 11:47:39): FAIL (❌ NO BULLISH CROSSOVER: PS was already above VS | Before: PS=47.94 ≥ VS=33.65 → Current: PS=56.71 vs VS=36.78 (Bullish crossover requires PS to start below VS and cross up))
+2025-12-23 11:54:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:54:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:54:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:54:47 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹258.55, Lots=1, P&L=₹-31950.00 (-213.00 pts, Source: Kite API)
+2025-12-23 11:54:47 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:55:39 - INFO - Fetched LTP from Kite: ₹26179.85 at 11:55:00
+2025-12-23 11:55:39 - INFO -  ✅ Found candle from API (same window): 2025-12-23 11:50:39 [Window 11:45–11:50] (O:26168.55 H:26182.65 L:26164.55 C:26179.45)
+2025-12-23 11:55:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:55:39 - INFO -  📊 Strategy Analysis - RSI: 62.13, Price: ₹26179.85, Candles: 166
+2025-12-23 11:55:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:55:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26179.85
+2025-12-23 11:55:40 - INFO - 📈 RSI: 62.13
+2025-12-23 11:55:40 - INFO - Indicators :: PS=60.60, VS=41.99
+2025-12-23 11:55:40 - INFO - Entry Criteria :: RSI=62.13, Candle=bullish, PS=60.60, VS=41.99 @ 2025-12-23 11:50:39 [Trade Regime: Sell] ::
+2025-12-23 11:55:40 - INFO - Checks:
+2025-12-23 11:55:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:49:39, Before: 2025-12-23 11:48:39): FAIL (❌ NO BEARISH CROSSOVER: PS still above VS | Before: PS=56.71 > VS=36.78 → Current: PS=59.08 > VS=39.42 (PS needs to cross DOWN to VS for PE signal))
+2025-12-23 11:55:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:55:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:49:39, Before: 2025-12-23 11:48:39): FAIL (❌ NO BULLISH CROSSOVER: PS was already above VS | Before: PS=56.71 ≥ VS=36.78 → Current: PS=59.08 vs VS=39.42 (Bullish crossover requires PS to start below VS and cross up))
+2025-12-23 11:55:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:55:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:55:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:55:53 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹257.50, Lots=1, P&L=₹-31792.50 (-211.95 pts, Source: Kite API)
+2025-12-23 11:55:53 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:56:39 - INFO - Fetched LTP from Kite: ₹26179.15 at 11:56:00
+2025-12-23 11:56:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:51:39 [Window 11:45–11:50] (Expected: 11:50–11:55) (O:26169.10 H:26182.65 L:26168.85 C:26178.25)
+2025-12-23 11:56:40 - INFO -  Saved 10 new candles to database
+2025-12-23 11:56:40 - INFO -  📊 Strategy Analysis - RSI: 59.34, Price: ₹26179.15, Candles: 167
+2025-12-23 11:56:41 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:56:43 - INFO - 📊 Strategy Analysis - Current Price: ₹26179.15
+2025-12-23 11:56:43 - INFO - 📈 RSI: 59.34
+2025-12-23 11:56:43 - INFO - Indicators :: PS=59.97, VS=44.17
+2025-12-23 11:56:43 - INFO - Entry Criteria :: RSI=59.34, Candle=bullish, PS=59.97, VS=44.17 @ 2025-12-23 11:51:39 [Trade Regime: Sell] ::
+2025-12-23 11:56:43 - INFO - Checks:
+2025-12-23 11:56:43 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:50:39, Before: 2025-12-23 11:49:39): FAIL (❌ NO BEARISH CROSSOVER: PS still above VS | Before: PS=59.08 > VS=39.42 → Current: PS=60.60 > VS=41.99 (PS needs to cross DOWN to VS for PE signal))
+2025-12-23 11:56:43 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:56:43 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:50:39, Before: 2025-12-23 11:49:39): FAIL (❌ NO BULLISH CROSSOVER: PS was already above VS | Before: PS=59.08 ≥ VS=39.42 → Current: PS=60.60 vs VS=41.99 (Bullish crossover requires PS to start below VS and cross up))
+2025-12-23 11:56:43 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:56:43 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:56:43 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:57:05 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹259.80, Lots=1, P&L=₹-32137.50 (-214.25 pts, Source: Kite API)
+2025-12-23 11:57:05 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:57:39 - INFO - Fetched LTP from Kite: ₹26183.00 at 11:57:00
+2025-12-23 11:57:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:52:39 [Window 11:45–11:50] (Expected: 11:50–11:55) (O:26171.40 H:26184.15 L:26170.30 C:26182.65)
+2025-12-23 11:57:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:57:40 - INFO -  📊 Strategy Analysis - RSI: 65.69, Price: ₹26183.00, Candles: 168
+2025-12-23 11:57:41 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:57:42 - INFO - 📊 Strategy Analysis - Current Price: ₹26183.00
+2025-12-23 11:57:42 - INFO - 📈 RSI: 65.69
+2025-12-23 11:57:42 - INFO - Indicators :: PS=62.83, VS=46.78
+2025-12-23 11:57:42 - INFO - Entry Criteria :: RSI=65.69, Candle=bullish, PS=62.83, VS=46.78 @ 2025-12-23 11:52:39 [Trade Regime: Sell] ::
+2025-12-23 11:57:42 - INFO - Checks:
+2025-12-23 11:57:42 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:51:39, Before: 2025-12-23 11:50:39): FAIL (❌ NO BEARISH CROSSOVER: PS still above VS | Before: PS=60.60 > VS=41.99 → Current: PS=59.97 > VS=44.17 (PS needs to cross DOWN to VS for PE signal))
+2025-12-23 11:57:42 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:57:42 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:51:39, Before: 2025-12-23 11:50:39): FAIL (❌ NO BULLISH CROSSOVER: PS was already above VS | Before: PS=60.60 ≥ VS=41.99 → Current: PS=59.97 vs VS=44.17 (Bullish crossover requires PS to start below VS and cross up))
+2025-12-23 11:57:42 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:57:42 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:57:42 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:58:01 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹260.00, Lots=1, P&L=₹-32167.50 (-214.45 pts, Source: Kite API)
+2025-12-23 11:58:01 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:58:39 - INFO - Fetched LTP from Kite: ₹26180.55 at 11:58:00
+2025-12-23 11:58:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:53:39 [Window 11:45–11:50] (Expected: 11:50–11:55) (O:26181.50 H:26184.15 L:26175.80 C:26180.25)
+2025-12-23 11:58:40 - INFO -  Saved 10 new candles to database
+2025-12-23 11:58:40 - INFO -  📊 Strategy Analysis - RSI: 59.95, Price: ₹26180.55, Candles: 169
+2025-12-23 11:58:49 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:58:49 - INFO - 📊 Strategy Analysis - Current Price: ₹26180.55
+2025-12-23 11:58:49 - INFO - 📈 RSI: 59.95
+2025-12-23 11:58:49 - INFO - Indicators :: PS=61.39, VS=48.67
+2025-12-23 11:58:49 - INFO - Entry Criteria :: RSI=59.95, Candle=bullish, PS=61.39, VS=48.67 @ 2025-12-23 11:53:39 [Trade Regime: Sell] ::
+2025-12-23 11:58:49 - INFO - Checks:
+2025-12-23 11:58:49 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:52:39, Before: 2025-12-23 11:51:39): FAIL (❌ NO BEARISH CROSSOVER: PS still above VS | Before: PS=59.97 > VS=44.17 → Current: PS=62.83 > VS=46.78 (PS needs to cross DOWN to VS for PE signal))
+2025-12-23 11:58:49 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:58:49 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:52:39, Before: 2025-12-23 11:51:39): FAIL (❌ NO BULLISH CROSSOVER: PS was already above VS | Before: PS=59.97 ≥ VS=44.17 → Current: PS=62.83 vs VS=46.78 (Bullish crossover requires PS to start below VS and cross up))
+2025-12-23 11:58:49 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:58:49 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:58:49 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:58:59 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹257.00, Lots=1, P&L=₹-31717.50 (-211.45 pts, Source: Kite API)
+2025-12-23 11:58:59 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 11:59:39 - INFO - Fetched LTP from Kite: ₹26177.05 at 11:59:00
+2025-12-23 11:59:39 - INFO -  ✅ Using fallback candle (window -1): 2025-12-23 11:54:39 [Window 11:45–11:50] (Expected: 11:50–11:55) (O:26178.75 H:26184.15 L:26174.50 C:26176.00)
+2025-12-23 11:59:39 - INFO -  Saved 10 new candles to database
+2025-12-23 11:59:39 - INFO -  📊 Strategy Analysis - RSI: 51.05, Price: ₹26177.05, Candles: 170
+2025-12-23 11:59:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 11:59:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26177.05
+2025-12-23 11:59:40 - INFO - 📈 RSI: 51.05
+2025-12-23 11:59:40 - INFO - Indicators :: PS=56.22, VS=49.61
+2025-12-23 11:59:40 - INFO - Entry Criteria :: RSI=51.05, Candle=bearish, PS=56.22, VS=49.61 @ 2025-12-23 11:54:39 [Trade Regime: Sell] ::
+2025-12-23 11:59:40 - INFO - Checks:
+2025-12-23 11:59:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:53:39, Before: 2025-12-23 11:52:39): FAIL (❌ NO BEARISH CROSSOVER: PS still above VS | Before: PS=62.83 > VS=46.78 → Current: PS=61.39 > VS=48.67 (PS needs to cross DOWN to VS for PE signal))
+2025-12-23 11:59:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 11:59:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:53:39, Before: 2025-12-23 11:52:39): FAIL (❌ NO BULLISH CROSSOVER: PS was already above VS | Before: PS=62.83 ≥ VS=46.78 → Current: PS=61.39 vs VS=48.67 (Bullish crossover requires PS to start below VS and cross up))
+2025-12-23 11:59:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 11:59:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 11:59:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 11:59:47 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹257.00, Lots=1, P&L=₹-31717.50 (-211.45 pts, Source: Kite API)
+2025-12-23 11:59:47 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
+2025-12-23 12:00:39 - INFO - Fetched LTP from Kite: ₹26180.70 at 12:00:00
+2025-12-23 12:00:39 - INFO -  ✅ Found candle from API (same window): 2025-12-23 11:55:39 [Window 11:50–11:55] (O:26179.00 H:26184.15 L:26174.50 C:26181.00)
+2025-12-23 12:00:39 - INFO -  Saved 10 new candles to database
+2025-12-23 12:00:39 - INFO -  📊 Strategy Analysis - RSI: 59.09, Price: ₹26180.70, Candles: 171
+2025-12-23 12:00:40 - INFO -  🔍 Scanning for entry signals in LIVE mode (Open positions: CE, PE)...
+2025-12-23 12:00:40 - INFO - 📊 Strategy Analysis - Current Price: ₹26180.70
+2025-12-23 12:00:40 - INFO - 📈 RSI: 59.09
+2025-12-23 12:00:40 - INFO - Indicators :: PS=57.65, VS=51.18
+2025-12-23 12:00:40 - INFO - Entry Criteria :: RSI=59.09, Candle=bearish, PS=57.65, VS=51.18 @ 2025-12-23 11:55:39 [Trade Regime: Sell] ::
+2025-12-23 12:00:40 - INFO - Checks:
+2025-12-23 12:00:40 - INFO -   PE: Bearish crossover (PS crosses DOWN to VS) detected on previous candle (Crossover: 2025-12-23 11:54:39, Before: 2025-12-23 11:53:39): FAIL (❌ NO BEARISH CROSSOVER: PS still above VS | Before: PS=61.39 > VS=48.67 → Current: PS=56.22 > VS=49.61 (PS needs to cross DOWN to VS for PE signal))
+2025-12-23 12:00:40 - INFO -   PE: All entry criteria: FAIL (❌ PE entry criteria NOT met: Missing Bearish crossover (PS↓VS))
+2025-12-23 12:00:40 - INFO -   CE: Bullish crossover (PS crosses UP to VS) detected on previous candle (Crossover: 2025-12-23 11:54:39, Before: 2025-12-23 11:53:39): FAIL (❌ NO BULLISH CROSSOVER: PS was already above VS | Before: PS=61.39 ≥ VS=48.67 → Current: PS=56.22 vs VS=49.61 (Bullish crossover requires PS to start below VS and cross up))
+2025-12-23 12:00:40 - INFO -   CE: All entry criteria: FAIL (❌ CE entry criteria NOT met: Missing Bullish crossover (PS↑VS))
+2025-12-23 12:00:40 - INFO - Outcome=HOLD (Trade Regime: Sell)
+2025-12-23 12:00:40 - INFO - ⏸️ No entry signal: HOLD - 
+2025-12-23 12:00:49 - INFO - 📍 Current Position: CE Symbol=NIFTY25DEC26400CE, Expiry=2025-12-30, Strike=26000, Entry=₹45.55, Current=₹259.45, Lots=1, P&L=₹-32085.00 (-213.90 pts, Source: Kite API)
+2025-12-23 12:00:49 - INFO -  ⏸️ No entry signal: HOLD [Trade Regime: Sell] - No entry signal
