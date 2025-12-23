@@ -642,5 +642,93 @@
     "rsi": 58.96,
     "crossover": null,
     "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T10:57:49",
+    "price_strength": 52.18,
+    "volume_strength": 55.38,
+    "price": 26179.45,
+    "rsi": 49.42,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T10:58:49",
+    "price_strength": 46.17,
+    "volume_strength": 53.71,
+    "price": 26175.6,
+    "rsi": 40.16,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:00:21",
+    "price_strength": 47.53,
+    "volume_strength": 52.92,
+    "price": 26180.6,
+    "rsi": 48.9,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:01:25",
+    "price_strength": 49.58,
+    "volume_strength": 52.47,
+    "price": 26183.15,
+    "rsi": 51.62,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:02:25",
+    "price_strength": 54.65,
+    "volume_strength": 52.8,
+    "price": 26184.3,
+    "rsi": 59.73,
+    "crossover": "CE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:03:25",
+    "price_strength": 56.79,
+    "volume_strength": 53.09,
+    "price": 26181.95,
+    "rsi": 58.94,
+    "crossover": null,
+    "filters": {
+      "time": {
+        "passed": true,
+        "reason": "Optimal session: 09:30-15:15"
+      },
+      "atr": {
+        "passed": true,
+        "reason": "ATR acceptable: 0.99x (range: 0.73-1.50x)",
+        "current_atr": 11.150000000000675,
+        "avg_atr": 11.289625850340897
+      },
+      "rsi": {
+        "passed": true,
+        "reason": "RSI extreme filter disabled",
+        "rsi_value": 58.93641469512072
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-23T11:05:39",
+    "price_strength": 61.73,
+    "volume_strength": 54.11,
+    "price": 26187.85,
+    "rsi": 66.66,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:06:39",
+    "price_strength": 66.43,
+    "volume_strength": 55.55,
+    "price": 26191.3,
+    "rsi": 71.13,
+    "crossover": null,
+    "filters": null
   }
 ]

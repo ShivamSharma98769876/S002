@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-12-23T05:37:40.897797",
+  "positions": [
+    {
+      "id": 110,
+      "instrument_token": "16816898",
+      "trading_symbol": "NIFTY25DEC26400CE",
+      "exchange": "NFO",
+      "entry_time": "2025-12-23T05:26:12.631380",
+      "entry_price": 45.8,
+      "current_price": 45.05,
+      "quantity": -150,
+      "lot_size": 1,
+      "unrealized_pnl": 112.5
+    }
+  ]
+}

@@ -44,3 +44,7 @@ dist/
 build/
 *.egg-info/
 
+# MD files
+MD Files/
+
+
