@@ -1317,5 +1317,41 @@
     "rsi": 59.09,
     "crossover": null,
     "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:57:39",
+    "price_strength": 60.39,
+    "volume_strength": 54.23,
+    "price": 26183.4,
+    "rsi": 61.5,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:58:39",
+    "price_strength": 62.06,
+    "volume_strength": 55.73,
+    "price": 26184.8,
+    "rsi": 63.74,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T11:59:39",
+    "price_strength": 65.47,
+    "volume_strength": 57.52,
+    "price": 26187.4,
+    "rsi": 68.88,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-23T12:00:39",
+    "price_strength": 64.8,
+    "volume_strength": 58.74,
+    "price": 26185.15,
+    "rsi": 64.12,
+    "crossover": null,
+    "filters": null
   }
 ]
