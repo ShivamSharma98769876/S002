@@ -17,18 +17,18 @@ ENV/
 *~
 
 # Configuration (sensitive)
-config/config.json
-config/admin_config.json
-.env
+#config/config.json
+#config/admin_config.json
+#.env
 
 # Logs
-logs/*.log
-logs/*.txt
+#logs/*.log
+#logs/*.txt
 
 # Database
-data/*.db
-data/*.sqlite
-data/*.sqlite3
+#data/*.db
+#data/*.sqlite
+#data/*.sqlite3
 
 # OS
 .DS_Store

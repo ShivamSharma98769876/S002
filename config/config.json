@@ -1,0 +1,131 @@
+{
+  "api_key": "14vxzgvarfrfxs5k",
+  "api_secret": "6wiefl80trb7t8psih5badkwlpijo1gd",
+  "access_token": "mwChW7jGcW9Fvs7G4ek2THc2pTFMMGat",
+  "environment": "dev",
+  "log_level": "INFO",
+  "notification_email": "taufiqmirzabaig@gmail.com",
+  "notification_phone": "+918378878890",
+  "volume_indicator": {
+    "source": "Kite",
+    "use_nearest_expiry": true,
+    "fallback_to_futures": true,
+    "fallback_to_proxy": true
+  },
+  "expiry_config": {
+    "BANKNIFTY": {
+      "duration": "Monthly",
+      "day_of_week": "Tuesday",
+      "min_days_to_expiry": 2
+    },
+    "NIFTY": {
+      "duration": "Weekly",
+      "day_of_week": "Tuesday",
+      "min_days_to_expiry": 2
+    },
+    "SENSEX": {
+      "duration": "Weekly",
+      "day_of_week": "Thursday",
+      "min_days_to_expiry": 2
+    }
+  },
+  "vwap_entry_conditions": {
+    "enabled": true,
+    "price_above_vwap": true,
+    "max_price_vwap_diff_pct": 1.0,
+    "vwap_tolerance_pct": 0.2
+  },
+  "strength_diff_conditions": {
+    "enabled": true,
+    "min_ps_vs_diff_pct": 3.0,
+    "max_ps_vs_diff_pct": 15.0
+  },
+  "multi_timeframe_confirmation": {
+    "enabled": true,
+    "require_alignment": true,
+    "momentum_threshold": 0.5
+  },
+  "divergence_detection": {
+    "enabled": true,
+    "threshold": 2.0
+  },
+  "volume_confirmation": {
+    "enabled": true,
+    "spike_threshold": 1.5
+  },
+  "dynamic_threshold": {
+    "enabled": true,
+    "tight_range": [2.0, 20.0],
+    "wide_range": [3.0, 20.0]
+  },
+  "time_session_filter": {
+    "enabled": true,
+    "avoid_first_minutes": 15,
+    "avoid_last_minutes": 15,
+    "buy_regime": {
+      "start_hour": 9,
+      "start_minute": 30,
+      "end_hour": 15,
+      "end_minute": 15
+    },
+    "sell_regime": {
+      "start_hour": 9,
+      "start_minute": 30,
+      "end_hour": 15,
+      "end_minute": 15
+    }
+  },
+  "atr_volatility_filter": {
+    "enabled": true,
+    "atr_period": 14,
+    "buy_regime": {
+      "min_atr_multiplier": 1.0,
+      "max_atr_multiplier": null
+    },
+    "sell_regime": {
+      "min_atr_multiplier": 0.73,
+      "max_atr_multiplier": 1.5
+    }
+  },
+  "rsi_extreme_filter": {
+    "enabled": false,
+    "buy_regime": {
+      "ce_max_rsi": 75,
+      "pe_min_rsi": 25
+    },
+    "sell_regime": {
+      "ce_min_rsi": 60,
+      "pe_max_rsi": 40
+    }
+  },
+  "market_hours": {
+    "open_time": "09:30",
+    "close_time": "15:30"
+  },
+  "pyramiding_config": {
+    "NIFTY": {
+      "lot_size": 75,
+      "itm_offset": -200,
+      "stop_loss": 30,
+      "pyramid_points": 5,
+      "lot_addition": 0,
+      "max_quantity": 1500
+    },
+    "BANKNIFTY": {
+      "lot_size": 35,
+      "itm_offset": -300,
+      "stop_loss": 40,
+      "pyramid_points": 20,
+      "lot_addition": 0,
+      "max_quantity": 1000
+    },
+    "SENSEX": {
+      "lot_size": 20,
+      "itm_offset": -500,
+      "stop_loss": 50,
+      "pyramid_points": 20,
+      "lot_addition": 0,
+      "max_quantity": 1000
+    }
+  }
+}
