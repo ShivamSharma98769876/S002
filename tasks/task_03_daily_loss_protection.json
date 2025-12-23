@@ -1,0 +1,76 @@
+{
+  "task_id": "TASK-03",
+  "task_name": "Daily Loss Protection System",
+  "description": "Implement automatic exit of all positions when daily loss reaches configured limit (₹5,000 default)",
+  "priority": "Critical",
+  "estimated_hours": 20,
+  "dependencies": ["TASK-02"],
+  "sub_tasks": [
+    {
+      "sub_task_id": "TASK-03-01",
+      "sub_task_name": "Daily Loss Calculation Engine",
+      "description": "Calculate cumulative daily loss from all live positions",
+      "status": "pending",
+      "estimated_hours": 5,
+      "acceptance_criteria": [
+        "Real-time P&L calculation for all positions",
+        "Sum of all unrealized losses",
+        "Exclude protected profit from loss calculation",
+        "Handle multiple positions correctly"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-03-02",
+      "sub_task_name": "Loss Limit Monitoring",
+      "description": "Monitor daily loss against configured limit (₹5,000)",
+      "status": "pending",
+      "estimated_hours": 4,
+      "acceptance_criteria": [
+        "Compare current loss with limit every second",
+        "Trigger warning at 90% of limit (₹4,500)",
+        "Trigger auto-exit at 100% of limit (₹5,000)",
+        "Handle edge cases (exactly at limit, slightly above)"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-03-03",
+      "sub_task_name": "Auto-Exit All Positions",
+      "description": "Automatically square off all open positions when loss limit is reached",
+      "status": "pending",
+      "estimated_hours": 6,
+      "acceptance_criteria": [
+        "Place market orders for all open positions simultaneously",
+        "Ensure execution even at unfavorable prices",
+        "Handle partial fills and order failures",
+        "Retry mechanism for failed orders"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-03-04",
+      "sub_task_name": "Trading Block Mechanism",
+      "description": "Block further order placement until next trading day (9:15 AM)",
+      "status": "pending",
+      "estimated_hours": 3,
+      "acceptance_criteria": [
+        "Set trading block flag when loss limit hit",
+        "Check block status before allowing any new orders",
+        "Auto-reset block at 9:15 AM next trading day",
+        "Display block status in UI"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-03-05",
+      "sub_task_name": "Loss Limit Configuration",
+      "description": "Make loss limit configurable (default ₹5,000) but locked from user edits",
+      "status": "pending",
+      "estimated_hours": 2,
+      "acceptance_criteria": [
+        "Configurable loss limit in admin config",
+        "User cannot modify this parameter",
+        "Admin password required to change",
+        "Audit log for changes"
+      ]
+    }
+  ]
+}
+

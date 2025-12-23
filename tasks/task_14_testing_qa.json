@@ -1,0 +1,158 @@
+{
+  "task_id": "TASK-14",
+  "task_name": "Testing & Quality Assurance",
+  "description": "Comprehensive testing of all features and edge cases",
+  "priority": "High",
+  "estimated_hours": 32,
+  "dependencies": ["TASK-03", "TASK-04", "TASK-05", "TASK-13"],
+  "sub_tasks": [
+    {
+      "sub_task_id": "TASK-14-01",
+      "sub_task_name": "Unit Testing",
+      "description": "Write unit tests for all core functions",
+      "status": "pending",
+      "estimated_hours": 8,
+      "acceptance_criteria": [
+        "Unit tests for P&L calculations",
+        "Unit tests for loss limit logic",
+        "Unit tests for trailing SL logic",
+        "Unit tests for profit protection",
+        "Minimum 80% code coverage"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-14-02",
+      "sub_task_name": "Loss Limit Test",
+      "description": "Test auto-exit when daily loss reaches ₹5,000",
+      "status": "pending",
+      "estimated_hours": 3,
+      "acceptance_criteria": [
+        "Simulate ₹5k loss",
+        "Verify auto-exit triggers",
+        "Verify all positions closed",
+        "Verify trading block activated",
+        "Test with multiple positions"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-14-03",
+      "sub_task_name": "Trailing SL Test",
+      "description": "Test trailing stop loss activation and triggering",
+      "status": "pending",
+      "estimated_hours": 4,
+      "acceptance_criteria": [
+        "Test profit grows to ₹18k, drops to ₹10k",
+        "Verify trailing SL triggers exit",
+        "Test SL updates at increments",
+        "Test SL only moves up, never down"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-14-04",
+      "sub_task_name": "Multi-position Test",
+      "description": "Test with 5 positions, combined loss ₹5k",
+      "status": "pending",
+      "estimated_hours": 3,
+      "acceptance_criteria": [
+        "Create 5 different positions",
+        "Simulate combined loss of ₹5k",
+        "Verify all 5 positions exit",
+        "Verify correct P&L calculation"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-14-05",
+      "sub_task_name": "Manual Exit Test",
+      "description": "Test user manually exiting before auto-triggers",
+      "status": "pending",
+      "estimated_hours": 2,
+      "acceptance_criteria": [
+        "User exits before ₹5k loss",
+        "User exits before trailing SL",
+        "Verify system respects manual exit",
+        "Verify counters update correctly"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-14-06",
+      "sub_task_name": "Quantity Change Test",
+      "description": "Test adding quantity and risk recalculation",
+      "status": "pending",
+      "estimated_hours": 2,
+      "acceptance_criteria": [
+        "Add quantity to existing position",
+        "Verify P&L recalculates",
+        "Verify risk limits adjust",
+        "Test partial exits"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-14-07",
+      "sub_task_name": "Protected Profit Test",
+      "description": "Test cycle-wise profit protection",
+      "status": "pending",
+      "estimated_hours": 3,
+      "acceptance_criteria": [
+        "Close trade with profit",
+        "Verify profit added to protected",
+        "Enter new trade",
+        "Verify loss limit applies only to new trade",
+        "Verify protected profit remains safe"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-14-08",
+      "sub_task_name": "Market Hours Test",
+      "description": "Test behavior during and after market hours",
+      "status": "pending",
+      "estimated_hours": 2,
+      "acceptance_criteria": [
+        "Test order placement after hours",
+        "Verify trading block during off-hours",
+        "Test system startup at 9:15 AM",
+        "Test system shutdown at 3:30 PM"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-14-09",
+      "sub_task_name": "API Failure Test",
+      "description": "Test system behavior on API disconnection",
+      "status": "pending",
+      "estimated_hours": 3,
+      "acceptance_criteria": [
+        "Simulate API disconnect",
+        "Verify alerts sent",
+        "Verify auto-reconnect",
+        "Verify position recovery",
+        "Test data persistence"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-14-10",
+      "sub_task_name": "Performance Testing",
+      "description": "Test system performance and latency",
+      "status": "pending",
+      "estimated_hours": 2,
+      "acceptance_criteria": [
+        "Verify < 2 second latency on risk limit breach",
+        "Verify 100% execution rate on auto-exit orders",
+        "Test with high number of positions",
+        "Load testing"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-14-11",
+      "sub_task_name": "Security Testing",
+      "description": "Test security and access controls",
+      "status": "pending",
+      "estimated_hours": 2,
+      "acceptance_criteria": [
+        "Verify user cannot edit locked parameters",
+        "Test admin authentication",
+        "Test audit log integrity",
+        "Test session management"
+      ]
+    }
+  ]
+}
+

@@ -1,0 +1,50 @@
+{
+  "task_id": "TASK-11",
+  "task_name": "Manual Override & User Controls",
+  "description": "Allow users to manually exit positions anytime, overriding system rules",
+  "priority": "Medium",
+  "estimated_hours": 10,
+  "dependencies": ["TASK-02", "TASK-08"],
+  "sub_tasks": [
+    {
+      "sub_task_id": "TASK-11-01",
+      "sub_task_name": "Manual Exit Functionality",
+      "description": "Allow user to manually exit any position from UI",
+      "status": "pending",
+      "estimated_hours": 4,
+      "acceptance_criteria": [
+        "Exit button for each position in UI",
+        "Place market order on manual exit",
+        "No confirmation required (instant execution)",
+        "Handle exit for partial quantities"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-11-02",
+      "sub_task_name": "Manual Exit Detection",
+      "description": "Detect when user manually exits a position",
+      "status": "pending",
+      "estimated_hours": 3,
+      "acceptance_criteria": [
+        "Monitor position status changes",
+        "Distinguish manual exits from auto-exits",
+        "Update counters correctly",
+        "Trigger profit protection if applicable"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-11-03",
+      "sub_task_name": "System Rule Override Handling",
+      "description": "Ensure manual exits override all system rules",
+      "status": "pending",
+      "estimated_hours": 3,
+      "acceptance_criteria": [
+        "User can exit before ₹5k loss",
+        "User can exit before trailing SL triggers",
+        "User can exit at any profit level",
+        "System respects manual decisions"
+      ]
+    }
+  ]
+}
+

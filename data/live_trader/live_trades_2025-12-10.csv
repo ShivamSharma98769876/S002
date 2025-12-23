@@ -1,0 +1,3 @@
+segment,mode,signal_type,option_symbol,option_type,strike_price,expiry,lots,quantity,entry_time,entry_price,stop_loss_points,initial_sl_price,trailing_stop_points,exit_time,exit_price,exit_reason,pnl_points,pnl_value,return_pct
+NIFTY,LIVE,BUY_CE,NIFTY0CE,CE,0.0,,1,75,2025-12-10T10:29:00,64.45,50.0,114.45,50.0,2025-12-10T10:57:00,48.6,Stop Loss order executed (SL order COMPLETE),15.850000000000001,1188.75,24.592707525213346
+BANKNIFTY,LIVE,BUY_CE,BANKNIFTY0CE,CE,0.0,,1,35,2025-12-10T10:29:00,545.5,50.0,595.5,50.0,2025-12-10T10:57:00,495.0,Stop Loss order executed (SL order COMPLETE),50.5,1767.5,9.25756186984418

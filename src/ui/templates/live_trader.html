@@ -1,0 +1,3101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Trader - RSI Strategy</title>
+    <script>
+        // Initialize theme immediately (before page renders) to prevent flash
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Consistent Design System - Matching Dashboard */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color, #f8fafc);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text-primary, #1e293b);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--card-bg, #ffffff);
+            border-radius: 12px;
+            box-shadow: var(--shadow, 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06));
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary, #1e293b);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0;
+        }
+
+        .header h1 i {
+            font-size: 32px;
+            color: var(--primary-color, #2563eb);
+        }
+
+        .header a {
+            padding: 8px 16px;
+            background: var(--primary-color, #2563eb);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .header a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .header a i {
+            margin-right: 6px;
+        }
+
+        /* Summary Cards - Matching Dashboard Style */
+        .summary-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-section .card {
+            background: var(--card-bg, #ffffff);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow, 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06));
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+
+        .summary-section .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-color, #2563eb);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .summary-section .card:nth-child(2)::before {
+            background: var(--success-color, #10b981);
+        }
+
+        .summary-section .card:nth-child(3)::before {
+            background: var(--warning-color, #f59e0b);
+        }
+
+        .summary-section .card:nth-child(4)::before {
+            background: var(--danger-color, #ef4444);
+        }
+
+        .summary-section .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05));
+        }
+
+        .card-icon {
+            font-size: 24px;
+            color: var(--primary-color, #2563eb);
+        }
+
+        /* Panel Styling - Matching Dashboard */
+        .panel {
+            background: var(--card-bg, #ffffff);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow, 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06));
+            margin-bottom: 30px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border-color, #e2e8f0);
+        }
+
+        .panel-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary, #1e293b);
+            margin: 0;
+        }
+
+        .panel-header h2 i {
+            margin-right: 8px;
+            color: var(--primary-color, #2563eb);
+        }
+
+        /* Form Inputs - Matching Dashboard */
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color, #e2e8f0);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--card-bg, #ffffff);
+            color: var(--text-primary, #1e293b);
+            transition: all 0.3s ease;
+        }
+
+        .form-input:hover {
+            border-color: var(--primary-color, #2563eb);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color, #2563eb);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Segment Pills - Matching Dashboard */
+        .segment-pill {
+            background: var(--bg-color, #f8fafc);
+            border: 2px solid var(--border-color, #e2e8f0);
+            transition: all 0.3s ease;
+            border-radius: 8px;
+        }
+
+        .segment-pill:hover {
+            background: var(--primary-color, #2563eb);
+            border-color: var(--primary-color, #2563eb);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .segment-pill:hover span {
+            color: white !important;
+        }
+
+        .segment-pill input:checked + span {
+            color: var(--primary-color, #2563eb);
+            font-weight: 600;
+        }
+
+        .segment-pill:has(input:checked) {
+            background: var(--primary-color, #2563eb);
+            border-color: var(--primary-color, #2563eb);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .segment-pill:has(input:checked) span {
+            color: white !important;
+        }
+
+        /* Buttons - Matching Dashboard */
+        .btn-live-start {
+            background: var(--primary-color, #2563eb);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-live-start:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-live-start:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-live-stop {
+            background: var(--danger-color, #ef4444);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-live-stop:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-live-stop:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Table Styling - Matching Dashboard */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg, #ffffff);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow, 0 1px 3px 0 rgba(0, 0, 0, 0.1));
+        }
+
+        .data-table thead {
+            background: var(--primary-color, #2563eb);
+        }
+
+        .data-table th {
+            color: white;
+            font-weight: 600;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid var(--border-color, #e2e8f0);
+            transition: background 0.2s ease;
+        }
+
+        .data-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--bg-color, #f8fafc);
+        }
+
+        .data-table td {
+            padding: 12px 16px;
+            color: var(--text-primary, #1e293b);
+        }
+
+        /* Summary Cards in Trade Results */
+        #summaryTotalTrades, #summaryWinRate, #summaryNetPnl, #summaryAvgPnl {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        /* Error Messages - Matching Dashboard */
+        .error-message {
+            background: #fee2e2;
+            border: 2px solid var(--danger-color, #ef4444);
+            color: #991b1b;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 12px;
+            border-left: 4px solid var(--danger-color, #ef4444);
+        }
+
+        /* Live Mode Warning - Matching Dashboard */
+        #liveModeWarning {
+            background: #fef3c7;
+            border: 2px solid var(--warning-color, #f59e0b);
+            border-left: 4px solid var(--warning-color, #f59e0b);
+            border-radius: 8px;
+            padding: 12px 16px;
+        }
+
+        /* Pyramiding Info - Matching Dashboard */
+        .pyramiding-info {
+            padding: 16px;
+            background: var(--bg-color, #f8fafc);
+            border-radius: 8px;
+            border: 2px solid var(--border-color, #e2e8f0);
+        }
+
+        /* Form Group Labels - Matching Dashboard */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary, #1e293b);
+            font-size: 14px;
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 8px;
+            color: var(--text-secondary, #64748b);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* Status Cards - Matching Dashboard */
+        .card-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary, #1e293b);
+            margin-bottom: 8px;
+        }
+
+        .card-subvalue {
+            font-size: 14px;
+            color: var(--text-secondary, #64748b);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .card-header h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary, #64748b);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0;
+        }
+
+        /* Loading Spinner - Matching Dashboard */
+        .loading {
+            display: inline-block;
+        }
+
+        .loading i {
+            color: var(--primary-color, #2563eb);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Main Content Grid */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 32px;
+            margin-top: 32px;
+        }
+
+        /* Panel Body */
+        .panel-body {
+            padding: 28px;
+        }
+
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Selection Styling - Matching Dashboard */
+        ::selection {
+            background: rgba(37, 99, 235, 0.3);
+            color: inherit;
+        }
+
+        /* Scrollbar Styling - Matching Dashboard */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color, #f8fafc);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color, #2563eb);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #1d4ed8;
+        }
+
+        /* ========== DARK THEME ========== */
+        /* Dark Theme Variables */
+        [data-theme="dark"] {
+            --primary-color: #3b82f6;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+        }
+
+        [data-theme="dark"] body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .card {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .panel {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .form-input {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .data-table {
+            background: var(--card-bg);
+        }
+
+        [data-theme="dark"] .data-table thead {
+            background: #334155;
+        }
+
+        [data-theme="dark"] .data-table tbody tr {
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .data-table tbody tr:hover {
+            background: #334155;
+        }
+
+        [data-theme="dark"] .header {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .form-section-header {
+            background: #334155;
+        }
+
+        [data-theme="dark"] .form-section-content {
+            background: var(--card-bg);
+        }
+
+        [data-theme="dark"] .table-search,
+        [data-theme="dark"] .table-filter {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] select.form-input {
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .quick-action-btn {
+            background: #334155;
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .quick-action-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        [data-theme="dark"] .modal {
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .modal-btn-secondary {
+            background: #334155;
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] #logsContainer {
+            background: #0f172a !important;
+            color: #f1f5f9 !important;
+        }
+
+        /* Trading Modes Section Dark Theme */
+        [data-theme="dark"] .mode-option {
+            background: linear-gradient(135deg, #334155 0%, #1e293b 100%) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        [data-theme="dark"] .mode-option:hover {
+            background: linear-gradient(135deg, #475569 0%, #334155 100%) !important;
+        }
+
+        /* ========== USABILITY IMPROVEMENTS ========== */
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toast {
+            min-width: 300px;
+            max-width: 500px;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideInRight 0.3s ease-out;
+            font-weight: 500;
+        }
+
+        .toast-success {
+            background: var(--success-color, #10b981);
+            color: white;
+        }
+
+        .toast-error {
+            background: var(--danger-color, #ef4444);
+            color: white;
+        }
+
+        .toast-warning {
+            background: var(--warning-color, #f59e0b);
+            color: white;
+        }
+
+        .toast-info {
+            background: var(--primary-color, #2563eb);
+            color: white;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast-close {
+            margin-left: auto;
+            cursor: pointer;
+            font-size: 18px;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .toast-close:hover {
+            opacity: 1;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.running {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color, #10b981);
+            border: 1px solid var(--success-color, #10b981);
+        }
+
+        .status-badge.stopped {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color, #ef4444);
+            border: 1px solid var(--danger-color, #ef4444);
+        }
+
+        .status-badge.connected {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color, #10b981);
+        }
+
+        .status-badge.disconnected {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color, #ef4444);
+        }
+
+        .status-badge i {
+            font-size: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        /* Form Sections with Collapsible */
+        .form-section {
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color, #e2e8f0);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .form-section-header {
+            background: var(--bg-color, #f8fafc);
+            padding: 16px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .form-section-header:hover {
+            background: #f1f5f9;
+        }
+
+        .form-section-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary, #1e293b);
+        }
+
+        .form-section-content {
+            padding: 20px;
+            background: white;
+        }
+
+        .form-section.collapsed .form-section-content {
+            display: none;
+        }
+
+        .form-section-toggle {
+            color: var(--text-secondary, #64748b);
+            transition: transform 0.3s;
+        }
+
+        .form-section.collapsed .form-section-toggle {
+            transform: rotate(-90deg);
+        }
+
+        /* Confirmation Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            margin: 0 0 8px 0;
+            font-size: 24px;
+            color: var(--text-primary, #1e293b);
+        }
+
+        .modal-body {
+            margin-bottom: 24px;
+            color: var(--text-secondary, #64748b);
+            line-height: 1.6;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .modal-btn-primary {
+            background: var(--primary-color, #2563eb);
+            color: white;
+        }
+
+        .modal-btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .modal-btn-secondary {
+            background: var(--bg-color, #f8fafc);
+            color: var(--text-primary, #1e293b);
+            border: 1px solid var(--border-color, #e2e8f0);
+        }
+
+        .modal-btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .modal-btn-danger {
+            background: var(--danger-color, #ef4444);
+            color: white;
+        }
+
+        .modal-btn-danger:hover {
+            background: #dc2626;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-overlay .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border-color, #e2e8f0);
+            border-top-color: var(--primary-color, #2563eb);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-overlay .message {
+            color: var(--text-primary, #1e293b);
+            font-weight: 500;
+        }
+
+        /* Form Validation */
+        .form-input.invalid {
+            border-color: var(--danger-color, #ef4444);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
+        .form-input.valid {
+            border-color: var(--success-color, #10b981);
+        }
+
+        .field-error {
+            color: var(--danger-color, #ef4444);
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .field-error.show {
+            display: block;
+        }
+
+        /* Help Tooltips */
+        .help-tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 6px;
+            cursor: help;
+        }
+
+        .help-tooltip i {
+            color: var(--text-secondary, #64748b);
+            font-size: 14px;
+        }
+
+        .help-tooltip:hover i {
+            color: var(--primary-color, #2563eb);
+        }
+
+        .tooltip-content {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            background: var(--text-primary, #1e293b);
+            color: white;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .tooltip-content::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: var(--text-primary, #1e293b);
+        }
+
+        .help-tooltip:hover .tooltip-content {
+            display: block;
+        }
+
+        /* Quick Actions Bar */
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .quick-action-btn {
+            padding: 10px 16px;
+            background: var(--bg-color, #f8fafc);
+            border: 1px solid var(--border-color, #e2e8f0);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary, #1e293b);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .quick-action-btn:hover {
+            background: var(--primary-color, #2563eb);
+            color: white;
+            border-color: var(--primary-color, #2563eb);
+        }
+
+        /* Table Search/Filter */
+        .table-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .table-search {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color, #e2e8f0);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .table-filter {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color, #e2e8f0);
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+        }
+
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 48px;
+            height: 48px;
+            background: var(--primary-color, #2563eb);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .back-to-top.visible {
+            display: flex;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1><i class="fas fa-robot"></i> RSI Live Trader</h1>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <!-- Theme Toggle Button -->
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 12px; color: var(--text-secondary); font-weight: 500;">
+                        <i class="fas fa-sun" style="font-size: 14px;"></i>
+                    </span>
+                    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Dark/Light Theme">
+                        <span class="theme-toggle-slider"></span>
+                        <i class="fas fa-sun theme-toggle-icon sun"></i>
+                        <i class="fas fa-moon theme-toggle-icon moon"></i>
+                    </button>
+                    <span style="font-size: 12px; color: var(--text-secondary); font-weight: 500;">
+                        <i class="fas fa-moon" style="font-size: 14px;"></i>
+                    </span>
+                </div>
+                <a href="/" style="padding: 8px 16px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600; border: 1px solid rgba(255, 255, 255, 0.3); transition: all 0.3s;">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a>
+                <a href="/admin/panel" style="padding: 8px 16px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600; border: 1px solid rgba(255, 255, 255, 0.3); transition: all 0.3s;">
+                    <i class="fas fa-user-shield"></i> Admin Panel
+                </a>
+                <a href="/backtest/" style="padding: 8px 16px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600; border: 1px solid rgba(255, 255, 255, 0.3); transition: all 0.3s;">
+                    <i class="fas fa-chart-bar"></i> Backtesting
+                </a>
+            </div>
+        </header>
+
+        <!-- Toast Container -->
+        <div class="toast-container" id="toastContainer"></div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="spinner"></div>
+            <div class="message" id="loadingMessage">Processing...</div>
+        </div>
+
+        <!-- Confirmation Modal -->
+        <div class="modal-overlay" id="confirmModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 id="modalTitle">Confirm Action</h3>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    Are you sure you want to proceed?
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button class="modal-btn modal-btn-danger" id="modalConfirmBtn" onclick="confirmModalAction()">Confirm</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <section class="summary-section">
+            <div class="card trading-card">
+                <div class="card-header">
+                    <h3>Live Trader Mode</h3>
+                    <span class="card-icon"><i class="fas fa-robot"></i></span>
+                </div>
+                <div class="card-value" id="summaryMode">PAPER</div>
+                <div class="card-subvalue">Execution mode</div>
+            </div>
+
+            <div class="card trading-card">
+                <div class="card-header">
+                    <h3>Engine Status</h3>
+                    <span class="card-icon"><i class="fas fa-cog"></i></span>
+                </div>
+                <div class="card-value" id="summaryRunning">
+                    <span class="status-badge stopped" id="statusBadge">
+                        <i class="fas fa-circle"></i> Stopped
+                    </span>
+                </div>
+                <div class="card-subvalue" id="summarySegments">Segments: -</div>
+            </div>
+
+            <div class="card trading-card">
+                <div class="card-header">
+                    <h3>Kite Connectivity</h3>
+                    <span class="card-icon"><i class="fas fa-plug"></i></span>
+                </div>
+                <div class="card-value" id="summaryKite">
+                    <span class="status-badge disconnected" id="kiteBadge">
+                        <i class="fas fa-circle"></i> Unknown
+                    </span>
+                </div>
+                <div class="card-subvalue" id="kiteSubvalue">Use dashboard to authenticate</div>
+                <div style="margin-top: 8px;">
+                    <button onclick="refreshKiteStatus()" style="padding: 4px 8px; font-size: 11px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: var(--text-primary); cursor: pointer;">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div class="card trading-card">
+                <div class="card-header">
+                    <h3>Strategy Settings</h3>
+                    <span class="card-icon"><i class="fas fa-sliders-h"></i></span>
+                </div>
+                <div class="card-value" id="summaryInterval">5m / RSI 9</div>
+                <div class="card-subvalue" id="summaryRisk">SL Per Segment · ITM Per Segment</div>
+            </div>
+        </section>
+
+        <!-- Main Grid -->
+        <section class="main-content">
+            <!-- Control Panel -->
+            <div class="panel" id="controls">
+                <div class="panel-header">
+                    <h2><i class="fas fa-sliders-h"></i> Live Trader Controls</h2>
+                </div>
+                <div class="panel-body">
+                    <form id="liveTraderForm">
+                        <div class="form-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+                            <div class="form-group">
+                                <label>Trading Modes *</label>
+                                <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;">
+                                    <label class="mode-option" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 12px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border: 2px solid var(--border-color); transition: all 0.3s;">
+                                        <input type="checkbox" id="mode_paper" name="modes" value="PAPER" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary-color);">
+                                        <div style="flex: 1;">
+                                            <strong style="color: var(--text-primary);">Paper Trading</strong>
+                                            <small style="display: block; color: var(--text-secondary); margin-top: 4px;">Simulates trades and logs to CSV</small>
+                                        </div>
+                                    </label>
+                                    <label class="mode-option" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 12px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border: 2px solid var(--border-color); transition: all 0.3s;">
+                                        <input type="checkbox" id="mode_live" name="modes" value="LIVE" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--danger-color);">
+                                        <div style="flex: 1;">
+                                            <strong style="color: var(--text-primary);">Live Trading</strong>
+                                            <small style="display: block; color: var(--text-secondary); margin-top: 4px;">Places real orders via Kite API</small>
+                                        </div>
+                                    </label>
+                                </div>
+                                <small style="color: var(--text-secondary); margin-top: 8px; display: block;">
+                                    <strong>Parallel Mode:</strong> Select both to run Paper and Live trading simultaneously for real-time comparison.
+                                </small>
+                                <div id="liveModeWarning" style="display: none; margin-top: 8px; padding: 12px; background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%); border: 2px solid #ffc107; border-radius: 8px; border-left: 4px solid #ffc107;">
+                                    <strong style="color: #856404;">⚠️ WARNING: LIVE MODE SELECTED</strong>
+                                    <p style="color: #856404; margin: 8px 0 0 0; font-size: 13px;">
+                                        You are about to enable <strong>REAL TRADING</strong>. This will place actual orders in your Kite account using real money. 
+                                        Make sure you have thoroughly tested the strategy in Paper mode and understand all risks.
+                                    </p>
+                                </div>
+                            </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Strategy Settings Section -->
+                        <div class="form-section">
+                            <div class="form-section-header" onclick="toggleSection(this)">
+                                <h3><i class="fas fa-cog"></i> Strategy Settings</h3>
+                                <i class="fas fa-chevron-down form-section-toggle"></i>
+                            </div>
+                            <div class="form-section-content">
+                                <div class="form-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+                                    <div class="form-group">
+                                        <label for="time_interval">
+                                            Signal Timeframe *
+                                            <span class="help-tooltip">
+                                                <i class="fas fa-question-circle"></i>
+                                                <span class="tooltip-content">Candle timeframe for PS/VS calculation. Recommended: 5 minutes</span>
+                                            </span>
+                                        </label>
+                                        <select id="time_interval" name="time_interval" class="form-input" required>
+                                            <option value="3minute">3 Minutes</option>
+                                            <option value="5minute" selected>5 Minutes</option>
+                                            <option value="15minute">15 Minutes</option>
+                                            <option value="30minute">30 Minutes</option>
+                                            <option value="1hour">1 Hour</option>
+                                        </select>
+                                        <span class="field-error" id="time_interval_error"></span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="monitoring_interval">
+                                            Monitoring Interval
+                                            <span class="help-tooltip">
+                                                <i class="fas fa-question-circle"></i>
+                                                <span class="tooltip-content">How often to check for entry/exit. Recommended: 1 minute</span>
+                                            </span>
+                                        </label>
+                                        <select id="monitoring_interval" name="monitoring_interval" class="form-input">
+                                            <option value="1minute" selected>1 Minute</option>
+                                            <option value="3minute">3 Minutes</option>
+                                            <option value="5minute">5 Minutes</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="rsi_period">
+                                            RSI Period
+                                            <span class="help-tooltip">
+                                                <i class="fas fa-question-circle"></i>
+                                                <span class="tooltip-content">RSI calculation period. Default: 9 (matching TradingView)</span>
+                                            </span>
+                                        </label>
+                                        <input type="number" id="rsi_period" name="rsi_period" class="form-input" value="9" min="5" max="50">
+                                        <span class="field-error" id="rsi_period_error"></span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="price_strength_ema">
+                                            Price Strength (EMA)
+                                            <span class="help-tooltip">
+                                                <i class="fas fa-question-circle"></i>
+                                                <span class="tooltip-content">EMA period for Price Strength. Default: 3</span>
+                                            </span>
+                                        </label>
+                                        <input type="number" id="price_strength_ema" name="price_strength_ema" class="form-input" value="3" min="2" max="20">
+                                        <span class="field-error" id="price_strength_ema_error"></span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="volume_strength_wma">
+                                            Volume Strength (WMA)
+                                            <span class="help-tooltip">
+                                                <i class="fas fa-question-circle"></i>
+                                                <span class="tooltip-content">WMA period for Volume Strength. Default: 21 (matching TradingView)</span>
+                                            </span>
+                                        </label>
+                                        <input type="number" id="volume_strength_wma" name="volume_strength_wma" class="form-input" value="21" min="5" max="50">
+                                        <span class="field-error" id="volume_strength_wma_error"></span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="initial_capital">
+                                            Initial Capital (₹)
+                                            <span class="help-tooltip">
+                                                <i class="fas fa-question-circle"></i>
+                                                <span class="tooltip-content">Starting capital for paper trading calculations</span>
+                                            </span>
+                                        </label>
+                                        <input type="number" id="initial_capital" name="initial_capital" class="form-input" value="100000" min="10000" step="1000">
+                                        <span class="field-error" id="initial_capital_error"></span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="trade_regime">
+                                            Trade Regime *
+                                            <span class="help-tooltip">
+                                                <i class="fas fa-question-circle"></i>
+                                                <span class="tooltip-content">Buy: Buy options. Sell: Sell options (opposite strategy)</span>
+                                            </span>
+                                        </label>
+                                        <select id="trade_regime" name="trade_regime" class="form-input" required>
+                                            <option value="Buy" selected>Buy</option>
+                                            <option value="Sell">Sell</option>
+                                        </select>
+                                        <small style="color: var(--text-secondary); margin-top: 4px; display: block;">
+                                            <strong>Buy:</strong> Buy options (SL = entry_premium - stop_loss points)<br>
+                                            <strong>Sell:</strong> Sell options (SL = entry_premium + stop_loss% of premium)
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Segments Configuration Section -->
+                        <div class="form-section">
+                            <div class="form-section-header" onclick="toggleSection(this)">
+                                <h3><i class="fas fa-chart-pie"></i> Trading Segments & Pyramiding Configuration *</h3>
+                                <i class="fas fa-chevron-down form-section-toggle"></i>
+                            </div>
+                            <div class="form-section-content">
+                                <div class="form-group">
+                                    <label>
+                                        Segment Configuration
+                                        <span class="help-tooltip">
+                                            <i class="fas fa-question-circle"></i>
+                                            <span class="tooltip-content">Configure lot sizes, ITM offsets, and pyramiding settings for each segment</span>
+                                        </span>
+                                    </label>
+                            <div class="table-container" style="margin-top: 12px;">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Segment</th>
+                                            <th style="text-align: center;">Enable</th>
+                                            <th style="text-align: right;">Lot Size</th>
+                                            <th style="text-align: right;">ITM Offset</th>
+                                            <th style="text-align: right;">Stop Loss(%)</th>
+                                            <th style="text-align: right;">Pyramid Points</th>
+                                            <th style="text-align: right;">Lot Addition</th>
+                                            <th style="text-align: right;">Max Quantity</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="font-weight: 600;">NIFTY</td>
+                                            <td style="text-align: center;">
+                                                <input type="checkbox" id="segment_nifty" name="segments" value="NIFTY" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary-color);">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="pyramid_lot_size_nifty" name="pyramid_lot_size_NIFTY" class="form-input" value="75" min="1" step="1" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="itm_offset_nifty" name="itm_offset_NIFTY" class="form-input" value="-200" step="10" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="stop_loss_nifty" name="stop_loss_NIFTY" class="form-input" value="30" min="1" step="1" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="pyramid_points_nifty" name="pyramid_points_NIFTY" class="form-input" value="5" min="0.1" step="0.1" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="pyramid_lot_addition_nifty" name="pyramid_lot_addition_NIFTY" class="form-input" value="5" min="1" step="1" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="pyramid_max_qty_nifty" name="pyramid_max_qty_NIFTY" class="form-input" value="1500" min="1" step="1" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-weight: 600;">BANKNIFTY</td>
+                                            <td style="text-align: center;">
+                                                <input type="checkbox" id="segment_banknifty" name="segments" value="BANKNIFTY" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary-color);">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="pyramid_lot_size_banknifty" name="pyramid_lot_size_BANKNIFTY" class="form-input" value="35" min="1" step="1" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="itm_offset_banknifty" name="itm_offset_BANKNIFTY" class="form-input" value="-300" step="10" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="stop_loss_banknifty" name="stop_loss_BANKNIFTY" class="form-input" value="40" min="1" step="1" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="pyramid_points_banknifty" name="pyramid_points_BANKNIFTY" class="form-input" value="20" min="0.1" step="0.1" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="pyramid_lot_addition_banknifty" name="pyramid_lot_addition_BANKNIFTY" class="form-input" value="10" min="1" step="1" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="pyramid_max_qty_banknifty" name="pyramid_max_qty_BANKNIFTY" class="form-input" value="1000" min="1" step="1" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-weight: 600;">SENSEX</td>
+                                            <td style="text-align: center;">
+                                                <input type="checkbox" id="segment_sensex" name="segments" value="SENSEX" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary-color);">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="pyramid_lot_size_sensex" name="pyramid_lot_size_SENSEX" class="form-input" value="20" min="1" step="1" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="itm_offset_sensex" name="itm_offset_SENSEX" class="form-input" value="-500" step="10" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="stop_loss_sensex" name="stop_loss_SENSEX" class="form-input" value="50" min="1" step="1" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="pyramid_points_sensex" name="pyramid_points_SENSEX" class="form-input" value="20" min="0.1" step="0.1" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="pyramid_lot_addition_sensex" name="pyramid_lot_addition_SENSEX" class="form-input" value="10" min="1" step="1" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="pyramid_max_qty_sensex" name="pyramid_max_qty_SENSEX" class="form-input" value="1000" min="1" step="1" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <small style="color: var(--text-secondary); margin-top: 8px; display: block;">
+                                <strong>Pyramiding Logic:</strong> When profit reaches (Current Quantity × Pyramid Points), add (Lot Addition × Lot Size) lots, up to Max Quantity.
+                            </small>
+                        </div>
+
+                        <div style="display: flex; gap: 12px; margin-top: 24px;">
+                            <button type="button" class="btn-live-start" id="startLiveBtn" style="flex: 1;">
+                                <i class="fas fa-play"></i> Start Live Trader
+                            </button>
+                            <button type="button" class="btn-live-stop" id="stopLiveBtn" disabled style="flex: 1;">
+                                <i class="fas fa-stop"></i> Stop
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="liveErrorContainer" style="margin-top: 16px;"></div>
+                </div>
+            </div>
+
+            <!-- Status Panel -->
+            <div class="panel">
+                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <h2><i class="fas fa-info-circle"></i> Live Trader Status</h2>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button id="pauseStatusBtn" onclick="toggleStatusFetching()" style="padding: 6px 12px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); color: white; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.3s;">
+                            <i class="fas fa-pause"></i> <span id="pauseStatusText">Pause</span>
+                        </button>
+                        <small style="color: var(--text-secondary); font-size: 12px;">Status updates every 10s</small>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div id="liveStatusPanel" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                        <!-- System Status Card -->
+                        <div class="status-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 12px; color: white;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                                <i class="fas fa-cog" style="font-size: 20px;"></i>
+                                <h3 style="margin: 0; font-size: 16px; font-weight: 600;">System Status</h3>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 6px;">
+                                    <span style="font-size: 13px; opacity: 0.9;"><i class="fas fa-layer-group"></i> Mode:</span>
+                                    <span id="statusMode" style="font-weight: 700; font-size: 14px; text-transform: uppercase;">PAPER</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 6px;">
+                                    <span style="font-size: 13px; opacity: 0.9;"><i class="fas fa-play-circle"></i> Running:</span>
+                                    <span id="statusRunning" style="font-weight: 700; font-size: 14px;">No</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 6px;">
+                                    <span style="font-size: 13px; opacity: 0.9;"><i class="fas fa-chart-line"></i> Segments:</span>
+                                    <span id="statusSegments" style="font-weight: 700; font-size: 14px;">-</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 6px;">
+                                    <span style="font-size: 13px; opacity: 0.9;"><i class="fas fa-check-circle"></i> Kite Auth:</span>
+                                    <span id="statusKite" style="font-weight: 700; font-size: 14px;">Unknown</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Trading Parameters Card -->
+                        <div class="status-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 20px; border-radius: 12px; color: white;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                                <i class="fas fa-sliders-h" style="font-size: 20px;"></i>
+                                <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Trading Parameters</h3>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 6px;">
+                                    <span style="font-size: 13px; opacity: 0.9;"><i class="fas fa-clock"></i> Signal Timeframe:</span>
+                                    <span id="statusInterval" style="font-weight: 700; font-size: 14px;">5minute</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 6px;">
+                                    <span style="font-size: 13px; opacity: 0.9;"><i class="fas fa-sync"></i> Monitor Interval:</span>
+                                    <span id="statusMonitoringInterval" style="font-weight: 700; font-size: 14px;">1minute</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 6px;">
+                                    <span style="font-size: 13px; opacity: 0.9;"><i class="fas fa-shield-alt"></i> Stop Loss:</span>
+                                    <span id="statusSl" style="font-weight: 700; font-size: 14px;">Per Segment (%)</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 6px;">
+                                    <span style="font-size: 13px; opacity: 0.9;"><i class="fas fa-bullseye"></i> ITM Offset:</span>
+                                    <span id="statusItm" style="font-weight: 700; font-size: 14px;">100 points</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Indicator Settings Card -->
+                        <div class="status-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 20px; border-radius: 12px; color: white;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                                <i class="fas fa-chart-area" style="font-size: 20px;"></i>
+                                <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Indicator Settings</h3>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 6px;">
+                                    <span style="font-size: 13px; opacity: 0.9;"><i class="fas fa-wave-square"></i> RSI Period:</span>
+                                    <span id="statusRsi" style="font-weight: 700; font-size: 14px;">9</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 6px;">
+                                    <span style="font-size: 13px; opacity: 0.9;"><i class="fas fa-arrow-up"></i> Price Strength (EMA):</span>
+                                    <span id="statusPriceStrength" style="font-weight: 700; font-size: 14px;">3</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 6px;">
+                                    <span style="font-size: 13px; opacity: 0.9;"><i class="fas fa-volume-up"></i> Volume Strength (WMA):</span>
+                                    <span id="statusVolumeStrength" style="font-weight: 700; font-size: 14px;">21</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 6px;">
+                                    <span style="font-size: 13px; opacity: 0.9;"><i class="fas fa-rupee-sign"></i> Initial Capital:</span>
+                                    <span id="statusCapital" style="font-weight: 700; font-size: 14px;">₹100000</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="liveLoading" class="loading" style="display: none; margin-top: 16px; text-align: center; color: var(--text-primary);">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: var(--primary-color);"></i>
+                        <p style="margin-top: 8px; color: var(--text-secondary);">Updating Live Trader status...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PS/VS Time Series Chart -->
+        <section class="main-content" style="margin-top: 30px;">
+            <div class="panel" style="grid-column: 1 / -1;">
+                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <h2><i class="fas fa-chart-line"></i> Price Strength (PS) & Volume Strength (VS) Time Series</h2>
+                        <button onclick="fetchPsVsData()" style="padding: 8px 16px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); color: white; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s;">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <select id="psVsSegment" onchange="fetchPsVsData()" style="padding: 8px 16px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); color: var(--text-primary, white); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;">
+                            <option value="NIFTY" selected style="color: var(--text-primary, white); background: var(--bg-primary, #1a1a1a);">NIFTY</option>
+                            <option value="BANKNIFTY" style="color: var(--text-primary, white); background: var(--bg-primary, #1a1a1a);">BANKNIFTY</option>
+                            <option value="SENSEX" style="color: var(--text-primary, white); background: var(--bg-primary, #1a1a1a);">SENSEX</option>
+                        </select>
+                        <select id="psVsHours" onchange="fetchPsVsData()" style="padding: 8px 16px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); color: var(--text-primary, white); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;">
+                            <option value="1" style="color: var(--text-primary, white); background: var(--bg-primary, #1a1a1a);">Last 1 Hour</option>
+                            <option value="3" style="color: var(--text-primary, white); background: var(--bg-primary, #1a1a1a);">Last 3 Hours</option>
+                            <option value="6" style="color: var(--text-primary, white); background: var(--bg-primary, #1a1a1a);">Last 6 Hours</option>
+                            <option value="10" selected style="color: var(--text-primary, white); background: var(--bg-primary, #1a1a1a);">Last 10 Hours</option>
+                            <option value="24" style="color: var(--text-primary, white); background: var(--bg-primary, #1a1a1a);">Last 24 Hours</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="chart-container" style="height: 450px; margin-top: 20px;">
+                        <canvas id="psVsChart"></canvas>
+                        </div>
+                    <div id="psVsError" style="display: none; margin-top: 16px; padding: 12px; background: #fee; border: 1px solid #fcc; border-radius: 6px; color: #c33; font-size: 14px;"></div>
+                    <div style="margin-top: 20px; padding: 16px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 12px; border: 2px solid #bae6fd;">
+                        <p style="color: var(--text-primary); font-size: 14px; margin: 0;">
+                            <strong><i class="fas fa-info-circle"></i> Chart Information:</strong> This chart displays Price Strength (PS) and Volume Strength (VS) over time. 
+                            PS is EMA(3) of RSI(9) shown in blue, VS is WMA(21) of RSI(9) shown in orange. 
+                            Crossovers are marked: <span style="color: #10b981; font-weight: bold;">CE (PS↑VS)</span> for bullish and <span style="color: #ef4444; font-weight: bold;">PE (PS↓VS)</span> for bearish.
+                        </p>
+                        </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Live Trading Logs Section -->
+        <section class="main-content" style="margin-top: 30px;" id="logs">
+            <div class="panel" style="grid-column: 1 / -1;">
+                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <h2><i class="fas fa-file-alt"></i> Live Trading Logs</h2>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <select id="logMode" style="padding: 6px 12px; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; font-size: 13px; background: white;">
+                                <option value="LIVE">Live Trading</option>
+                                <option value="PAPER">Paper Trading</option>
+                            </select>
+                            <button onclick="fetchLogs()" style="padding: 8px 16px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); color: white; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s;">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <button onclick="clearLogs()" style="padding: 8px 16px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); color: white; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s;">
+                                <i class="fas fa-trash"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary);">
+                            <input type="checkbox" id="autoRefreshLogs" checked style="width: 16px; height: 16px; cursor: pointer;">
+                            <span>Auto-refresh (1s)</span>
+                        </label>
+                        <button class="help-icon-panel" onclick="showHelp('live-logs')" title="Help">
+                            <i class="fas fa-question-circle"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div style="padding: 15px; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border: 1px solid #2196f3; border-radius: 8px; margin-bottom: 20px;">
+                        <p style="color: #1565c0; font-size: 14px; margin: 0;">
+                            <strong>📋 Log Information:</strong> This section shows real-time logs from Paper and Live trading activities, split by segment (NIFTY, BANKNIFTY, SENSEX). 
+                            Logs include agent start/stop events, signal generation, trade entries/exits, order placements, and errors. 
+                            Logs are stored in <code>logs/{MODE}_{SEGMENT}_YYYY-MM-DD.log</code> files.
+                        </p>
+                    </div>
+                    <!-- Three horizontal sections for each segment -->
+                    <div style="display: flex; flex-direction: row; gap: 20px; overflow-x: auto;">
+                        <!-- NIFTY Logs -->
+                        <div style="display: flex; flex-direction: column; flex: 1; min-width: 0;">
+                            <h3 style="margin: 0 0 10px 0; color: var(--text-primary); font-size: 16px; font-weight: 600;">
+                                <i class="fas fa-chart-line"></i> NIFTY
+                            </h3>
+                            <div id="logsContainerNIFTY" style="background: #1e1e1e; color: #d4d4d4; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 11px; padding: 12px; border-radius: 8px; max-height: 500px; overflow-y: auto; line-height: 1.5; flex: 1; min-width: 0;">
+                                <div style="color: #888; font-style: italic;">Loading logs...</div>
+                            </div>
+                            <div id="logsErrorNIFTY" style="display: none; margin-top: 8px; padding: 8px; background: #fee; border: 1px solid #fcc; border-radius: 6px; color: #c33; font-size: 12px;"></div>
+                        </div>
+                        
+                        <!-- BANKNIFTY Logs -->
+                        <div style="display: flex; flex-direction: column; flex: 1; min-width: 0;">
+                            <h3 style="margin: 0 0 10px 0; color: var(--text-primary); font-size: 16px; font-weight: 600;">
+                                <i class="fas fa-chart-line"></i> BANKNIFTY
+                            </h3>
+                            <div id="logsContainerBANKNIFTY" style="background: #1e1e1e; color: #d4d4d4; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 11px; padding: 12px; border-radius: 8px; max-height: 500px; overflow-y: auto; line-height: 1.5; flex: 1; min-width: 0;">
+                                <div style="color: #888; font-style: italic;">Loading logs...</div>
+                            </div>
+                            <div id="logsErrorBANKNIFTY" style="display: none; margin-top: 8px; padding: 8px; background: #fee; border: 1px solid #fcc; border-radius: 6px; color: #c33; font-size: 12px;"></div>
+                        </div>
+                        
+                        <!-- SENSEX Logs -->
+                        <div style="display: flex; flex-direction: column; flex: 1; min-width: 0;">
+                            <h3 style="margin: 0 0 10px 0; color: var(--text-primary); font-size: 16px; font-weight: 600;">
+                                <i class="fas fa-chart-line"></i> SENSEX
+                            </h3>
+                            <div id="logsContainerSENSEX" style="background: #1e1e1e; color: #d4d4d4; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 11px; padding: 12px; border-radius: 8px; max-height: 500px; overflow-y: auto; line-height: 1.5; flex: 1; min-width: 0;">
+                                <div style="color: #888; font-style: italic;">Loading logs...</div>
+                            </div>
+                            <div id="logsErrorSENSEX" style="display: none; margin-top: 8px; padding: 8px; background: #fee; border: 1px solid #fcc; border-radius: 6px; color: #c33; font-size: 12px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Save pyramiding configuration to localStorage
+        function savePyramidingConfig() {
+            const segments = ['nifty', 'banknifty', 'sensex'];
+            const config = {};
+            
+            segments.forEach(segment => {
+                const segmentUpper = segment.toUpperCase();
+                config[segmentUpper] = {
+                    lot_size: parseInt(document.getElementById(`pyramid_lot_size_${segment}`).value) || 75,
+                    itm_offset: parseFloat(document.getElementById(`itm_offset_${segment}`).value) || -200,
+                    stop_loss: parseFloat(document.getElementById(`stop_loss_${segment}`).value) || 30,
+                    pyramid_points: parseFloat(document.getElementById(`pyramid_points_${segment}`).value) || 5,
+                    lot_addition: parseInt(document.getElementById(`pyramid_lot_addition_${segment}`).value) || 5,
+                    max_quantity: parseInt(document.getElementById(`pyramid_max_qty_${segment}`).value) || 1500
+                };
+            });
+            
+            localStorage.setItem('live_trader_pyramiding_config', JSON.stringify(config));
+        }
+        
+        // Load pyramiding configuration from localStorage or config.json
+        function loadPyramidingConfig() {
+            let config = null;
+            
+            // First try localStorage
+            const saved = localStorage.getItem('live_trader_pyramiding_config');
+            if (saved) {
+                try {
+                    config = JSON.parse(saved);
+                } catch (e) {
+                    console.error('Error parsing localStorage pyramiding config:', e);
+                }
+            }
+            
+            // If not in localStorage, try to load from config.json via API
+            if (!config) {
+                fetch('/live/config/pyramiding')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.pyramiding_config) {
+                            config = data.pyramiding_config;
+                            // Save to localStorage for future use
+                            localStorage.setItem('live_trader_pyramiding_config', JSON.stringify(config));
+                        }
+                        applyPyramidingConfig(config);
+                    })
+                    .catch(err => {
+                        console.error('Error loading pyramiding config from server:', err);
+                        applyPyramidingConfig(null);
+                    });
+                return;
+            }
+            
+            applyPyramidingConfig(config);
+        }
+        
+        // Apply pyramiding config to form fields
+        function applyPyramidingConfig(config) {
+            if (!config) return;
+            
+            const segments = ['nifty', 'banknifty', 'sensex'];
+            segments.forEach(segment => {
+                const segmentUpper = segment.toUpperCase();
+                if (config[segmentUpper]) {
+                    const cfg = config[segmentUpper];
+                    const lotSizeEl = document.getElementById(`pyramid_lot_size_${segment}`);
+                    const itmOffsetEl = document.getElementById(`itm_offset_${segment}`);
+                    const stopLossEl = document.getElementById(`stop_loss_${segment}`);
+                    const pointsEl = document.getElementById(`pyramid_points_${segment}`);
+                    const lotAddEl = document.getElementById(`pyramid_lot_addition_${segment}`);
+                    const maxQtyEl = document.getElementById(`pyramid_max_qty_${segment}`);
+                    
+                    if (lotSizeEl && cfg.lot_size !== undefined) lotSizeEl.value = cfg.lot_size;
+                    if (itmOffsetEl && cfg.itm_offset !== undefined) itmOffsetEl.value = cfg.itm_offset;
+                    if (stopLossEl && cfg.stop_loss !== undefined) stopLossEl.value = cfg.stop_loss;
+                    if (pointsEl && cfg.pyramid_points !== undefined) pointsEl.value = cfg.pyramid_points;
+                    if (lotAddEl && cfg.lot_addition !== undefined) lotAddEl.value = cfg.lot_addition;
+                    if (maxQtyEl && cfg.max_quantity !== undefined) maxQtyEl.value = cfg.max_quantity;
+                }
+            });
+        }
+        
+        // Auto-save when values change
+        function setupPyramidingAutoSave() {
+            const segments = ['nifty', 'banknifty', 'sensex'];
+            segments.forEach(segment => {
+                ['lot_size', 'points', 'lot_addition', 'max_qty'].forEach(field => {
+                    const el = document.getElementById(`pyramid_${field}_${segment}`);
+                    if (el) {
+                        el.addEventListener('change', savePyramidingConfig);
+                        el.addEventListener('input', savePyramidingConfig);
+                    }
+                });
+                // Also add listeners for itm_offset and stop_loss
+                ['itm_offset', 'stop_loss'].forEach(field => {
+                    const el = document.getElementById(`${field}_${segment}`);
+                    if (el) {
+                        el.addEventListener('change', savePyramidingConfig);
+                        el.addEventListener('input', savePyramidingConfig);
+                    }
+                });
+            });
+        }
+        
+        // Status fetching control (declared before fetchLiveStatus)
+        let statusFetchInterval = null;
+        let statusFetchingPaused = false;
+        
+        function toggleStatusFetching() {
+            statusFetchingPaused = !statusFetchingPaused;
+            const btn = document.getElementById('pauseStatusBtn');
+            const text = document.getElementById('pauseStatusText');
+            
+            if (statusFetchingPaused) {
+                if (statusFetchInterval) {
+                    clearInterval(statusFetchInterval);
+                    statusFetchInterval = null;
+                }
+                btn.innerHTML = '<i class="fas fa-play"></i> <span id="pauseStatusText">Resume</span>';
+                btn.style.background = 'rgba(76, 175, 80, 0.3)';
+            } else {
+                fetchLiveStatus(); // Fetch immediately
+                statusFetchInterval = setInterval(fetchLiveStatus, 10000);
+                btn.innerHTML = '<i class="fas fa-pause"></i> <span id="pauseStatusText">Pause</span>';
+                btn.style.background = 'rgba(255, 255, 255, 0.2)';
+            }
+        }
+        
+        async function fetchLiveStatus() {
+            // Skip if paused
+            if (statusFetchingPaused) {
+                return;
+            }
+            
+            try {
+                document.getElementById('liveLoading').style.display = 'block';
+                const res = await fetch('/live/status');
+                if (!res.ok) {
+                    console.error('Status fetch failed:', res.status, res.statusText);
+                    showLiveError(`Failed to fetch status: ${res.status} ${res.statusText}`);
+                    return;
+                }
+                const data = await res.json();
+                console.log('Status API response:', data);
+                if (!data.success) {
+                    console.error('Status response not successful:', data.error);
+                    showLiveError(data.error || 'Failed to fetch status');
+                    return;
+                }
+                const status = data.status || {};
+                const params = status.params || {};
+
+                // Debug: Log status to console
+                console.log('Live Trader Status:', status);
+                console.log('Kite Authenticated:', status.kite_authenticated);
+                
+                // Ensure kite_authenticated exists
+                if (status.kite_authenticated === undefined) {
+                    console.warn('⚠️ kite_authenticated not in status response, defaulting to false');
+                    status.kite_authenticated = false;
+                }
+
+                // Get modes from status, or use defaults if not running
+                const running = !!status.running;
+                let modes = [];
+                if (running && status.modes) {
+                    modes = status.modes;
+                } else if (running && params.mode) {
+                    modes = [params.mode];
+                } else {
+                    // If not running, don't change checkbox states - use current checkbox values
+                    const modePaperEl = document.getElementById('mode_paper');
+                    const modeLiveEl = document.getElementById('mode_live');
+                    if (modePaperEl && modePaperEl.checked) modes.push('PAPER');
+                    if (modeLiveEl && modeLiveEl.checked) modes.push('LIVE');
+                    // Default to PAPER if nothing is selected
+                    if (modes.length === 0) {
+                        modes = ['PAPER'];
+                        if (modePaperEl) modePaperEl.checked = true;
+                    }
+                }
+                
+                const modeText = modes.length > 1 ? modes.join(' + ') : (modes[0] || 'PAPER');
+                const segmentsText = (status.segments || []).join(', ') || '-';
+                const intervalText = params.time_interval || '5minute';
+                const monitoringIntervalText = params.monitoring_interval || '1minute';
+                const rsiVal = params.rsi_period || 9;
+                const priceStrengthVal = params.price_strength_ema || 3;
+                const volumeStrengthVal = params.volume_strength_wma || 18;
+                const capitalVal = params.initial_capital || 100000;
+                // Stop loss is now per-segment, show "Per Segment (%)" in status
+                const slVal = "Per Segment (%)";  // Stop loss is now configured per segment as percentage
+                // ITM offset is now per-segment, show "Per Segment" in status
+                const itmVal = "Per Segment";  // ITM offset is now configured per segment
+                const kiteAuth = !!status.kite_authenticated;
+
+                // Debug: Log kiteAuth value
+                console.log('Kite Auth (boolean):', kiteAuth);
+
+                // Update status with color coding
+                const statusModeEl = document.getElementById('statusMode');
+                statusModeEl.textContent = modeText;
+                statusModeEl.style.color = modeText === 'LIVE' ? '#ff6b6b' : '#4ecdc4';
+                
+                const statusRunningEl = document.getElementById('statusRunning');
+                statusRunningEl.textContent = running ? 'Yes' : 'No';
+                statusRunningEl.style.color = running ? '#51cf66' : '#ff6b6b';
+                
+                const statusSegmentsEl = document.getElementById('statusSegments');
+                let statusSegmentsDisplay = segmentsText;
+                // Show active agents count if running
+                if (running && status.active_agents) {
+                    statusSegmentsDisplay += ` (${status.active_agents} agents)`;
+                }
+                statusSegmentsEl.textContent = statusSegmentsDisplay;
+                
+                const statusKiteEl = document.getElementById('statusKite');
+                statusKiteEl.textContent = kiteAuth ? 'Yes' : 'No';
+                statusKiteEl.style.color = kiteAuth ? '#51cf66' : '#ff6b6b';
+                
+                document.getElementById('statusInterval').textContent = intervalText;
+                document.getElementById('statusMonitoringInterval').textContent = monitoringIntervalText;
+                document.getElementById('statusRsi').textContent = rsiVal;
+                document.getElementById('statusPriceStrength').textContent = priceStrengthVal;
+                document.getElementById('statusVolumeStrength').textContent = volumeStrengthVal;
+                document.getElementById('statusCapital').textContent = `₹${capitalVal}`;
+                document.getElementById('statusSl').textContent = slVal;
+                document.getElementById('statusItm').textContent = itmVal;
+
+                // Update summary cards
+                document.getElementById('summaryMode').textContent = modeText;
+                
+                // Update status badges
+                updateStatusBadge(running);
+                updateKiteBadge(kiteAuth);
+                
+                // Update mode checkboxes to reflect current state (only if status is running)
+                // Don't update checkboxes if not running to avoid interfering with user selection
+                if (running && modes && modes.length > 0) {
+                    const modePaperEl = document.getElementById('mode_paper');
+                    const modeLiveEl = document.getElementById('mode_live');
+                    
+                    if (modePaperEl) {
+                        modePaperEl.checked = modes.includes('PAPER');
+                    }
+                    if (modeLiveEl) {
+                        modeLiveEl.checked = modes.includes('LIVE');
+                    }
+                }
+                
+                // Update warning visibility based on current checkbox state (always)
+                const modeLiveEl = document.getElementById('mode_live');
+                const warningDiv = document.getElementById('liveModeWarning');
+                if (modeLiveEl && warningDiv) {
+                    warningDiv.style.display = modeLiveEl.checked ? 'block' : 'none';
+                }
+                
+                // Update summary cards (use different variable name to avoid duplicate declaration)
+                let summarySegmentsDisplay = `Segments: ${segmentsText}`;
+                if (running && status.active_agents) {
+                    summarySegmentsDisplay += ` (${status.active_agents} agents)`;
+                }
+                document.getElementById('summarySegments').textContent = summarySegmentsDisplay;
+                document.getElementById('summaryInterval').textContent = `${intervalText.replace('minute', 'm').replace('hour', 'h')} / RSI ${rsiVal}`;
+                document.getElementById('summaryRisk').textContent = `SL ${slVal} pts · ITM ${itmVal}`;
+
+                // Toggle buttons
+                document.getElementById('startLiveBtn').disabled = status.running;
+                document.getElementById('stopLiveBtn').disabled = !status.running;
+
+                clearLiveError();
+            } catch (err) {
+                showLiveError('Error fetching status: ' + err.message);
+            } finally {
+                document.getElementById('liveLoading').style.display = 'none';
+            }
+        }
+
+        function getSelectedSegments() {
+            const checkboxes = document.querySelectorAll('input[name="segments"]:checked');
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
+
+        function toggleSegmentInputs(segment, enabled) {
+            const segLower = segment.toLowerCase();
+            document.getElementById(`pyramid_lot_size_${segLower}`).disabled = !enabled;
+            document.getElementById(`itm_offset_${segLower}`).disabled = !enabled;
+            document.getElementById(`pyramid_points_${segLower}`).disabled = !enabled;
+            document.getElementById(`pyramid_lot_addition_${segLower}`).disabled = !enabled;
+            document.getElementById(`pyramid_max_qty_${segLower}`).disabled = !enabled;
+        }
+
+        // Add event listeners to segment checkboxes
+        // Theme Toggle Functions
+        function getTheme() {
+            return localStorage.getItem('theme') || 'light';
+        }
+
+        function setTheme(theme) {
+            localStorage.setItem('theme', theme);
+            document.documentElement.setAttribute('data-theme', theme);
+            updateThemeToggle(theme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = getTheme();
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+            showToast(`Switched to ${newTheme === 'dark' ? 'Dark' : 'Light'} theme`, 'info', 2000);
+        }
+
+        function updateThemeToggle(theme) {
+            const toggle = document.getElementById('themeToggle');
+            if (toggle) {
+                toggle.setAttribute('data-theme', theme);
+            }
+        }
+
+        // Initialize theme on page load
+        function initializeTheme() {
+            const savedTheme = getTheme();
+            setTheme(savedTheme);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize theme first (before other UI elements)
+            initializeTheme();
+            
+            // Fetch Live Trader status immediately on page load (before other initializations)
+            fetchLiveStatus();
+            
+            // Initialize PS/VS chart
+            initializePsVsChart();
+            fetchPsVsData();
+            // Refresh PS/VS chart every 1 minute
+            setInterval(fetchPsVsData, 60000);
+            
+            // Load logs on page load
+            fetchLogs();
+            
+            // Refresh logs when mode changes
+            const logModeSelect = document.getElementById('logMode');
+            if (logModeSelect) {
+                logModeSelect.addEventListener('change', function() {
+                    fetchLogs();
+                });
+            }
+            
+            // Auto-refresh logs if enabled
+            let logsAutoRefreshInterval = null;
+            const autoRefreshCheckbox = document.getElementById('autoRefreshLogs');
+            if (autoRefreshCheckbox) {
+                autoRefreshCheckbox.addEventListener('change', function() {
+                    if (autoRefreshCheckbox.checked) {
+                        logsAutoRefreshInterval = setInterval(fetchLogs, 5000);
+                    } else {
+                        if (logsAutoRefreshInterval) {
+                            clearInterval(logsAutoRefreshInterval);
+                            logsAutoRefreshInterval = null;
+                        }
+                    }
+                });
+            }
+            
+            // Attach event listeners to buttons (instead of inline onclick)
+            const startBtn = document.getElementById('startLiveBtn');
+            const stopBtn = document.getElementById('stopLiveBtn');
+            if (startBtn) {
+                startBtn.addEventListener('click', startLiveTrader);
+            }
+            if (stopBtn) {
+                stopBtn.addEventListener('click', stopLiveTrader);
+            }
+            
+            // Initialize usability features
+            addBackToTopButton();
+            setupTableSearch();
+            
+            // Initialize form validation
+            const inputs = document.querySelectorAll('.form-input[type="number"]');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+            });
+            
+            // Close modal on Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+            
+            // Log initialization already done above (line 1995) - removed duplicate
+            
+            // Load saved pyramiding configuration
+            loadPyramidingConfig();
+            
+            // Set up auto-save for pyramiding configuration
+            setupPyramidingAutoSave();
+            
+            ['nifty', 'banknifty', 'sensex'].forEach(seg => {
+                const checkbox = document.getElementById(`segment_${seg}`);
+                if (checkbox) {
+                    checkbox.addEventListener('change', function() {
+                        const segmentUpper = seg.toUpperCase();
+                        toggleSegmentInputs(segmentUpper, this.checked);
+                        savePyramidingConfig(); // Save when segment is toggled
+                    });
+                    // Initialize state
+                    toggleSegmentInputs(seg.toUpperCase(), checkbox.checked);
+                }
+            });
+            
+            // Mode change listeners
+            const modePaper = document.getElementById('mode_paper');
+            const modeLive = document.getElementById('mode_live');
+            const warningDiv = document.getElementById('liveModeWarning');
+            
+            if (modePaper && modeLive) {
+                function updateModeWarning() {
+                    if (modeLive.checked) {
+                        warningDiv.style.display = 'block';
+                    } else {
+                        warningDiv.style.display = 'none';
+                    }
+                }
+                
+                modePaper.addEventListener('change', function() {
+                    if (!this.checked && !modeLive.checked) {
+                        // At least one mode must be selected
+                        this.checked = true;
+                        alert('Please select at least one trading mode.');
+                    }
+                    updateModeWarning();
+                });
+                
+                modeLive.addEventListener('change', function() {
+                    if (!this.checked && !modePaper.checked) {
+                        // At least one mode must be selected
+                        this.checked = true;
+                        alert('Please select at least one trading mode.');
+                    }
+                    updateModeWarning();
+                });
+                
+                // Initialize warning state
+                updateModeWarning();
+            }
+        });
+
+        // ========== USABILITY IMPROVEMENT FUNCTIONS ==========
+
+        // Toast Notifications
+        function showToast(message, type = 'info', duration = 5000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            const icon = {
+                'success': '<i class="fas fa-check-circle"></i>',
+                'error': '<i class="fas fa-exclamation-circle"></i>',
+                'warning': '<i class="fas fa-exclamation-triangle"></i>',
+                'info': '<i class="fas fa-info-circle"></i>'
+            }[type] || '<i class="fas fa-info-circle"></i>';
+            
+            toast.innerHTML = `
+                ${icon}
+                <span>${message}</span>
+                <span class="toast-close" onclick="this.parentElement.remove()">×</span>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Auto remove after duration
+            setTimeout(() => {
+                toast.style.animation = 'slideInRight 0.3s ease-out reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        // Modal Functions
+        let modalCallback = null;
+        
+        function showModal(title, message, confirmText = 'Confirm', confirmClass = 'danger', callback = null) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalBody').innerHTML = message;
+            const confirmBtn = document.getElementById('modalConfirmBtn');
+            confirmBtn.textContent = confirmText;
+            confirmBtn.className = `modal-btn modal-btn-${confirmClass}`;
+            modalCallback = callback;
+            document.getElementById('confirmModal').classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+            modalCallback = null;
+        }
+        
+        function confirmModalAction() {
+            if (modalCallback) {
+                modalCallback();
+            }
+            closeModal();
+        }
+        
+        // Close modal on overlay click
+        document.getElementById('confirmModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Loading Overlay
+        function showLoading(message = 'Processing...') {
+            document.getElementById('loadingMessage').textContent = message;
+            document.getElementById('loadingOverlay').classList.add('active');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+
+        // Form Section Toggle
+        function toggleSection(header) {
+            const section = header.closest('.form-section');
+            section.classList.toggle('collapsed');
+        }
+
+        // Form Validation
+        function validateField(field) {
+            const fieldId = field.id;
+            const errorEl = document.getElementById(fieldId + '_error');
+            
+            if (!errorEl) return true;
+            
+            let isValid = true;
+            let errorMsg = '';
+            
+            if (fieldId === 'rsi_period') {
+                const val = parseInt(field.value);
+                if (val < 5 || val > 50) {
+                    isValid = false;
+                    errorMsg = 'RSI period must be between 5 and 50';
+                }
+            } else if (fieldId === 'price_strength_ema') {
+                const val = parseInt(field.value);
+                if (val < 2 || val > 20) {
+                    isValid = false;
+                    errorMsg = 'EMA period must be between 2 and 20';
+                }
+            } else if (fieldId === 'volume_strength_wma') {
+                const val = parseInt(field.value);
+                if (val < 5 || val > 50) {
+                    isValid = false;
+                    errorMsg = 'WMA period must be between 5 and 50';
+                }
+            } else if (fieldId === 'initial_capital') {
+                const val = parseFloat(field.value);
+                if (val < 10000) {
+                    isValid = false;
+                    errorMsg = 'Initial capital must be at least ₹10,000';
+                }
+            } else if (fieldId === 'stop_loss') {
+                const val = parseFloat(field.value);
+                if (val < 1) {
+                    isValid = false;
+                    errorMsg = 'Stop loss must be at least 1%';
+                }
+            }
+            
+            if (isValid) {
+                field.classList.remove('invalid');
+                field.classList.add('valid');
+                errorEl.classList.remove('show');
+            } else {
+                field.classList.remove('valid');
+                field.classList.add('invalid');
+                errorEl.textContent = errorMsg;
+                errorEl.classList.add('show');
+            }
+            
+            return isValid;
+        }
+        
+        function validateForm() {
+            let isValid = true;
+            
+            // Validate all fields
+            const requiredFields = ['rsi_period', 'price_strength_ema', 'volume_strength_wma', 'initial_capital', 'stop_loss'];
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field && !validateField(field)) {
+                    isValid = false;
+                }
+            });
+            
+            // Validate segments
+            const segments = getSelectedSegments();
+            if (segments.length === 0) {
+                showToast('Please select at least one trading segment', 'error');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+
+        // Status Badge Updates
+        function updateStatusBadge(running) {
+            const badge = document.getElementById('statusBadge');
+            if (running) {
+                badge.className = 'status-badge running';
+                badge.innerHTML = '<i class="fas fa-circle"></i> Running';
+            } else {
+                badge.className = 'status-badge stopped';
+                badge.innerHTML = '<i class="fas fa-circle"></i> Stopped';
+            }
+        }
+        
+        function updateKiteBadge(connected) {
+            const badge = document.getElementById('kiteBadge');
+            const subvalue = document.getElementById('kiteSubvalue');
+            
+            console.log('updateKiteBadge called with connected:', connected, 'badge:', badge, 'subvalue:', subvalue);
+            
+            if (!badge) {
+                console.error('kiteBadge element not found!');
+                return;
+            }
+            
+            if (connected) {
+                badge.className = 'status-badge connected';
+                badge.innerHTML = '<i class="fas fa-circle"></i> Connected';
+                if (subvalue) {
+                    subvalue.textContent = 'Ready for LIVE trading';
+                    subvalue.style.color = 'var(--success-color, #10b981)';
+                }
+            } else {
+                badge.className = 'status-badge disconnected';
+                badge.innerHTML = '<i class="fas fa-circle"></i> Not Connected';
+                if (subvalue) {
+                    subvalue.textContent = 'Use dashboard to authenticate';
+                    subvalue.style.color = '';
+                }
+            }
+        }
+        
+        async function refreshKiteStatus() {
+            try {
+                console.log('Manually refreshing Kite status...');
+                // First try to refresh from dashboard
+                const refreshRes = await fetch('/live/refresh-kite', { method: 'POST' });
+                const refreshData = await refreshRes.json();
+                console.log('Refresh response:', refreshData);
+                
+                // Then fetch status
+                await fetchLiveStatus();
+                showToast('Kite status refreshed', 'info', 2000);
+            } catch (err) {
+                console.error('Error refreshing Kite status:', err);
+                showToast('Error refreshing status: ' + err.message, 'error');
+            }
+        }
+
+        // Scroll to Section
+        function scrollToSection(sectionId) {
+            const sections = {
+                'controls': document.querySelector('.panel'),
+                'status': document.querySelector('#liveStatusPanel')?.closest('.panel'),
+                'trades': document.querySelector('#tradesTableBody')?.closest('.panel'),
+                'logs': document.querySelector('#logsContainer')?.closest('.panel')
+            };
+            
+            const section = sections[sectionId];
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Back to Top Button
+        window.addEventListener('scroll', function() {
+            const btn = document.querySelector('.back-to-top');
+            if (window.pageYOffset > 300) {
+                btn?.classList.add('visible');
+            } else {
+                btn?.classList.remove('visible');
+            }
+        });
+
+        // Table Search/Filter
+        function setupTableSearch() {
+            const searchInput = document.getElementById('tableSearch');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const rows = document.querySelectorAll('#tradesTableBody tr');
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(searchTerm) ? '' : 'none';
+                    });
+                });
+            }
+        }
+
+        // Enhanced Error Display
+        function showLiveError(message) {
+            document.getElementById('liveErrorContainer').innerHTML =
+                `<div class="error-message">${message}</div>`;
+            showToast(message, 'error', 7000);
+        }
+
+        function clearLiveError() {
+            document.getElementById('liveErrorContainer').innerHTML = '';
+        }
+
+        async function startLiveTrader() {
+            const segments = getSelectedSegments();
+            if (segments.length === 0) {
+                showLiveError('Please select at least one segment');
+                return;
+            }
+
+            // Get selected modes - read directly from checkboxes
+            const modePaper = document.getElementById('mode_paper');
+            const modeLive = document.getElementById('mode_live');
+            
+            if (!modePaper || !modeLive) {
+                showLiveError('Mode selection elements not found. Please refresh the page.');
+                return;
+            }
+            
+            // Read checkbox states directly
+            const modes = [];
+            if (modePaper && modePaper.checked) {
+                modes.push('PAPER');
+            }
+            if (modeLive && modeLive.checked) {
+                modes.push('LIVE');
+            }
+            
+            if (modes.length === 0) {
+                showLiveError('Please select at least one trading mode (Paper or Live)');
+                // Re-check Paper as default if nothing is selected
+                if (modePaper) {
+                    modePaper.checked = true;
+                    modes.push('PAPER');
+                } else {
+                    return;
+                }
+            }
+            
+            // Validate form before proceeding
+            if (!validateForm()) {
+                return;
+            }
+
+            // Show enhanced confirmation modal for Live mode
+            if (modes.includes('LIVE')) {
+                showModal(
+                    '⚠️ LIVE TRADING CONFIRMATION',
+                    `
+                    <div style="padding: 16px; background: #fee2e2; border-radius: 8px; margin-bottom: 16px;">
+                        <strong style="color: #991b1b; display: block; margin-bottom: 8px;">CRITICAL WARNING:</strong>
+                        <p style="color: #991b1b; margin: 0; line-height: 1.6;">
+                            You are about to enable <strong>LIVE TRADING MODE</strong>. This will place 
+                            <strong>REAL ORDERS</strong> in your Kite account using <strong>REAL MONEY</strong>.
+                        </p>
+                    </div>
+                    <p style="margin-bottom: 12px;"><strong>Before proceeding, ensure:</strong></p>
+                    <ul style="margin: 0; padding-left: 20px; color: var(--text-secondary);">
+                        <li>You have thoroughly tested the strategy in Paper mode</li>
+                        <li>You understand all risks involved</li>
+                        <li>You have proper risk management in place</li>
+                        <li>Your Kite account has sufficient funds</li>
+                    </ul>
+                    <p style="margin-top: 16px; color: var(--text-secondary);">
+                        <strong>Are you absolutely certain you want to proceed?</strong>
+                    </p>
+                    `,
+                    'Yes, Enable Live Trading',
+                    'danger',
+                    function() {
+                        proceedWithStart(segments, modes);
+                    }
+                );
+                return; // Don't proceed until modal is confirmed
+            }
+            
+            // For Paper mode only, proceed directly
+            proceedWithStart(segments, modes);
+        }
+        
+        async function proceedWithStart(segments, modes) {
+
+            // Collect pyramiding config per segment
+            const pyramiding_config = {};
+            segments.forEach(segment => {
+                const segmentLower = segment.toLowerCase();
+                pyramiding_config[segment] = {
+                    lot_size: parseInt(document.getElementById(`pyramid_lot_size_${segmentLower}`).value),
+                    itm_offset: parseFloat(document.getElementById(`itm_offset_${segmentLower}`).value),
+                    stop_loss: parseFloat(document.getElementById(`stop_loss_${segmentLower}`).value),
+                    pyramid_points: parseFloat(document.getElementById(`pyramid_points_${segmentLower}`).value),
+                    lot_addition: parseInt(document.getElementById(`pyramid_lot_addition_${segmentLower}`).value),
+                    max_quantity: parseInt(document.getElementById(`pyramid_max_qty_${segmentLower}`).value)
+                };
+            });
+            
+            // Save configuration before starting
+            savePyramidingConfig();
+
+            const payload = {
+                modes: modes,  // Array of modes
+                mode: modes[0],  // Keep for backward compatibility
+                segments: segments,
+                time_interval: document.getElementById('time_interval').value,
+                monitoring_interval: document.getElementById('monitoring_interval').value,
+                rsi_period: parseInt(document.getElementById('rsi_period').value),
+                price_strength_ema: parseInt(document.getElementById('price_strength_ema').value),
+                volume_strength_wma: parseInt(document.getElementById('volume_strength_wma').value),
+                initial_capital: parseFloat(document.getElementById('initial_capital').value),
+                // stop_loss is now per-segment (in pyramiding_config), keeping for backward compatibility
+                stop_loss: 50,  // Fallback value, actual stop_loss comes from pyramiding_config per segment
+                trade_regime: document.getElementById('trade_regime').value,
+                // itm_offset is now per-segment (in pyramiding_config), keeping for backward compatibility
+                itm_offset: 100,  // Fallback value, actual ITM offset comes from pyramiding_config per segment
+                pyramiding_config: pyramiding_config
+            };
+
+            try {
+                showLoading('Starting Live Trader...');
+                document.getElementById('startLiveBtn').disabled = true;
+                clearLiveError();
+                
+                const res = await fetch('/live/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (!data.success) {
+                    showLiveError(data.error || 'Failed to start Live Trader');
+                    showToast(data.error || 'Failed to start Live Trader', 'error');
+                } else {
+                    showToast('Live Trader started successfully!', 'success');
+                    await fetchLiveStatus();
+                }
+            } catch (err) {
+                showLiveError('Error starting Live Trader: ' + err.message);
+                showToast('Error starting Live Trader: ' + err.message, 'error');
+            } finally {
+                hideLoading();
+                document.getElementById('startLiveBtn').disabled = false;
+                await fetchLiveStatus();
+            }
+        }
+
+        async function stopLiveTrader() {
+            // Show confirmation modal
+            showModal(
+                'Stop Live Trader',
+                'Are you sure you want to stop the Live Trader? All active trading will be halted.',
+                'Yes, Stop Trader',
+                'danger',
+                async function() {
+                    try {
+                        showLoading('Stopping Live Trader...');
+                        document.getElementById('stopLiveBtn').disabled = true;
+                        clearLiveError();
+                        const res = await fetch('/live/stop', {
+                            method: 'POST'
+                        });
+                        const data = await res.json();
+                        if (!data.success) {
+                            showLiveError(data.error || 'Failed to stop Live Trader');
+                            showToast(data.error || 'Failed to stop Live Trader', 'error');
+                        } else {
+                            showToast('Live Trader stopped successfully', 'success');
+                            await fetchLiveStatus();
+                        }
+                    } catch (err) {
+                        showLiveError('Error stopping Live Trader: ' + err.message);
+                        showToast('Error stopping Live Trader: ' + err.message, 'error');
+                    } finally {
+                        hideLoading();
+                        document.getElementById('stopLiveBtn').disabled = false;
+                        await fetchLiveStatus();
+                    }
+                }
+            );
+        }
+
+
+        // Trade Results Functions
+        async function fetchLiveTrades() {
+            try {
+                const res = await fetch('/live/trades');
+                
+                // Check if response is OK and is JSON
+                if (!res.ok) {
+                    const text = await res.text();
+                    showTradesError(`Server error (${res.status}): ${text.substring(0, 100)}`);
+                    return;
+                }
+                
+                const contentType = res.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await res.text();
+                    showTradesError(`Expected JSON but got: ${contentType}. Response: ${text.substring(0, 200)}`);
+                    return;
+                }
+                
+                const data = await res.json();
+                if (!data.success) {
+                    showTradesError(data.error || 'Failed to fetch trades');
+                    return;
+                }
+
+                const trades = data.trades || [];
+                const summary = data.summary || {};
+
+                // Update summary cards
+                document.getElementById('summaryTotalTrades').textContent = summary.total_trades || 0;
+                document.getElementById('summaryWinRate').textContent = `${summary.win_rate || 0}%`;
+                
+                const netPnl = summary.total_pnl || 0;
+                const netPnlEl = document.getElementById('summaryNetPnl');
+                netPnlEl.textContent = `₹${Math.abs(netPnl).toFixed(2)}`;
+                netPnlEl.style.color = netPnl >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
+                
+                const avgPnl = summary.avg_pnl || 0;
+                const avgPnlEl = document.getElementById('summaryAvgPnl');
+                avgPnlEl.textContent = `₹${Math.abs(avgPnl).toFixed(2)}`;
+                avgPnlEl.style.color = avgPnl >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
+
+                // Update trades table
+                const tbody = document.getElementById('tradesTableBody');
+                if (trades.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="9" style="padding: 24px; text-align: center; color: var(--text-secondary);">
+                                No trades found for today. Trades will appear here once the Live Trader executes positions.
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    tbody.innerHTML = trades.map(trade => {
+                        const entryTime = new Date(trade.entry_time).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+                        const exitTime = new Date(trade.exit_time).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+                        const pnlValue = parseFloat(trade.pnl_value || 0);
+                        const pnlClass = pnlValue >= 0 ? 'positive' : 'negative';
+                        const pnlSign = pnlValue >= 0 ? '+' : '';
+                        
+                        return `
+                            <tr>
+                                <td>${entryTime} - ${exitTime}</td>
+                                <td style="font-weight: 600;">${trade.segment}</td>
+                                <td>
+                                    ${trade.option_symbol || 'N/A'}<br>
+                                    <small style="color: var(--text-secondary); font-size: 12px;">${trade.option_type} ${trade.strike_price}</small>
+                                </td>
+                                <td style="text-align: right;">₹${parseFloat(trade.entry_price || 0).toFixed(2)}</td>
+                                <td style="text-align: right;">₹${parseFloat(trade.exit_price || 0).toFixed(2)}</td>
+                                <td style="text-align: right;">${trade.lots || 0}</td>
+                                <td style="text-align: right; font-weight: 600;" class="${pnlClass}">
+                                    ${pnlSign}₹${Math.abs(pnlValue).toFixed(2)}
+                                </td>
+                                <td style="text-align: right;" class="${pnlClass}">
+                                    ${pnlSign}${parseFloat(trade.pnl_points || 0).toFixed(2)}
+                                </td>
+                                <td style="color: var(--text-secondary); font-size: 13px;">${trade.exit_reason || 'N/A'}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+
+                clearTradesError();
+            } catch (err) {
+                showTradesError('Error fetching trades: ' + err.message);
+            }
+        }
+
+        function showTradesError(message) {
+            const errorEl = document.getElementById('tradesError');
+            errorEl.innerHTML = `<div class="error-message">${message}</div>`;
+            errorEl.style.display = 'block';
+        }
+
+        function clearTradesError() {
+            document.getElementById('tradesError').style.display = 'none';
+        }
+
+        function downloadTrades() {
+            const today = new Date().toISOString().split('T')[0];
+            window.location.href = `/live/trades/download?date=${today}`;
+        }
+
+        // Initial load of trades
+        fetchLiveTrades();
+        // Refresh trades every 30 seconds
+        setInterval(fetchLiveTrades, 30000);
+
+        // PS/VS Time Series Chart
+        let psVsChart = null;
+
+        function initializePsVsChart() {
+            const ctx = document.getElementById('psVsChart');
+            if (!ctx) return;
+
+            psVsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Price Strength (PS)',
+                            data: [],
+                            borderColor: 'rgb(59, 130, 246)', // Blue
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: false,
+                            borderWidth: 2,
+                            pointRadius: 3,
+                            pointHoverRadius: 5,
+                            pointBackgroundColor: 'rgb(59, 130, 246)',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 1
+                        },
+                        {
+                            label: 'Volume Strength (VS)',
+                            data: [],
+                            borderColor: 'rgb(249, 115, 22)', // Orange
+                            backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                            tension: 0.4,
+                            fill: false,
+                            borderWidth: 2,
+                            pointRadius: 3,
+                            pointHoverRadius: 5,
+                            pointBackgroundColor: 'rgb(249, 115, 22)',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: {
+                                    size: 14,
+                                    weight: '600'
+                                },
+                                generateLabels: function(chart) {
+                                    const original = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+                                    // Add filter status indicator to legend
+                                    original.push({
+                                        text: '✅ All Filters Passed',
+                                        fillStyle: 'rgba(16, 185, 129, 1)',
+                                        strokeStyle: 'rgba(16, 185, 129, 1)',
+                                        lineWidth: 2,
+                                        hidden: false,
+                                        index: original.length
+                                    });
+                                    original.push({
+                                        text: '❌ Filters Failed',
+                                        fillStyle: 'rgba(239, 68, 68, 0.5)',
+                                        strokeStyle: 'rgba(239, 68, 68, 0.5)',
+                                        lineWidth: 2,
+                                        hidden: false,
+                                        index: original.length
+                                    });
+                                    return original;
+                                }
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                title: function(context) {
+                                    const index = context[0].dataIndex;
+                                    const timestamp = psVsChart.data.timestamps[index];
+                                    if (timestamp) {
+                                        const date = new Date(timestamp);
+                                        return date.toLocaleString('en-IN', {
+                                            day: '2-digit',
+                                            month: 'short',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        });
+                                    }
+                                    return '';
+                                },
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += context.parsed.y.toFixed(2);
+                                    return label;
+                                },
+                                afterBody: function(context) {
+                                    const index = context[0].dataIndex;
+                                    const crossover = psVsChart.data.crossovers[index];
+                                    const filters = psVsChart.data.filters ? psVsChart.data.filters[index] : null;
+                                    const result = [];
+                                    
+                                    if (crossover) {
+                                        if (crossover === 'CE') {
+                                            result.push('🟢 CE Crossover (PS↑VS)');
+                                        } else if (crossover === 'PE') {
+                                            result.push('🔴 PE Crossover (PS↓VS)');
+                                        }
+                                        
+                                        // Add filter information
+                                        if (filters) {
+                                            result.push(''); // Empty line separator
+                                            result.push('📊 Entry Filters:');
+                                            
+                                            // Time filter
+                                            if (filters.time) {
+                                                const timeStatus = filters.time.passed ? '✅' : '❌';
+                                                result.push(`${timeStatus} Time: ${filters.time.reason || 'N/A'}`);
+                                            }
+                                            
+                                            // ATR filter
+                                            if (filters.atr) {
+                                                const atrStatus = filters.atr.passed ? '✅' : '❌';
+                                                let atrText = `${atrStatus} ATR: ${filters.atr.reason || 'N/A'}`;
+                                                if (filters.atr.current_atr && filters.atr.avg_atr) {
+                                                    atrText += ` (ATR: ${filters.atr.current_atr.toFixed(2)}, Avg: ${filters.atr.avg_atr.toFixed(2)})`;
+                                                }
+                                                result.push(atrText);
+                                            }
+                                            
+                                            // RSI filter
+                                            if (filters.rsi) {
+                                                const rsiStatus = filters.rsi.passed ? '✅' : '❌';
+                                                let rsiText = `${rsiStatus} RSI: ${filters.rsi.reason || 'N/A'}`;
+                                                if (filters.rsi.rsi_value !== null && filters.rsi.rsi_value !== undefined) {
+                                                    rsiText += ` (RSI: ${filters.rsi.rsi_value.toFixed(2)})`;
+                                                }
+                                                result.push(rsiText);
+                                            }
+                                            
+                                            // Summary
+                                            const allPassed = filters.time?.passed && filters.atr?.passed && filters.rsi?.passed;
+                                            if (allPassed) {
+                                                result.push('');
+                                                result.push('✅ All filters passed - Entry recommended');
+                                            } else {
+                                                result.push('');
+                                                result.push('❌ Some filters failed - Entry blocked');
+                                            }
+                                        }
+                                    }
+                                    return result;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Time',
+                                font: {
+                                    size: 12,
+                                    weight: '600'
+                                }
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45,
+                                callback: function(value, index) {
+                                    const timestamp = psVsChart.data.timestamps[index];
+                                    if (timestamp) {
+                                        const date = new Date(timestamp);
+                                        return date.toLocaleTimeString('en-IN', {
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        });
+                                    }
+                                    return '';
+                                }
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'PS / VS Value',
+                                font: {
+                                    size: 12,
+                                    weight: '600'
+                                }
+                            },
+                            min: 0,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(0);
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 750
+                    }
+                }
+            });
+        }
+
+        async function fetchPsVsData() {
+            try {
+                const segment = document.getElementById('psVsSegment').value;
+                const hours = document.getElementById('psVsHours').value;
+                const res = await fetch(`/live/ps-vs-data?segment=${segment}&hours=${hours}`);
+                
+                if (!res.ok) {
+                    const text = await res.text();
+                    showPsVsError(`Server error (${res.status}): ${text.substring(0, 100)}`);
+                    return;
+                }
+                
+                const contentType = res.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await res.text();
+                    showPsVsError(`Expected JSON but got: ${contentType}. Response: ${text.substring(0, 200)}`);
+                    return;
+                }
+                
+                const data = await res.json();
+                if (!data.success) {
+                    showPsVsError(data.error || 'Failed to fetch PS/VS data');
+                    return;
+                }
+
+                const chartData = data.data || [];
+                
+                if (chartData.length === 0) {
+                    showPsVsError('No PS/VS data available for the selected segment and time range.');
+                    return;
+                }
+                
+                // Update chart
+                if (!psVsChart) {
+                    initializePsVsChart();
+                }
+
+                // Extract data
+                const labels = chartData.map(d => {
+                    const date = new Date(d.timestamp);
+                    return date.toLocaleTimeString('en-IN', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                });
+                
+                const timestamps = chartData.map(d => d.timestamp);
+                const psData = chartData.map(d => d.price_strength);
+                const vsData = chartData.map(d => d.volume_strength);
+                const crossovers = chartData.map(d => d.crossover || null);
+                const filters = chartData.map(d => d.filters || null);
+
+                // Mark crossover points with different styling and filter indicators
+                const psPointColors = psData.map((_, index) => {
+                    const crossover = crossovers[index];
+                    const filter = filters[index];
+                    
+                    // Check if all filters passed (for crossover points)
+                    if (crossover && filter) {
+                        const allFiltersPassed = filter.time?.passed && filter.atr?.passed && filter.rsi?.passed;
+                        if (allFiltersPassed) {
+                            // All filters passed - bright color
+                            if (crossover === 'CE') return 'rgba(16, 185, 129, 1)'; // Green for CE
+                            if (crossover === 'PE') return 'rgba(239, 68, 68, 1)'; // Red for PE
+                        } else {
+                            // Some filters failed - muted color
+                            if (crossover === 'CE') return 'rgba(16, 185, 129, 0.5)'; // Muted green
+                            if (crossover === 'PE') return 'rgba(239, 68, 68, 0.5)'; // Muted red
+                        }
+                    } else if (crossover) {
+                        // Crossover but no filter info
+                        if (crossover === 'CE') return 'rgba(16, 185, 129, 1)'; // Green for CE
+                        if (crossover === 'PE') return 'rgba(239, 68, 68, 1)'; // Red for PE
+                    }
+                    return 'rgba(59, 130, 246, 1)'; // Blue for normal
+                });
+                
+                const vsPointColors = vsData.map((_, index) => {
+                    const crossover = crossovers[index];
+                    const filter = filters[index];
+                    
+                    if (crossover && filter) {
+                        const allFiltersPassed = filter.time?.passed && filter.atr?.passed && filter.rsi?.passed;
+                        if (allFiltersPassed) {
+                            if (crossover === 'CE') return 'rgba(16, 185, 129, 1)'; // Green for CE
+                            if (crossover === 'PE') return 'rgba(239, 68, 68, 1)'; // Red for PE
+                        } else {
+                            if (crossover === 'CE') return 'rgba(16, 185, 129, 0.5)'; // Muted green
+                            if (crossover === 'PE') return 'rgba(239, 68, 68, 0.5)'; // Muted red
+                        }
+                    } else if (crossover) {
+                        if (crossover === 'CE') return 'rgba(16, 185, 129, 1)'; // Green for CE
+                        if (crossover === 'PE') return 'rgba(239, 68, 68, 1)'; // Red for PE
+                    }
+                    return 'rgba(249, 115, 22, 1)'; // Orange for normal
+                });
+                
+                const psPointRadius = psData.map((_, index) => {
+                    const crossover = crossovers[index];
+                    const filter = filters[index];
+                    
+                    if (crossover && filter) {
+                        const allFiltersPassed = filter.time?.passed && filter.atr?.passed && filter.rsi?.passed;
+                        return allFiltersPassed ? 8 : 6; // Larger if all filters passed
+                    }
+                    return crossovers[index] ? 6 : 3; // Larger points for crossovers
+                });
+                
+                const vsPointRadius = vsData.map((_, index) => {
+                    const crossover = crossovers[index];
+                    const filter = filters[index];
+                    
+                    if (crossover && filter) {
+                        const allFiltersPassed = filter.time?.passed && filter.atr?.passed && filter.rsi?.passed;
+                        return allFiltersPassed ? 8 : 6; // Larger if all filters passed
+                    }
+                    return crossovers[index] ? 6 : 3; // Larger points for crossovers
+                });
+                
+                // Store filter info for tooltips
+                psVsChart.data.filters = filters;
+
+                // Update chart data
+                psVsChart.data.labels = labels;
+                psVsChart.data.timestamps = timestamps;
+                psVsChart.data.crossovers = crossovers;
+                psVsChart.data.datasets[0].data = psData;
+                psVsChart.data.datasets[0].pointBackgroundColor = psPointColors;
+                psVsChart.data.datasets[0].pointRadius = psPointRadius;
+                psVsChart.data.datasets[1].data = vsData;
+                psVsChart.data.datasets[1].pointBackgroundColor = vsPointColors;
+                psVsChart.data.datasets[1].pointRadius = vsPointRadius;
+                
+                psVsChart.update('active');
+                clearPsVsError();
+            } catch (err) {
+                showPsVsError('Error fetching PS/VS data: ' + err.message);
+            }
+        }
+
+        function showPsVsError(message) {
+            const errorEl = document.getElementById('psVsError');
+            errorEl.innerHTML = `<div class="error-message">${message}</div>`;
+            errorEl.style.display = 'block';
+        }
+
+        function clearPsVsError() {
+            document.getElementById('psVsError').style.display = 'none';
+        }
+
+
+        // Chart and log initialization moved to main DOMContentLoaded handler above (line 1950)
+        // Status fetching is also initialized in the main DOMContentLoaded handler
+        
+        // Set up periodic status refresh (if not already set up)
+        if (!statusFetchInterval) {
+            statusFetchInterval = setInterval(fetchLiveStatus, 10000);
+        }
+        
+        // Also fetch status when page becomes visible (user switches back to tab)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden && !statusFetchingPaused) {
+                fetchLiveStatus();
+            }
+        });
+        
+        // Also fetch status immediately when page becomes visible (in case user switches tabs)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden && !statusFetchingPaused) {
+                fetchLiveStatus();
+            }
+        });
+
+        // Logs functions - fetch logs for each segment separately
+        async function fetchLogs() {
+            const mode = document.getElementById('logMode')?.value || 'LIVE';
+            const segments = ['NIFTY', 'BANKNIFTY', 'SENSEX'];
+            
+            // Fetch logs for each segment in parallel
+            const fetchPromises = segments.map(segment => fetchSegmentLogs(segment, mode));
+            await Promise.all(fetchPromises);
+        }
+        
+        async function fetchSegmentLogs(segment, mode) {
+            try {
+                const url = `/live/logs?segment=${segment}&mode=${mode}&lines=200`;
+                
+                const res = await fetch(url);
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}`);
+                }
+                
+                const data = await res.json();
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to fetch logs');
+                }
+                
+                const logsContainer = document.getElementById(`logsContainer${segment}`);
+                const logsError = document.getElementById(`logsError${segment}`);
+                
+                if (data.logs && data.logs.length > 0) {
+                    logsContainer.innerHTML = data.logs.map(log => {
+                        // Color code log levels
+                        let color = '#d4d4d4';
+                        if (log.includes('ERROR') || log.includes('CRITICAL')) {
+                            color = '#f48771';
+                        } else if (log.includes('WARNING') || log.includes('WARN')) {
+                            color = '#dcdcaa';
+                        } else if (log.includes('INFO')) {
+                            color = '#4ec9b0';
+                        } else if (log.includes('DEBUG')) {
+                            color = '#569cd6';
+                        }
+                        
+                        // Highlight key terms
+                        let highlightedLog = log
+                            .replace(/(LiveSegmentAgent|PaperExecutionClient|LiveExecutionClient)/g, '<span style="color: #4ec9b0; font-weight: bold;">$1</span>')
+                            .replace(/(PAPER|Paper|paper)/g, '<span style="color: #569cd6; font-weight: bold;">$1</span>')
+                            .replace(/(LIVE|Live|live)/g, '<span style="color: #f48771; font-weight: bold;">$1</span>')
+                            .replace(/(BUY_CE|BUY_PE|EXIT|HOLD)/g, '<span style="color: #dcdcaa; font-weight: bold;">$1</span>')
+                            .replace(/(Entry|Exit|Stop Loss|Trailing Stop)/g, '<span style="color: #ce9178; font-weight: bold;">$1</span>')
+                            // Color code PASS/FAIL status
+                            .replace(/\bPASS\b/g, '<span style="color: #4ec9b0; font-weight: bold;">PASS</span>')
+                            .replace(/\bFAIL\b/g, '<span style="color: #dcdcaa; font-weight: bold;">FAIL</span>');
+                        
+                        return `<div style="color: ${color}; margin-bottom: 3px; word-wrap: break-word;">${highlightedLog}</div>`;
+                    }).join('');
+                    
+                    // Auto-scroll to bottom
+                    logsContainer.scrollTop = logsContainer.scrollHeight;
+                    logsError.style.display = 'none';
+                } else {
+                    logsContainer.innerHTML = '<div style="color: #888; font-style: italic;">No logs found for this segment.</div>';
+                    logsError.style.display = 'none';
+                }
+            } catch (err) {
+                const logsError = document.getElementById(`logsError${segment}`);
+                const logsContainer = document.getElementById(`logsContainer${segment}`);
+                logsError.textContent = `Error fetching logs: ${err.message}`;
+                logsError.style.display = 'block';
+                logsContainer.innerHTML = '<div style="color: #888; font-style: italic;">Error loading logs.</div>';
+            }
+        }
+
+        function clearLogs() {
+            const segments = ['NIFTY', 'BANKNIFTY', 'SENSEX'];
+            segments.forEach(segment => {
+                const logsContainer = document.getElementById(`logsContainer${segment}`);
+                const logsError = document.getElementById(`logsError${segment}`);
+                if (logsContainer) {
+                    logsContainer.innerHTML = '<div style="color: #888; font-style: italic;">Logs cleared. Click Refresh to reload.</div>';
+                }
+                if (logsError) {
+                    logsError.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

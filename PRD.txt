@@ -1,0 +1,229 @@
+## Project Overview
+Develop an automated risk management system for option buying on Zerodha that monitors manual trades and enforces strict risk controls without interfering with trade entry/exit decisions.
+
+## Core Requirements
+
+### 1. System Architecture
+- *Platform*: Zerodha Kite Connect API integration
+- *Trading Style*: Options Buying (manual order placement)
+- *Automation Level*: Risk management only - NO automated trade entry/exit
+- *Account Type*: Individual Demat account with Zerodha
+
+### 2. Daily Loss Protection (CRITICAL) Beutiful User Interface 
+*Rule*: Auto-exit all positions when day's loss reaches ₹5,000 (Configurable)
+-Fetch the current Position taken in Options (Configurable)
+- when P&L reach to the defined loss, system will 
+  - Immediately square off ALL open positions at market price
+  - Block further order placement until next trading day (9:15 AM)
+  - Send notification: "Daily loss limit reached. All positions closed. Trading blocked until [next day date]"
+- Exit priority: Market orders (ensure execution even at unfavorable prices)
+
+### 3. Trailing Stop Loss on Profits
+*Rule*: Activate trailing SL when profit reaches ₹5,000(configurable), then trail every ₹10,000
+
+*Implementation Logic*:
+
+IF Daily Profit >= ₹5,000 THEN
+    Set Trailing SL = ₹5,000
+    
+IF Daily Profit >= ₹10,000 THEN
+    Set Trailing SL = ₹10,000
+    
+IF Daily Profit >= ₹20,000 THEN
+    Set Trailing SL = ₹20,000
+    
+Continue pattern: Trail SL every ₹10,000 increment
+
+
+*Example*:
+- Profit reaches ₹5,000 → Trailing SL set at ₹5,000
+- Profit grows to ₹15,000 → Trailing SL moves to ₹10,000
+- If profit drops from ₹15,000 to ₹10,000 → Exit all positions automatically
+- Profit grows to ₹28,000 → Trailing SL at ₹20,000
+- If profit drops from ₹28,000 to ₹20,000 → Exit all positions
+
+### 4. Cycle-wise Profit Protection
+*Rule*: Lock profit from each completed trade before starting next trade
+
+*Flow*:
+1. User manually enters Trade A
+2. User manually exits Trade A with ₹X profit
+3. System locks ₹X profit in "Protected Profit" counter
+4. User enters Trade B
+5. Risk calculations now consider:
+   - Protected Profit from Trade A: ₹X
+   - Current P&L of Trade B
+   - Daily loss limit applies to NEW trades only (doesn't touch protected profit), it means the Daily loss limit applies on Live Trades only not on past trades
+
+*Implementation*:
+- Maintain separate counters: Protected_Profit and Current_Trade_PnL
+- When position is manually closed with profit:
+  
+  Protected_Profit += Realized_Profit
+  
+- Daily loss limit applies only to active positions, not protected profit
+- Display: "Protected Profit: ₹X | Current Trade P&L: ₹Y | Total Day P&L: ₹(X+Y)"
+
+### 5. Quantity Management
+*Rule*: User can modify position quantities; system adjusts risk calculations dynamically
+
+*Features*:
+-Keep fetching the Trades, show the Booked Profit of the past trades and Current P&L for Live Trades
+- Risk limits apply to NET Live position always
+
+### 6. Manual Override Options
+*Rule*: User can manually exit anytime, overriding system rules
+
+*Scenarios*:
+- User can exit before hitting ₹5k loss
+- User can exit before trailing SL triggers
+- User can exit at any profit level
+- System respects manual exits and updates counters accordingly
+- No confirmations required for manual exits (instant execution)
+
+### 7. System Lock & Security
+*Rule*: Core risk parameters cannot be edited by user
+
+*Locked Parameters* (require system provider/admin access):
+- Daily loss limit (₹5,000)
+- Trailing SL activation (₹5,000)
+- Trailing SL increment (₹10,000)
+- Auto-exit logic
+- Trading block logic
+
+
+*Implementation*:
+- Two-tier access control: User level & Admin level
+- Admin password/OTP required to modify risk rules
+- Audit log for all parameter changes
+- Version control on risk rule changes
+
+## Technical Specifications
+
+### API Integration
+- *Zerodha Kite Connect API* for:
+  - Real-time position monitoring
+  - Order book tracking
+  - P&L calculations
+  - 
+  - Account balance checks
+
+### Real-time Monitoring Requirements
+- WebSocket connection for live price updates
+- Refresh rate: Every 1 second minimum
+- Latency tolerance: < 2 seconds for exit orders
+
+### Data Requirements
+*Track per position*:
+- Entry time & price
+- Current market price
+- Quantity & lot size
+- Unrealized P&L
+- Realized P&L (after exit)
+
+*Track per day*:
+- Total realized profit/loss
+- Total unrealized P&L
+- Protected profit counter
+- Number of trades
+- Daily loss limit status
+- Trailing SL status & level
+
+### Notification System
+*Alerts Required*:
+1. "Daily loss approaching ₹4,500" (warning at 90%)
+2. "Daily loss limit hit - All positions closed"
+3. "Profit ₹5,000 reached - Trailing SL activated"
+4. "Trailing SL updated to ₹X"
+5. "Trailing SL triggered - All positions closed"
+6. "Trade closed manually - Profit ₹X protected"
+
+*Delivery Methods*: SMS, Email, In-app notification, WhatsApp (optional)
+
+### Dashboard Requirements
+*Real-time Display*:
+
+┌─────────────────────────────────────┐
+│ Daily Summary                       │
+├─────────────────────────────────────┤
+│ Protected Profit: ₹X                │
+│ Current Positions P&L: ₹Y           │
+│ Total Day P&L: ₹(X+Y)              │
+│ Daily Loss Used: ₹Z / ₹5,000       │
+│ Trailing SL: [Active/Inactive] @₹A │
+│ Trading Status: [Active/Blocked]    │
+└─────────────────────────────────────┘
+
+Active Positions:
+[List with entry price, current price, qty, P&L]
+
+
+## Edge Cases & Handling
+
+### 1. Multiple Positions Scenario
+- User has 3 open option positions
+- Calculate combined P&L
+- If total loss hits ₹5k → Exit ALL positions simultaneously
+
+
+
+### 3. Market Closure Scenario
+- If loss limit hit near market close → Exit whatever possible
+- If unable to exit → Block trading next day until positions squared off
+
+### 4. System Downtime
+- Implement failsafe: If system disconnects, send critical alert
+- Auto-reconnect mechanism
+- Position snapshot backup every 30 seconds
+
+### 5. Profit/Loss on Same Day
+- User makes ₹8k profit (protected)
+- User enters new trade, loses ₹5k
+- Action: Exit new position, but ₹8k protected profit remains safe
+- Net day P&L: ₹3k profit
+
+## Testing Requirements
+
+### Test Scenarios
+1. *Loss Limit Test*: Simulate ₹5k loss, verify auto-exit
+2. *Trailing SL Test*: Profit grows to ₹18k, drops to ₹10k, verify exit
+3. *Multi-position Test*: 5 positions, combined loss ₹5k, verify all exit
+4. *Manual Exit Test*: User exits before auto-triggers
+5. *Quantity Change Test*: Add qty, verify risk recalculation
+6. *Protected Profit Test*: Close trade with profit, enter new trade, verify separation
+7. *Market Hours Test*: After-hours order attempt should be blocked
+8. *API Failure Test*: Simulate disconnect, verify alerts
+
+### Success Criteria
+- 100% execution rate on auto-exit orders
+- < 2 second latency on risk limit breach detection
+- Zero user-initiated edits to locked parameters
+- All manual orders processed normally
+- All notifications delivered within 5 seconds
+
+## Compliance & Legal
+- Ensure compliance with SEBI regulations for automated trading systems
+- User agreement: System provider not liable for trading losses
+- Clear documentation: System manages risk only, not trading decisions
+- Maintain audit trail for regulatory review if needed
+
+## Support & Maintenance
+- 24/7 monitoring during market hours (9:15 AM - 3:30 PM IST)
+- Bug fix response time: < 2 hours critical, < 24 hours non-critical
+- Monthly system health reports
+- Quarterly risk parameter review
+
+---
+
+## Development Phases
+
+*Phase 1*: Core risk monitoring (loss limit, basic P&L tracking)  
+*Phase 2*: Trailing SL implementation  
+*Phase 3*: Cycle-wise profit protection  
+*Phase 4*: Dashboard & notifications  
+*Phase 5*: Security & access controls  
+*Phase 6*: Testing & deployment
+
+---
+
+*Priority*: This is a capital protection system. False negatives (missed exits) are unacceptable. Err on the side of caution always.

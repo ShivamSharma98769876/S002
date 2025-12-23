@@ -1,0 +1,63 @@
+{
+  "task_id": "TASK-05",
+  "task_name": "Cycle-wise Profit Protection",
+  "description": "Lock profit from completed trades separately from current trade P&L",
+  "priority": "High",
+  "estimated_hours": 16,
+  "dependencies": ["TASK-02"],
+  "sub_tasks": [
+    {
+      "sub_task_id": "TASK-05-01",
+      "sub_task_name": "Protected Profit Counter",
+      "description": "Implement separate counter for protected profit from closed trades",
+      "status": "pending",
+      "estimated_hours": 4,
+      "acceptance_criteria": [
+        "Separate Protected_Profit variable",
+        "Persist protected profit across sessions",
+        "Reset at start of new trading day",
+        "Display in dashboard"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-05-02",
+      "sub_task_name": "Trade Completion Detection",
+      "description": "Detect when a position is manually closed and calculate realized profit",
+      "status": "pending",
+      "estimated_hours": 5,
+      "acceptance_criteria": [
+        "Monitor position status changes",
+        "Detect position closure (quantity becomes 0)",
+        "Calculate realized profit/loss",
+        "Handle partial exits correctly"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-05-03",
+      "sub_task_name": "Profit Locking Mechanism",
+      "description": "Add realized profit to protected profit when trade closes with profit",
+      "status": "pending",
+      "estimated_hours": 3,
+      "acceptance_criteria": [
+        "Add profit to Protected_Profit on trade close",
+        "Only add if profit > 0",
+        "Handle losses separately (don't subtract from protected)",
+        "Update database/storage"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-05-04",
+      "sub_task_name": "Separate Risk Calculation",
+      "description": "Apply daily loss limit only to live positions, not protected profit",
+      "status": "pending",
+      "estimated_hours": 4,
+      "acceptance_criteria": [
+        "Daily loss limit applies to current positions only",
+        "Protected profit is not affected by new trade losses",
+        "Correct total P&L calculation (Protected + Current)",
+        "Display all three values separately"
+      ]
+    }
+  ]
+}
+

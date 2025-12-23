@@ -1,0 +1,107 @@
+{
+  "task_id": "TASK-08",
+  "task_name": "Dashboard UI Development",
+  "description": "Create beautiful and modern user interface for real-time monitoring and control",
+  "priority": "High",
+  "estimated_hours": 32,
+  "dependencies": ["TASK-07"],
+  "sub_tasks": [
+    {
+      "sub_task_id": "TASK-08-01",
+      "sub_task_name": "UI Framework Setup",
+      "description": "Choose and set up UI framework (Flask/Django with React, or Tkinter/PyQt, or web-based)",
+      "status": "pending",
+      "estimated_hours": 4,
+      "acceptance_criteria": [
+        "UI framework selected and configured",
+        "Project structure for UI components",
+        "Build and deployment setup",
+        "Responsive design considerations"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-08-02",
+      "sub_task_name": "Daily Summary Dashboard",
+      "description": "Create main dashboard showing daily summary metrics",
+      "status": "pending",
+      "estimated_hours": 6,
+      "acceptance_criteria": [
+        "Display Protected Profit: ₹X",
+        "Display Current Positions P&L: ₹Y",
+        "Display Total Day P&L: ₹(X+Y)",
+        "Display Daily Loss Used: ₹Z / ₹5,000 (progress bar)",
+        "Display Trailing SL: [Active/Inactive] @₹A",
+        "Display Trading Status: [Active/Blocked]",
+        "Real-time updates every second"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-08-03",
+      "sub_task_name": "Active Positions Display",
+      "description": "Show list of all active positions with details",
+      "status": "pending",
+      "estimated_hours": 5,
+      "acceptance_criteria": [
+        "List all open positions",
+        "Show entry price, current price, quantity, P&L for each",
+        "Color coding (green for profit, red for loss)",
+        "Sortable columns",
+        "Real-time price updates"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-08-04",
+      "sub_task_name": "Trade History View",
+      "description": "Display history of completed trades",
+      "status": "pending",
+      "estimated_hours": 4,
+      "acceptance_criteria": [
+        "Table/list of completed trades",
+        "Show entry/exit prices and times",
+        "Show realized P&L",
+        "Filter by date range",
+        "Export to CSV option"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-08-05",
+      "sub_task_name": "Charts & Visualizations",
+      "description": "Add charts for P&L trends and daily performance",
+      "status": "pending",
+      "estimated_hours": 5,
+      "acceptance_criteria": [
+        "Daily P&L chart",
+        "Position-wise P&L visualization",
+        "Real-time updates on charts",
+        "Interactive tooltips"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-08-06",
+      "sub_task_name": "UI Styling & Modern Design",
+      "description": "Apply modern, beautiful styling to all UI components",
+      "status": "pending",
+      "estimated_hours": 6,
+      "acceptance_criteria": [
+        "Modern color scheme and typography",
+        "Consistent design language",
+        "Smooth animations and transitions",
+        "Professional and polished appearance",
+        "Dark/light theme support (optional)"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-08-07",
+      "sub_task_name": "Responsive Layout",
+      "description": "Ensure UI works on different screen sizes",
+      "status": "pending",
+      "estimated_hours": 2,
+      "acceptance_criteria": [
+        "Responsive design for desktop and tablet",
+        "Mobile-friendly layout (if web-based)",
+        "Proper scaling of components"
+      ]
+    }
+  ]
+}
+

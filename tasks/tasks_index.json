@@ -1,0 +1,161 @@
+{
+  "project_name": "Automated Risk Management System for Zerodha Options Trading",
+  "project_description": "Develop an automated risk management system for option buying on Zerodha that monitors manual trades and enforces strict risk controls without interfering with trade entry/exit decisions.",
+  "total_tasks": 15,
+  "tasks": [
+    {
+      "task_id": "TASK-01",
+      "task_name": "System Architecture & Project Setup",
+      "file": "task_01_system_architecture_setup.json",
+      "priority": "High",
+      "estimated_hours": 16,
+      "dependencies": []
+    },
+    {
+      "task_id": "TASK-02",
+      "task_name": "Zerodha Kite Connect API Integration",
+      "file": "task_02_zerodha_api_integration.json",
+      "priority": "Critical",
+      "estimated_hours": 24,
+      "dependencies": ["TASK-01"]
+    },
+    {
+      "task_id": "TASK-03",
+      "task_name": "Daily Loss Protection System",
+      "file": "task_03_daily_loss_protection.json",
+      "priority": "Critical",
+      "estimated_hours": 20,
+      "dependencies": ["TASK-02"]
+    },
+    {
+      "task_id": "TASK-04",
+      "task_name": "Trailing Stop Loss Implementation",
+      "file": "task_04_trailing_stop_loss.json",
+      "priority": "High",
+      "estimated_hours": 18,
+      "dependencies": ["TASK-02", "TASK-03"]
+    },
+    {
+      "task_id": "TASK-05",
+      "task_name": "Cycle-wise Profit Protection",
+      "file": "task_05_cycle_profit_protection.json",
+      "priority": "High",
+      "estimated_hours": 16,
+      "dependencies": ["TASK-02"]
+    },
+    {
+      "task_id": "TASK-06",
+      "task_name": "Real-time Monitoring & WebSocket",
+      "file": "task_06_realtime_monitoring_websocket.json",
+      "priority": "Critical",
+      "estimated_hours": 20,
+      "dependencies": ["TASK-02"]
+    },
+    {
+      "task_id": "TASK-07",
+      "task_name": "Data Tracking & Storage",
+      "file": "task_07_data_tracking_storage.json",
+      "priority": "High",
+      "estimated_hours": 18,
+      "dependencies": ["TASK-01"]
+    },
+    {
+      "task_id": "TASK-08",
+      "task_name": "Dashboard UI Development",
+      "file": "task_08_dashboard_ui.json",
+      "priority": "High",
+      "estimated_hours": 32,
+      "dependencies": ["TASK-07"]
+    },
+    {
+      "task_id": "TASK-09",
+      "task_name": "Notification System",
+      "file": "task_09_notification_system.json",
+      "priority": "High",
+      "estimated_hours": 16,
+      "dependencies": ["TASK-03", "TASK-04"]
+    },
+    {
+      "task_id": "TASK-10",
+      "task_name": "Quantity Management",
+      "file": "task_10_quantity_management.json",
+      "priority": "Medium",
+      "estimated_hours": 12,
+      "dependencies": ["TASK-02", "TASK-03"]
+    },
+    {
+      "task_id": "TASK-11",
+      "task_name": "Manual Override & User Controls",
+      "file": "task_11_manual_override.json",
+      "priority": "Medium",
+      "estimated_hours": 10,
+      "dependencies": ["TASK-02", "TASK-08"]
+    },
+    {
+      "task_id": "TASK-12",
+      "task_name": "System Lock & Security (Admin Controls)",
+      "file": "task_12_security_admin_controls.json",
+      "priority": "High",
+      "estimated_hours": 16,
+      "dependencies": ["TASK-01", "TASK-08"]
+    },
+    {
+      "task_id": "TASK-13",
+      "task_name": "Edge Cases Handling",
+      "file": "task_13_edge_cases_handling.json",
+      "priority": "High",
+      "estimated_hours": 20,
+      "dependencies": ["TASK-03", "TASK-04", "TASK-06"]
+    },
+    {
+      "task_id": "TASK-14",
+      "task_name": "Testing & Quality Assurance",
+      "file": "task_14_testing_qa.json",
+      "priority": "High",
+      "estimated_hours": 32,
+      "dependencies": ["TASK-03", "TASK-04", "TASK-05", "TASK-13"]
+    },
+    {
+      "task_id": "TASK-15",
+      "task_name": "Deployment & Maintenance",
+      "file": "task_15_deployment_maintenance.json",
+      "priority": "Medium",
+      "estimated_hours": 16,
+      "dependencies": ["TASK-14"]
+    }
+  ],
+  "total_estimated_hours": 314,
+  "development_phases": [
+    {
+      "phase": "Phase 1",
+      "description": "Core risk monitoring (loss limit, basic P&L tracking)",
+      "tasks": ["TASK-01", "TASK-02", "TASK-03", "TASK-07"]
+    },
+    {
+      "phase": "Phase 2",
+      "description": "Trailing SL implementation",
+      "tasks": ["TASK-04"]
+    },
+    {
+      "phase": "Phase 3",
+      "description": "Cycle-wise profit protection",
+      "tasks": ["TASK-05"]
+    },
+    {
+      "phase": "Phase 4",
+      "description": "Dashboard & notifications",
+      "tasks": ["TASK-08", "TASK-09"]
+    },
+    {
+      "phase": "Phase 5",
+      "description": "Security & access controls",
+      "tasks": ["TASK-12"]
+    },
+    {
+      "phase": "Phase 6",
+      "description": "Testing & deployment",
+      "tasks": ["TASK-13", "TASK-14", "TASK-15"]
+    }
+  ]
+}
+

@@ -1,0 +1,45 @@
+# Core Dependencies
+kiteconnect>=4.2.0
+python-dotenv>=1.0.0
+pyyaml>=6.0
+
+# Database
+sqlalchemy>=2.0.0
+# sqlite3 is built-in Python module, no installation needed
+
+# Web Framework (for UI)
+flask>=3.0.0
+flask-cors>=4.0.0
+
+# Utilities
+requests>=2.31.0
+websocket-client>=1.6.0
+pytz>=2023.3
+
+# Logging
+colorlog>=6.8.0
+
+# Development Tools
+black>=23.0.0
+flake8>=6.1.0
+pylint>=3.0.0
+pytest>=7.4.0
+pytest-cov>=4.1.0
+coverage>=7.3.2
+
+# Data Validation
+pydantic>=2.0.0
+
+# Date/Time
+python-dateutil>=2.8.2
+
+# Data Analysis (for backtesting)
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Historical Data (for backtesting)
+yfinance>=0.2.28
+
+# Document reading
+python-docx>=1.0.0
+

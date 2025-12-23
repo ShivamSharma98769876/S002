@@ -1,0 +1,63 @@
+{
+  "task_id": "TASK-10",
+  "task_name": "Quantity Management",
+  "description": "Handle dynamic position quantity changes and adjust risk calculations accordingly",
+  "priority": "Medium",
+  "estimated_hours": 12,
+  "dependencies": ["TASK-02", "TASK-03"],
+  "sub_tasks": [
+    {
+      "sub_task_id": "TASK-10-01",
+      "sub_task_name": "Position Quantity Tracking",
+      "description": "Track position quantities and detect changes",
+      "status": "pending",
+      "estimated_hours": 3,
+      "acceptance_criteria": [
+        "Monitor position quantity changes",
+        "Detect quantity increases (adding to position)",
+        "Detect quantity decreases (partial exits)",
+        "Handle quantity going to zero (full exit)"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-10-02",
+      "sub_task_name": "Dynamic Risk Recalculation",
+      "description": "Recalculate risk metrics when quantity changes",
+      "status": "pending",
+      "estimated_hours": 4,
+      "acceptance_criteria": [
+        "Recalculate P&L when quantity changes",
+        "Update daily loss calculation",
+        "Update trailing SL calculations",
+        "Real-time updates in dashboard"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-10-03",
+      "sub_task_name": "Booked Profit Display",
+      "description": "Show booked profit from past trades separately from live trades",
+      "status": "pending",
+      "estimated_hours": 3,
+      "acceptance_criteria": [
+        "Fetch and display booked profit from past trades",
+        "Separate display from current P&L",
+        "Update when new trades are closed",
+        "Accurate calculation"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-10-04",
+      "sub_task_name": "Net Position P&L Calculation",
+      "description": "Calculate net P&L for all live positions combined",
+      "status": "pending",
+      "estimated_hours": 2,
+      "acceptance_criteria": [
+        "Sum P&L of all live positions",
+        "Handle multiple positions correctly",
+        "Real-time calculation",
+        "Display in dashboard"
+      ]
+    }
+  ]
+}
+

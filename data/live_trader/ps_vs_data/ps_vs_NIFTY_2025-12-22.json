@@ -1,0 +1,1918 @@
+[
+  {
+    "timestamp": "2025-12-22T11:29:46",
+    "price_strength": 65.61,
+    "volume_strength": 57.73,
+    "price": 26133.5,
+    "rsi": 91.3,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:29:46",
+    "price_strength": 65.61,
+    "volume_strength": 57.73,
+    "price": 26133.35,
+    "rsi": 91.38,
+    "crossover": "CE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:30:46",
+    "price_strength": 78.49,
+    "volume_strength": 61.05,
+    "price": 26133.35,
+    "rsi": 91.38,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:31:46",
+    "price_strength": 84.96,
+    "volume_strength": 64.17,
+    "price": 26134.8,
+    "rsi": 91.42,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:32:46",
+    "price_strength": 88.22,
+    "volume_strength": 67.1,
+    "price": 26134.4,
+    "rsi": 91.48,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:33:46",
+    "price_strength": 89.35,
+    "volume_strength": 69.73,
+    "price": 26135.0,
+    "rsi": 90.49,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:34:46",
+    "price_strength": 89.84,
+    "volume_strength": 72.12,
+    "price": 26133.0,
+    "rsi": 90.33,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:35:46",
+    "price_strength": 90.11,
+    "volume_strength": 74.34,
+    "price": 26134.65,
+    "rsi": 90.38,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:36:46",
+    "price_strength": 89.49,
+    "volume_strength": 76.25,
+    "price": 26134.6,
+    "rsi": 88.86,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:37:46",
+    "price_strength": 89.24,
+    "volume_strength": 78.02,
+    "price": 26133.75,
+    "rsi": 88.99,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:38:46",
+    "price_strength": 88.55,
+    "volume_strength": 79.54,
+    "price": 26133.15,
+    "rsi": 87.86,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:40:24",
+    "price_strength": 57.5,
+    "volume_strength": 61.91,
+    "price": 26133.9,
+    "rsi": 59.09,
+    "crossover": "PE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:41:24",
+    "price_strength": 58.52,
+    "volume_strength": 61.69,
+    "price": 26135.05,
+    "rsi": 59.54,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:42:24",
+    "price_strength": 63.43,
+    "volume_strength": 62.18,
+    "price": 26136.15,
+    "rsi": 68.34,
+    "crossover": "CE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:43:24",
+    "price_strength": 59.41,
+    "volume_strength": 61.42,
+    "price": 26133.8,
+    "rsi": 55.38,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:43:24",
+    "price_strength": 59.41,
+    "volume_strength": 61.42,
+    "price": 26137.55,
+    "rsi": 64.95,
+    "crossover": "PE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:44:24",
+    "price_strength": 62.18,
+    "volume_strength": 61.56,
+    "price": 26137.55,
+    "rsi": 64.95,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:44:24",
+    "price_strength": 62.18,
+    "volume_strength": 61.56,
+    "price": 26140.5,
+    "rsi": 72.63,
+    "crossover": "CE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:45:24",
+    "price_strength": 67.4,
+    "volume_strength": 62.38,
+    "price": 26140.5,
+    "rsi": 72.63,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:46:24",
+    "price_strength": 72.23,
+    "volume_strength": 63.58,
+    "price": 26142.85,
+    "rsi": 77.05,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:47:24",
+    "price_strength": 68.92,
+    "volume_strength": 63.72,
+    "price": 26142.25,
+    "rsi": 65.61,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:48:24",
+    "price_strength": 71.04,
+    "volume_strength": 64.58,
+    "price": 26145.3,
+    "rsi": 73.17,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:49:24",
+    "price_strength": 64.36,
+    "volume_strength": 64.04,
+    "price": 26141.4,
+    "rsi": 57.67,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:50:24",
+    "price_strength": 62.45,
+    "volume_strength": 63.81,
+    "price": 26141.55,
+    "rsi": 60.55,
+    "crossover": "PE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:51:14",
+    "price_strength": 60.21,
+    "volume_strength": 59.88,
+    "price": 26141.35,
+    "rsi": 58.66,
+    "crossover": "CE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:52:14",
+    "price_strength": 58.38,
+    "volume_strength": 59.87,
+    "price": 26141.15,
+    "rsi": 56.56,
+    "crossover": "PE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:53:14",
+    "price_strength": 50.68,
+    "volume_strength": 58.59,
+    "price": 26136.75,
+    "rsi": 42.97,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:54:14",
+    "price_strength": 51.71,
+    "volume_strength": 58.26,
+    "price": 26140.95,
+    "rsi": 52.75,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:55:14",
+    "price_strength": 53.83,
+    "volume_strength": 58.21,
+    "price": 26139.65,
+    "rsi": 55.94,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:56:14",
+    "price_strength": 56.49,
+    "volume_strength": 58.41,
+    "price": 26141.2,
+    "rsi": 59.15,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:57:14",
+    "price_strength": 54.31,
+    "volume_strength": 57.94,
+    "price": 26139.65,
+    "rsi": 52.12,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:58:14",
+    "price_strength": 52.13,
+    "volume_strength": 57.27,
+    "price": 26137.8,
+    "rsi": 49.95,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T11:59:14",
+    "price_strength": 53.76,
+    "volume_strength": 57.07,
+    "price": 26140.95,
+    "rsi": 55.4,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:00:14",
+    "price_strength": 53.9,
+    "volume_strength": 56.71,
+    "price": 26140.55,
+    "rsi": 54.04,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:01:14",
+    "price_strength": 58.74,
+    "volume_strength": 57.21,
+    "price": 26144.75,
+    "rsi": 63.58,
+    "crossover": "CE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:02:14",
+    "price_strength": 58.15,
+    "volume_strength": 57.08,
+    "price": 26142.0,
+    "rsi": 57.57,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:03:14",
+    "price_strength": 62.28,
+    "volume_strength": 57.75,
+    "price": 26148.0,
+    "rsi": 66.4,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:04:14",
+    "price_strength": 60.21,
+    "volume_strength": 57.66,
+    "price": 26144.3,
+    "rsi": 58.13,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:05:14",
+    "price_strength": 56.89,
+    "volume_strength": 57.12,
+    "price": 26143.3,
+    "rsi": 53.57,
+    "crossover": "PE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:06:14",
+    "price_strength": 53.25,
+    "volume_strength": 56.26,
+    "price": 26142.15,
+    "rsi": 49.62,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:07:14",
+    "price_strength": 52.51,
+    "volume_strength": 55.7,
+    "price": 26142.55,
+    "rsi": 51.76,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:08:14",
+    "price_strength": 46.01,
+    "volume_strength": 54.14,
+    "price": 26138.85,
+    "rsi": 39.52,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:09:14",
+    "price_strength": 39.62,
+    "volume_strength": 52.1,
+    "price": 26134.2,
+    "rsi": 33.23,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:10:14",
+    "price_strength": 37.43,
+    "volume_strength": 50.42,
+    "price": 26134.5,
+    "rsi": 35.24,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:11:14",
+    "price_strength": 42.13,
+    "volume_strength": 49.89,
+    "price": 26138.6,
+    "rsi": 46.84,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:12:14",
+    "price_strength": 47.56,
+    "volume_strength": 49.98,
+    "price": 26140.7,
+    "rsi": 52.98,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:13:14",
+    "price_strength": 53.98,
+    "volume_strength": 50.76,
+    "price": 26143.8,
+    "rsi": 60.4,
+    "crossover": "CE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:14:14",
+    "price_strength": 57.29,
+    "volume_strength": 51.55,
+    "price": 26145.15,
+    "rsi": 60.6,
+    "crossover": null,
+    "filters": {
+      "time": {
+        "passed": true,
+        "reason": "Optimal session: 09:30-15:15"
+      },
+      "atr": {
+        "passed": true,
+        "reason": "ATR acceptable: 1.15x (range: 0.73-1.50x)",
+        "current_atr": 11.082142857144001,
+        "avg_atr": 9.666496598639977
+      },
+      "rsi": {
+        "passed": true,
+        "reason": "RSI acceptable: 60.60 >= 60 (Sell CE - overbought for decay)",
+        "rsi_value": 60.597020247438174
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-22T12:15:14",
+    "price_strength": 62.25,
+    "volume_strength": 52.86,
+    "price": 26148.65,
+    "rsi": 67.2,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:16:14",
+    "price_strength": 65.06,
+    "volume_strength": 54.16,
+    "price": 26150.3,
+    "rsi": 67.87,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:17:14",
+    "price_strength": 66.27,
+    "volume_strength": 55.39,
+    "price": 26150.65,
+    "rsi": 67.48,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:18:14",
+    "price_strength": 67.76,
+    "volume_strength": 56.73,
+    "price": 26148.35,
+    "rsi": 69.25,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:19:14",
+    "price_strength": 60.2,
+    "volume_strength": 56.49,
+    "price": 26145.2,
+    "rsi": 52.65,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:20:22",
+    "price_strength": 54.26,
+    "volume_strength": 55.85,
+    "price": 26144.25,
+    "rsi": 48.31,
+    "crossover": "PE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:21:23",
+    "price_strength": 53.98,
+    "volume_strength": 55.73,
+    "price": 26145.1,
+    "rsi": 53.71,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:22:59",
+    "price_strength": 54.05,
+    "volume_strength": 55.64,
+    "price": 26145.3,
+    "rsi": 54.12,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:24:55",
+    "price_strength": 47.33,
+    "volume_strength": 54.37,
+    "price": 26142.2,
+    "rsi": 40.61,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:25:56",
+    "price_strength": 47.72,
+    "volume_strength": 53.86,
+    "price": 26143.9,
+    "rsi": 48.12,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:26:55",
+    "price_strength": 47.14,
+    "volume_strength": 53.28,
+    "price": 26142.85,
+    "rsi": 46.56,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:27:56",
+    "price_strength": 45.52,
+    "volume_strength": 52.51,
+    "price": 26142.5,
+    "rsi": 43.89,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:28:56",
+    "price_strength": 41.51,
+    "volume_strength": 51.2,
+    "price": 26138.8,
+    "rsi": 37.5,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:30:17",
+    "price_strength": 37.86,
+    "volume_strength": 49.64,
+    "price": 26137.15,
+    "rsi": 34.21,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:31:24",
+    "price_strength": 35.21,
+    "volume_strength": 48.01,
+    "price": 26136.0,
+    "rsi": 32.56,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:36:57",
+    "price_strength": 32.42,
+    "volume_strength": 46.15,
+    "price": 26134.95,
+    "rsi": 29.64,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:39:38",
+    "price_strength": 24.36,
+    "volume_strength": 43.08,
+    "price": 26122.95,
+    "rsi": 16.3,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:40:37",
+    "price_strength": 19.24,
+    "volume_strength": 39.9,
+    "price": 26121.15,
+    "rsi": 14.11,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:41:37",
+    "price_strength": 16.76,
+    "volume_strength": 36.88,
+    "price": 26120.15,
+    "rsi": 14.29,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:42:37",
+    "price_strength": 14.83,
+    "volume_strength": 33.9,
+    "price": 26118.2,
+    "rsi": 12.89,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:43:37",
+    "price_strength": 15.94,
+    "volume_strength": 31.5,
+    "price": 26119.0,
+    "rsi": 17.06,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:44:37",
+    "price_strength": 23.99,
+    "volume_strength": 30.66,
+    "price": 26122.85,
+    "rsi": 32.03,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:45:37",
+    "price_strength": 29.54,
+    "volume_strength": 30.24,
+    "price": 26124.3,
+    "rsi": 35.09,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:46:37",
+    "price_strength": 37.21,
+    "volume_strength": 30.86,
+    "price": 26127.5,
+    "rsi": 44.88,
+    "crossover": "CE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:47:37",
+    "price_strength": 46.64,
+    "volume_strength": 32.59,
+    "price": 26132.6,
+    "rsi": 56.06,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:48:37",
+    "price_strength": 54.77,
+    "volume_strength": 35.0,
+    "price": 26137.25,
+    "rsi": 62.91,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:49:37",
+    "price_strength": 64.47,
+    "volume_strength": 38.38,
+    "price": 26147.7,
+    "rsi": 74.16,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:50:37",
+    "price_strength": 70.37,
+    "volume_strength": 41.85,
+    "price": 26150.5,
+    "rsi": 76.27,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:51:37",
+    "price_strength": 70.11,
+    "volume_strength": 44.64,
+    "price": 26148.05,
+    "rsi": 69.85,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:52:37",
+    "price_strength": 65.07,
+    "volume_strength": 46.46,
+    "price": 26142.95,
+    "rsi": 60.04,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:53:37",
+    "price_strength": 58.76,
+    "volume_strength": 47.51,
+    "price": 26139.0,
+    "rsi": 52.44,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:54:37",
+    "price_strength": 57.53,
+    "volume_strength": 48.9,
+    "price": 26141.35,
+    "rsi": 56.3,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:55:37",
+    "price_strength": 55.34,
+    "volume_strength": 49.95,
+    "price": 26140.55,
+    "rsi": 53.16,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:56:37",
+    "price_strength": 56.66,
+    "volume_strength": 51.41,
+    "price": 26142.95,
+    "rsi": 57.98,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:57:37",
+    "price_strength": 56.26,
+    "volume_strength": 52.58,
+    "price": 26141.6,
+    "rsi": 55.86,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:58:37",
+    "price_strength": 55.11,
+    "volume_strength": 53.48,
+    "price": 26141.85,
+    "rsi": 53.95,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T12:59:37",
+    "price_strength": 55.06,
+    "volume_strength": 54.39,
+    "price": 26142.45,
+    "rsi": 55.01,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:00:37",
+    "price_strength": 55.09,
+    "volume_strength": 55.2,
+    "price": 26142.35,
+    "rsi": 55.11,
+    "crossover": "PE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:01:37",
+    "price_strength": 53.66,
+    "volume_strength": 55.58,
+    "price": 26141.3,
+    "rsi": 52.23,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:02:37",
+    "price_strength": 55.78,
+    "volume_strength": 56.31,
+    "price": 26143.75,
+    "rsi": 57.9,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:03:37",
+    "price_strength": 51.62,
+    "volume_strength": 55.9,
+    "price": 26139.15,
+    "rsi": 47.46,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:04:37",
+    "price_strength": 53.3,
+    "volume_strength": 56.02,
+    "price": 26142.65,
+    "rsi": 54.97,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:05:37",
+    "price_strength": 51.44,
+    "volume_strength": 55.49,
+    "price": 26140.8,
+    "rsi": 49.58,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:06:37",
+    "price_strength": 52.76,
+    "volume_strength": 55.29,
+    "price": 26141.55,
+    "rsi": 54.07,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:07:37",
+    "price_strength": 52.54,
+    "volume_strength": 54.86,
+    "price": 26141.3,
+    "rsi": 52.32,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:08:37",
+    "price_strength": 50.66,
+    "volume_strength": 54.06,
+    "price": 26139.6,
+    "rsi": 48.77,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:09:37",
+    "price_strength": 53.16,
+    "volume_strength": 53.93,
+    "price": 26141.7,
+    "rsi": 55.67,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:10:37",
+    "price_strength": 54.48,
+    "volume_strength": 53.83,
+    "price": 26142.75,
+    "rsi": 55.8,
+    "crossover": "CE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:11:37",
+    "price_strength": 54.96,
+    "volume_strength": 53.79,
+    "price": 26142.55,
+    "rsi": 55.44,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:12:37",
+    "price_strength": 57.62,
+    "volume_strength": 54.27,
+    "price": 26144.5,
+    "rsi": 60.28,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:13:37",
+    "price_strength": 60.71,
+    "volume_strength": 55.12,
+    "price": 26145.95,
+    "rsi": 63.8,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:14:37",
+    "price_strength": 55.79,
+    "volume_strength": 54.77,
+    "price": 26142.3,
+    "rsi": 50.86,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:15:37",
+    "price_strength": 55.47,
+    "volume_strength": 54.82,
+    "price": 26143.3,
+    "rsi": 55.16,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:16:37",
+    "price_strength": 54.95,
+    "volume_strength": 54.81,
+    "price": 26143.6,
+    "rsi": 54.42,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:17:37",
+    "price_strength": 58.77,
+    "volume_strength": 55.54,
+    "price": 26146.45,
+    "rsi": 62.59,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:18:37",
+    "price_strength": 58.46,
+    "volume_strength": 55.84,
+    "price": 26145.8,
+    "rsi": 58.14,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:19:37",
+    "price_strength": 58.3,
+    "volume_strength": 56.13,
+    "price": 26144.4,
+    "rsi": 58.14,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:20:37",
+    "price_strength": 59.95,
+    "volume_strength": 56.72,
+    "price": 26146.85,
+    "rsi": 61.6,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:21:37",
+    "price_strength": 62.74,
+    "volume_strength": 57.64,
+    "price": 26148.35,
+    "rsi": 65.53,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:22:37",
+    "price_strength": 64.28,
+    "volume_strength": 58.54,
+    "price": 26148.3,
+    "rsi": 65.82,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:23:37",
+    "price_strength": 67.12,
+    "volume_strength": 59.75,
+    "price": 26147.6,
+    "rsi": 69.96,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:24:37",
+    "price_strength": 63.48,
+    "volume_strength": 59.99,
+    "price": 26146.25,
+    "rsi": 59.83,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:25:37",
+    "price_strength": 64.8,
+    "volume_strength": 60.76,
+    "price": 26149.1,
+    "rsi": 66.12,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:26:37",
+    "price_strength": 65.88,
+    "volume_strength": 61.55,
+    "price": 26148.25,
+    "rsi": 66.97,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:27:37",
+    "price_strength": 68.76,
+    "volume_strength": 62.68,
+    "price": 26152.85,
+    "rsi": 71.64,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:28:37",
+    "price_strength": 72.29,
+    "volume_strength": 64.13,
+    "price": 26152.9,
+    "rsi": 75.82,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:29:37",
+    "price_strength": 73.09,
+    "volume_strength": 65.29,
+    "price": 26152.15,
+    "rsi": 73.89,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:30:37",
+    "price_strength": 67.56,
+    "volume_strength": 65.27,
+    "price": 26151.5,
+    "rsi": 62.02,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:31:37",
+    "price_strength": 50.55,
+    "volume_strength": 62.63,
+    "price": 26141.8,
+    "rsi": 33.54,
+    "crossover": "PE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:32:37",
+    "price_strength": 41.51,
+    "volume_strength": 59.99,
+    "price": 26140.35,
+    "rsi": 32.47,
+    "crossover": null,
+    "filters": {
+      "time": {
+        "passed": true,
+        "reason": "Optimal session: 09:30-15:15"
+      },
+      "atr": {
+        "passed": true,
+        "reason": "ATR acceptable: 1.27x (range: 0.73-1.50x)",
+        "current_atr": 9.589285714285975,
+        "avg_atr": 7.521428571428928
+      },
+      "rsi": {
+        "passed": true,
+        "reason": "RSI acceptable: 32.47 <= 40 (Sell PE - oversold for decay)",
+        "rsi_value": 32.47407272131069
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-22T13:33:37",
+    "price_strength": 36.8,
+    "volume_strength": 57.42,
+    "price": 26140.05,
+    "rsi": 32.09,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:34:37",
+    "price_strength": 34.39,
+    "volume_strength": 54.96,
+    "price": 26140.9,
+    "rsi": 31.98,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:35:37",
+    "price_strength": 38.26,
+    "volume_strength": 53.55,
+    "price": 26142.9,
+    "rsi": 42.13,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:36:37",
+    "price_strength": 40.05,
+    "volume_strength": 52.16,
+    "price": 26143.25,
+    "rsi": 41.83,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:37:37",
+    "price_strength": 45.36,
+    "volume_strength": 51.63,
+    "price": 26144.85,
+    "rsi": 50.68,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:38:37",
+    "price_strength": 50.55,
+    "volume_strength": 51.58,
+    "price": 26146.85,
+    "rsi": 55.73,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:39:37",
+    "price_strength": 53.14,
+    "volume_strength": 51.56,
+    "price": 26146.35,
+    "rsi": 55.73,
+    "crossover": "CE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:40:37",
+    "price_strength": 51.33,
+    "volume_strength": 50.98,
+    "price": 26144.8,
+    "rsi": 49.53,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:41:37",
+    "price_strength": 49.6,
+    "volume_strength": 50.29,
+    "price": 26144.0,
+    "rsi": 47.87,
+    "crossover": "PE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:42:37",
+    "price_strength": 54.98,
+    "volume_strength": 50.79,
+    "price": 26147.5,
+    "rsi": 60.35,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:42:37",
+    "price_strength": 54.98,
+    "volume_strength": 50.79,
+    "price": 26147.9,
+    "rsi": 61.88,
+    "crossover": "CE",
+    "filters": {
+      "time": {
+        "passed": true,
+        "reason": "Optimal session: 09:30-15:15"
+      },
+      "atr": {
+        "passed": true,
+        "reason": "ATR acceptable: 1.17x (range: 0.73-1.50x)",
+        "current_atr": 11.732142857143117,
+        "avg_atr": 10.061734693877717
+      },
+      "rsi": {
+        "passed": true,
+        "reason": "RSI acceptable: 61.88 >= 60 (Sell CE - overbought for decay)",
+        "rsi_value": 61.88358513751771
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-22T13:43:37",
+    "price_strength": 58.43,
+    "volume_strength": 51.46,
+    "price": 26147.9,
+    "rsi": 61.88,
+    "crossover": null,
+    "filters": {
+      "time": {
+        "passed": true,
+        "reason": "Optimal session: 09:30-15:15"
+      },
+      "atr": {
+        "passed": true,
+        "reason": "ATR acceptable: 1.17x (range: 0.73-1.50x)",
+        "current_atr": 11.732142857143117,
+        "avg_atr": 10.061734693877717
+      },
+      "rsi": {
+        "passed": true,
+        "reason": "RSI acceptable: 61.88 >= 60 (Sell CE - overbought for decay)",
+        "rsi_value": 61.88358513751771
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-22T13:44:37",
+    "price_strength": 57.8,
+    "volume_strength": 51.71,
+    "price": 26148.3,
+    "rsi": 57.16,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:45:37",
+    "price_strength": 57.95,
+    "volume_strength": 52.1,
+    "price": 26146.95,
+    "rsi": 58.11,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:46:37",
+    "price_strength": 54.82,
+    "volume_strength": 51.92,
+    "price": 26146.5,
+    "rsi": 51.69,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:47:37",
+    "price_strength": 50.7,
+    "volume_strength": 51.34,
+    "price": 26145.4,
+    "rsi": 46.59,
+    "crossover": "PE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:48:37",
+    "price_strength": 52.56,
+    "volume_strength": 51.55,
+    "price": 26147.05,
+    "rsi": 54.41,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:48:37",
+    "price_strength": 52.56,
+    "volume_strength": 51.55,
+    "price": 26144.4,
+    "rsi": 42.0,
+    "crossover": "CE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:49:37",
+    "price_strength": 47.28,
+    "volume_strength": 50.71,
+    "price": 26144.4,
+    "rsi": 42.0,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:49:37",
+    "price_strength": 47.28,
+    "volume_strength": 50.71,
+    "price": 26145.25,
+    "rsi": 47.32,
+    "crossover": "PE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:50:37",
+    "price_strength": 47.3,
+    "volume_strength": 50.51,
+    "price": 26145.25,
+    "rsi": 47.32,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:51:37",
+    "price_strength": 47.01,
+    "volume_strength": 50.36,
+    "price": 26145.6,
+    "rsi": 46.71,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:52:37",
+    "price_strength": 44.11,
+    "volume_strength": 49.78,
+    "price": 26144.3,
+    "rsi": 41.21,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:53:37",
+    "price_strength": 47.04,
+    "volume_strength": 49.96,
+    "price": 26144.8,
+    "rsi": 49.97,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:54:37",
+    "price_strength": 47.32,
+    "volume_strength": 49.85,
+    "price": 26145.0,
+    "rsi": 47.6,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:55:37",
+    "price_strength": 51.27,
+    "volume_strength": 50.36,
+    "price": 26146.4,
+    "rsi": 55.22,
+    "crossover": "CE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:56:37",
+    "price_strength": 60.42,
+    "volume_strength": 52.08,
+    "price": 26151.65,
+    "rsi": 69.57,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:57:37",
+    "price_strength": 59.82,
+    "volume_strength": 52.74,
+    "price": 26148.7,
+    "rsi": 59.21,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:58:37",
+    "price_strength": 53.8,
+    "volume_strength": 52.29,
+    "price": 26149.9,
+    "rsi": 47.78,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T13:59:37",
+    "price_strength": 54.83,
+    "volume_strength": 52.58,
+    "price": 26147.75,
+    "rsi": 55.86,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:00:37",
+    "price_strength": 54.78,
+    "volume_strength": 52.77,
+    "price": 26148.05,
+    "rsi": 54.73,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:01:37",
+    "price_strength": 52.62,
+    "volume_strength": 52.57,
+    "price": 26146.7,
+    "rsi": 50.46,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:02:37",
+    "price_strength": 51.37,
+    "volume_strength": 52.34,
+    "price": 26146.9,
+    "rsi": 50.12,
+    "crossover": "PE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:03:37",
+    "price_strength": 46.57,
+    "volume_strength": 51.34,
+    "price": 26143.9,
+    "rsi": 41.78,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:04:37",
+    "price_strength": 34.79,
+    "volume_strength": 48.72,
+    "price": 26134.0,
+    "rsi": 23.0,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:05:37",
+    "price_strength": 28.07,
+    "volume_strength": 46.11,
+    "price": 26131.2,
+    "rsi": 21.36,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:06:37",
+    "price_strength": 24.5,
+    "volume_strength": 43.62,
+    "price": 26130.95,
+    "rsi": 20.93,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:07:37",
+    "price_strength": 21.38,
+    "volume_strength": 41.05,
+    "price": 26127.05,
+    "rsi": 18.26,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:08:37",
+    "price_strength": 33.84,
+    "volume_strength": 41.17,
+    "price": 26138.55,
+    "rsi": 46.3,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:09:37",
+    "price_strength": 43.23,
+    "volume_strength": 41.87,
+    "price": 26142.1,
+    "rsi": 52.63,
+    "crossover": "CE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:10:37",
+    "price_strength": 49.04,
+    "volume_strength": 42.78,
+    "price": 26143.9,
+    "rsi": 54.84,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:11:37",
+    "price_strength": 51.83,
+    "volume_strength": 43.61,
+    "price": 26143.05,
+    "rsi": 54.63,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:12:37",
+    "price_strength": 50.59,
+    "volume_strength": 43.93,
+    "price": 26141.15,
+    "rsi": 49.35,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:13:37",
+    "price_strength": 46.33,
+    "volume_strength": 43.58,
+    "price": 26137.4,
+    "rsi": 42.07,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:14:37",
+    "price_strength": 43.1,
+    "volume_strength": 43.03,
+    "price": 26135.55,
+    "rsi": 39.87,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:15:37",
+    "price_strength": 39.31,
+    "volume_strength": 42.12,
+    "price": 26133.35,
+    "rsi": 35.52,
+    "crossover": "PE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:16:37",
+    "price_strength": 34.98,
+    "volume_strength": 40.82,
+    "price": 26129.55,
+    "rsi": 30.65,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:17:37",
+    "price_strength": 37.04,
+    "volume_strength": 40.4,
+    "price": 26132.9,
+    "rsi": 39.11,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:18:37",
+    "price_strength": 44.51,
+    "volume_strength": 41.28,
+    "price": 26140.0,
+    "rsi": 51.98,
+    "crossover": "CE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:19:37",
+    "price_strength": 53.44,
+    "volume_strength": 43.13,
+    "price": 26145.5,
+    "rsi": 62.38,
+    "crossover": null,
+    "filters": {
+      "time": {
+        "passed": true,
+        "reason": "Optimal session: 09:30-15:15"
+      },
+      "atr": {
+        "passed": true,
+        "reason": "ATR acceptable: 1.38x (range: 0.73-1.50x)",
+        "current_atr": 17.410714285714544,
+        "avg_atr": 12.625510204081293
+      },
+      "rsi": {
+        "passed": true,
+        "reason": "RSI acceptable: 62.38 >= 60 (Sell CE - overbought for decay)",
+        "rsi_value": 62.37578203921811
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-22T14:20:37",
+    "price_strength": 60.19,
+    "volume_strength": 45.34,
+    "price": 26149.2,
+    "rsi": 66.94,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:21:37",
+    "price_strength": 62.16,
+    "volume_strength": 47.24,
+    "price": 26149.5,
+    "rsi": 64.13,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:22:37",
+    "price_strength": 64.88,
+    "volume_strength": 49.42,
+    "price": 26151.9,
+    "rsi": 67.6,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:23:37",
+    "price_strength": 67.93,
+    "volume_strength": 51.83,
+    "price": 26154.05,
+    "rsi": 70.97,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:24:37",
+    "price_strength": 67.93,
+    "volume_strength": 53.88,
+    "price": 26153.4,
+    "rsi": 67.94,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:25:37",
+    "price_strength": 65.71,
+    "volume_strength": 55.41,
+    "price": 26151.85,
+    "rsi": 63.49,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:26:37",
+    "price_strength": 66.62,
+    "volume_strength": 57.13,
+    "price": 26154.9,
+    "rsi": 67.53,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:27:37",
+    "price_strength": 66.38,
+    "volume_strength": 58.52,
+    "price": 26155.05,
+    "rsi": 66.13,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:28:37",
+    "price_strength": 62.15,
+    "volume_strength": 58.97,
+    "price": 26151.35,
+    "rsi": 57.93,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:29:37",
+    "price_strength": 66.39,
+    "volume_strength": 60.4,
+    "price": 26160.85,
+    "rsi": 70.63,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:30:37",
+    "price_strength": 72.46,
+    "volume_strength": 62.45,
+    "price": 26170.95,
+    "rsi": 78.53,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:31:37",
+    "price_strength": 75.55,
+    "volume_strength": 64.39,
+    "price": 26172.1,
+    "rsi": 78.63,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:32:37",
+    "price_strength": 78.24,
+    "volume_strength": 66.44,
+    "price": 26175.6,
+    "rsi": 80.93,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:33:37",
+    "price_strength": 80.15,
+    "volume_strength": 68.48,
+    "price": 26176.2,
+    "rsi": 82.06,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:34:37",
+    "price_strength": 68.04,
+    "volume_strength": 68.0,
+    "price": 26164.05,
+    "rsi": 55.92,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:35:37",
+    "price_strength": 61.98,
+    "volume_strength": 67.46,
+    "price": 26163.6,
+    "rsi": 55.92,
+    "crossover": "PE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:36:37",
+    "price_strength": 59.38,
+    "volume_strength": 66.93,
+    "price": 26163.3,
+    "rsi": 56.77,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:37:37",
+    "price_strength": 56.38,
+    "volume_strength": 66.0,
+    "price": 26161.8,
+    "rsi": 53.38,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:38:37",
+    "price_strength": 52.99,
+    "volume_strength": 64.63,
+    "price": 26158.65,
+    "rsi": 49.61,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:39:37",
+    "price_strength": 53.78,
+    "volume_strength": 63.66,
+    "price": 26161.9,
+    "rsi": 54.57,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:40:37",
+    "price_strength": 48.99,
+    "volume_strength": 61.74,
+    "price": 26156.75,
+    "rsi": 44.2,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:41:37",
+    "price_strength": 47.56,
+    "volume_strength": 60.07,
+    "price": 26157.75,
+    "rsi": 46.14,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:42:37",
+    "price_strength": 48.45,
+    "volume_strength": 58.79,
+    "price": 26159.35,
+    "rsi": 49.33,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:43:37",
+    "price_strength": 45.47,
+    "volume_strength": 56.94,
+    "price": 26156.2,
+    "rsi": 42.49,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:44:37",
+    "price_strength": 45.68,
+    "volume_strength": 55.52,
+    "price": 26156.35,
+    "rsi": 45.89,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:45:37",
+    "price_strength": 46.21,
+    "volume_strength": 54.28,
+    "price": 26157.6,
+    "rsi": 46.75,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:46:37",
+    "price_strength": 47.34,
+    "volume_strength": 53.29,
+    "price": 26158.0,
+    "rsi": 48.47,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:47:37",
+    "price_strength": 48.58,
+    "volume_strength": 52.48,
+    "price": 26158.4,
+    "rsi": 49.81,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:48:37",
+    "price_strength": 49.06,
+    "volume_strength": 51.73,
+    "price": 26158.5,
+    "rsi": 49.55,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:49:37",
+    "price_strength": 52.4,
+    "volume_strength": 51.62,
+    "price": 26160.65,
+    "rsi": 55.74,
+    "crossover": "CE",
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:50:37",
+    "price_strength": 54.45,
+    "volume_strength": 51.58,
+    "price": 26161.1,
+    "rsi": 56.51,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:51:37",
+    "price_strength": 56.75,
+    "volume_strength": 51.83,
+    "price": 26161.85,
+    "rsi": 59.04,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:52:37",
+    "price_strength": 58.1,
+    "volume_strength": 52.21,
+    "price": 26162.85,
+    "rsi": 59.46,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:53:37",
+    "price_strength": 59.16,
+    "volume_strength": 52.74,
+    "price": 26162.35,
+    "rsi": 60.22,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:54:37",
+    "price_strength": 60.73,
+    "volume_strength": 53.54,
+    "price": 26163.25,
+    "rsi": 62.29,
+    "crossover": null,
+    "filters": null
+  },
+  {
+    "timestamp": "2025-12-22T14:55:37",
+    "price_strength": 70.84,
+    "volume_strength": 56.13,
+    "price": 26174.05,
+    "rsi": 80.95,
+    "crossover": null,
+    "filters": null
+  }
+]

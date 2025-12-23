@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk Management Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: var(--border-color, #e2e8f0);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: background 0.3s;
+            border: none;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-toggle:hover {
+            background: var(--text-secondary, #64748b);
+        }
+
+        .theme-toggle-slider {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            left: 3px;
+        }
+
+        [data-theme="dark"] .theme-toggle {
+            background: var(--primary-color, #2563eb);
+        }
+
+        [data-theme="dark"] .theme-toggle-slider {
+            transform: translateX(24px);
+        }
+
+        .theme-toggle-icon {
+            position: absolute;
+            font-size: 12px;
+            transition: opacity 0.3s;
+        }
+
+        .theme-toggle-icon.sun {
+            left: 6px;
+            color: #f59e0b;
+        }
+
+        .theme-toggle-icon.moon {
+            right: 6px;
+            color: #f1f5f9;
+        }
+
+        [data-theme="light"] .theme-toggle-icon.moon {
+            opacity: 0;
+        }
+
+        [data-theme="dark"] .theme-toggle-icon.sun {
+            opacity: 0;
+        }
+
+        /* Dark Theme Variables */
+        [data-theme="dark"] {
+            --primary-color: #3b82f6;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+        }
+
+        [data-theme="dark"] body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .card {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .header {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>📊 Risk Management Dashboard</h1>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <!-- Theme Toggle Button -->
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 12px; color: var(--text-secondary); font-weight: 500;">
+                        <i class="fas fa-sun" style="font-size: 14px;"></i>
+                    </span>
+                    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Dark/Light Theme">
+                        <span class="theme-toggle-slider"></span>
+                        <i class="fas fa-sun theme-toggle-icon sun"></i>
+                        <i class="fas fa-moon theme-toggle-icon moon"></i>
+                    </button>
+                    <span style="font-size: 12px; color: var(--text-secondary); font-weight: 500;">
+                        <i class="fas fa-moon" style="font-size: 14px;"></i>
+                    </span>
+                </div>
+                <div class="status-indicator" id="statusIndicator">
+                    <span class="heart-icon" id="heartIcon">❤️</span>
+                    <span id="statusText">Connecting...</span>
+                </div>
+                <div id="authStatus" style="padding: 8px 16px; background: #dc3545; color: white; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;" onclick="showAuthModal()">
+                    🔒 Not Authenticated
+                </div>
+                <a href="/admin/panel" style="padding: 8px 16px; background: var(--primary-color); color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600;">
+                    🔐 Admin Panel
+                </a>
+                <a href="/backtest/" style="padding: 8px 16px; background: #764ba2; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600;">
+                    📊 Backtesting
+                </a>
+                <a href="/live/" style="padding: 8px 16px; background: #0ea5e9; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600;">
+                    🤖 Live Trader
+                </a>
+            </div>
+        </header>
+
+        <!-- Authentication Modal -->
+        <div id="authModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+            <div style="background: white; padding: 30px; border-radius: 12px; max-width: 600px; width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                <h2 style="margin-top: 0;">🔐 Zerodha Authentication</h2>
+                
+                <!-- Tabs for authentication methods -->
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee;">
+                    <button id="tabAccessToken" onclick="switchAuthTab('accessToken')" 
+                            style="flex: 1; padding: 12px; background: var(--primary-color); color: white; border: none; border-radius: 6px 6px 0 0; font-size: 14px; font-weight: 600; cursor: pointer;">
+                        Access Token (Direct)
+                    </button>
+                    <button id="tabRequestToken" onclick="switchAuthTab('requestToken')" 
+                            style="flex: 1; padding: 12px; background: #e9ecef; color: #666; border: none; border-radius: 6px 6px 0 0; font-size: 14px; font-weight: 600; cursor: pointer;">
+                        Request Token (OAuth)
+                    </button>
+                </div>
+                
+                <!-- Access Token Form -->
+                <div id="accessTokenForm" style="display: block;">
+                    <p style="color: #666; margin-bottom: 20px;">If you already have an access token, enter it directly to connect.</p>
+                    <form id="authFormAccessToken" onsubmit="authenticateWithAccessToken(event)">
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Access Token</label>
+                            <input type="text" id="accessToken" placeholder="Enter your access token" required 
+                                   style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; font-family: monospace;">
+                            <small style="color: #666; margin-top: 5px; display: block;">
+                                Use this if you already have a saved access token from a previous session.
+                            </small>
+                        </div>
+                        <div id="authError" style="color: #dc3545; margin-bottom: 15px; display: none;"></div>
+                        <div style="display: flex; gap: 10px;">
+                            <button type="submit" style="flex: 1; padding: 12px; background: var(--primary-color); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;">
+                                Connect
+                            </button>
+                            <button type="button" onclick="hideAuthModal()" style="padding: 12px 20px; background: #6c757d; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Request Token Form -->
+                <div id="requestTokenForm" style="display: none;">
+                    <p style="color: #666; margin-bottom: 20px;">Enter your request token from Zerodha to generate a new access token.</p>
+                    <form id="authFormRequestToken" onsubmit="authenticateWithRequestToken(event)">
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Request Token</label>
+                            <input type="text" id="requestToken" placeholder="Enter request token" required 
+                                   style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; font-family: monospace;">
+                            <small style="color: #666; margin-top: 5px; display: block;">
+                                Get your request token from: 
+                                {% if api_key %}
+                                <a href="https://kite.trade/connect/login?api_key={{ api_key }}" target="_blank">Zerodha Kite Connect</a>
+                                {% else %}
+                                <a href="https://kite.trade/connect/login" target="_blank">Zerodha Kite Connect</a> (use your API key in URL)
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div id="authErrorRequest" style="color: #dc3545; margin-bottom: 15px; display: none;"></div>
+                        <div style="display: flex; gap: 10px;">
+                            <button type="submit" style="flex: 1; padding: 12px; background: var(--primary-color); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;">
+                                Authenticate
+                            </button>
+                            <button type="button" onclick="hideAuthModal()" style="padding: 12px 20px; background: #6c757d; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Summary Cards -->
+        <section class="summary-section">
+            <div class="card profit-card">
+                <div class="card-header">
+                    <h3>Protected Profit</h3>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="card-icon">💰</span>
+                        <button class="help-icon" onclick="showHelp('protected-profit')" title="Help">❓</button>
+                    </div>
+                </div>
+                <div class="card-value" id="protectedProfit">₹0.00</div>
+            </div>
+
+            <div class="card pnl-card">
+                <div class="card-header">
+                    <h3>Current Positions P&L</h3>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="card-icon">📈</span>
+                        <button class="help-icon" onclick="showHelp('current-pnl')" title="Help">❓</button>
+                    </div>
+                </div>
+                <div class="card-value" id="currentPnl">₹0.00</div>
+            </div>
+
+            <div class="card total-card">
+                <div class="card-header">
+                    <h3>Total Day P&L</h3>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="card-icon">💵</span>
+                        <button class="help-icon" onclick="showHelp('total-pnl')" title="Help">❓</button>
+                    </div>
+                </div>
+                <div class="card-value" id="totalPnl">₹0.00</div>
+            </div>
+
+            <div class="card booked-card">
+                <div class="card-header">
+                    <h3>Booked Profit</h3>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="card-icon">📊</span>
+                        <button class="help-icon" onclick="showHelp('booked-profit')" title="Help">❓</button>
+                    </div>
+                </div>
+                <div class="card-value" id="bookedProfit">₹0.00</div>
+                <div class="card-subvalue">From completed trades</div>
+            </div>
+
+            <div class="card net-card">
+                <div class="card-header">
+                    <h3>Net Position P&L</h3>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="card-icon">📉</span>
+                        <button class="help-icon" onclick="showHelp('net-position-pnl')" title="Help">❓</button>
+                    </div>
+                </div>
+                <div class="card-value" id="netPositionPnl">₹0.00</div>
+                <div class="card-subvalue">All live positions combined</div>
+            </div>
+
+            <div class="card loss-card">
+                <div class="card-header">
+                    <h3>Daily Loss Used</h3>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="card-icon">⚠️</span>
+                        <button class="help-icon" onclick="showHelp('daily-loss')" title="Help">❓</button>
+                    </div>
+                </div>
+                <div class="card-value" id="dailyLossUsed">₹0.00</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="lossProgress"></div>
+                </div>
+                <div class="progress-label">
+                    <span id="lossUsed">₹0</span> / <span id="lossLimit">₹5,000</span>
+                </div>
+            </div>
+
+            <div class="card trailing-card">
+                <div class="card-header">
+                    <h3>Trailing Stop Loss</h3>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="card-icon">🎯</span>
+                        <button class="help-icon" onclick="showHelp('trailing-sl')" title="Help">❓</button>
+                    </div>
+                </div>
+                <div class="card-value" id="trailingSlStatus">Inactive</div>
+                <div class="card-subvalue" id="trailingSlLevel">-</div>
+            </div>
+
+            <div class="card trading-card">
+                <div class="card-header">
+                    <h3>Trading Status</h3>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="card-icon">🔒</span>
+                        <button class="help-icon" onclick="showHelp('trading-status')" title="Help">❓</button>
+                    </div>
+                </div>
+                <div class="card-value" id="tradingStatus">Active</div>
+            </div>
+        </section>
+
+        <!-- Main Content -->
+        <section class="main-content">
+            <!-- Active Positions -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <h2>Active Positions</h2>
+                        <button class="help-icon-panel" onclick="showHelp('active-positions')" title="Help">❓</button>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="badge" id="positionCount">0</span>
+                        <button id="clearCacheBtn" onclick="clearPositionsCache()" 
+                                style="padding: 6px 12px; background: #f59e0b; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">
+                            🔄 Clear Cache & Refresh
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="positionsTable">
+                        <thead>
+                            <tr>
+                                <th>Symbol</th>
+                                <th>Exchange</th>
+                                <th>Entry Price</th>
+                                <th>Current Price</th>
+                                <th>Quantity (Type)</th>
+                                <th>P&L</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="positionsBody">
+                            <tr>
+                                <td colspan="6" class="empty-state">No active positions</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Trade History -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <h2>Trade History (All Inactive Trades)</h2>
+                        <button class="help-icon-panel" onclick="showHelp('trade-history')" title="Help">❓</button>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button id="syncOrdersBtn" onclick="syncOrdersFromZerodha()" 
+                                style="padding: 6px 12px; background: #10b981; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">
+                            🔄 Sync Orders from Zerodha
+                        </button>
+                        <label style="display: flex; align-items: center; gap: 5px; font-size: 12px;">
+                            <input type="checkbox" id="showAllTrades" onchange="toggleTradeFilter()">
+                            Show All Trades
+                        </label>
+                        <input type="date" id="tradeDateFilter" class="date-filter">
+                    </div>
+                </div>
+                <!-- Trade Summary -->
+                <div id="tradeSummary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 11px; color: #666; margin-bottom: 5px;">Total Trades</div>
+                        <div id="totalTrades" style="font-size: 18px; font-weight: 600;">0</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 11px; color: #666; margin-bottom: 5px;">Total Profit</div>
+                        <div id="totalProfit" style="font-size: 18px; font-weight: 600; color: #10b981;">₹0.00</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 11px; color: #666; margin-bottom: 5px;">Total Loss</div>
+                        <div id="totalLoss" style="font-size: 18px; font-weight: 600; color: #ef4444;">₹0.00</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 11px; color: #666; margin-bottom: 5px;">Net P&L</div>
+                        <div id="netPnl" style="font-size: 18px; font-weight: 600;">₹0.00</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 11px; color: #666; margin-bottom: 5px;">Win Rate</div>
+                        <div id="winRate" style="font-size: 18px; font-weight: 600;">0%</div>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="tradesTable">
+                        <thead>
+                            <tr>
+                                <th>Symbol</th>
+                                <th>Entry Time (IST)</th>
+                                <th>Exit Time (IST)</th>
+                                <th>Entry Price</th>
+                                <th>Exit Price</th>
+                                <th>Quantity</th>
+                                <th>P&L</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tradesBody">
+                            <tr>
+                                <td colspan="8" class="empty-state">No trades today</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <h2>P&L Chart</h2>
+                        <button class="help-icon-panel" onclick="showHelp('pnl-chart')" title="Help">❓</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="pnlChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Notifications Panel -->
+        <div class="notifications-panel" id="notificationsPanel">
+            <div class="notifications-header">
+                <h3>Notifications</h3>
+                <button class="close-btn" onclick="closeNotifications()">×</button>
+            </div>
+            <div class="notifications-list" id="notificationsList">
+                <!-- Notifications will be added here -->
+            </div>
+        </div>
+
+        <!-- Help Modal -->
+        <div id="helpModal" class="help-modal" style="display: none;">
+            <div class="help-modal-content">
+                <div class="help-modal-header">
+                    <h2 id="helpModalTitle">Help</h2>
+                    <button class="help-modal-close" onclick="closeHelp()">×</button>
+                </div>
+                <div class="help-modal-body" id="helpModalBody">
+                    <!-- Help content will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+        // ========== GLOBAL THEME MANAGEMENT ==========
+        // Theme Toggle Functions (Shared across all pages)
+        function getTheme() {
+            return localStorage.getItem('theme') || 'light';
+        }
+
+        function setTheme(theme) {
+            localStorage.setItem('theme', theme);
+            document.documentElement.setAttribute('data-theme', theme);
+            updateThemeToggle(theme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = getTheme();
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+            // Show notification if toast function exists
+            if (typeof showToast === 'function') {
+                showToast(`Switched to ${newTheme === 'dark' ? 'Dark' : 'Light'} theme`, 'info', 2000);
+            } else {
+                console.log(`Theme switched to ${newTheme}`);
+            }
+        }
+
+        function updateThemeToggle(theme) {
+            const toggle = document.getElementById('themeToggle');
+            if (toggle) {
+                toggle.setAttribute('data-theme', theme);
+            }
+        }
+
+        // Initialize theme on page load (runs immediately, before DOMContentLoaded)
+        (function() {
+            const savedTheme = getTheme();
+            setTheme(savedTheme);
+        })();
+    </script>
+</body>
+</html>
+

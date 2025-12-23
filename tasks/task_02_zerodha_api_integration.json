@@ -1,0 +1,76 @@
+{
+  "task_id": "TASK-02",
+  "task_name": "Zerodha Kite Connect API Integration",
+  "description": "Integrate Zerodha Kite Connect API for authentication, order management, and position tracking",
+  "priority": "Critical",
+  "estimated_hours": 24,
+  "dependencies": ["TASK-01"],
+  "sub_tasks": [
+    {
+      "sub_task_id": "TASK-02-01",
+      "sub_task_name": "Kite Connect Authentication",
+      "description": "Implement OAuth-based authentication with Zerodha Kite Connect",
+      "status": "pending",
+      "estimated_hours": 6,
+      "acceptance_criteria": [
+        "OAuth flow implementation for login",
+        "Token storage and refresh mechanism",
+        "Session management",
+        "Auto-reconnect on token expiry"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-02-02",
+      "sub_task_name": "Position Monitoring Module",
+      "description": "Fetch and monitor real-time positions from Zerodha",
+      "status": "pending",
+      "estimated_hours": 5,
+      "acceptance_criteria": [
+        "API call to fetch current positions",
+        "Parse position data (entry price, quantity, P&L)",
+        "Filter only options positions",
+        "Handle multiple positions simultaneously"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-02-03",
+      "sub_task_name": "Order Book Tracking",
+      "description": "Track order history and execution status",
+      "status": "pending",
+      "estimated_hours": 4,
+      "acceptance_criteria": [
+        "Fetch order book from API",
+        "Track order status (COMPLETE, REJECTED, PENDING)",
+        "Map orders to positions",
+        "Handle order modifications"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-02-04",
+      "sub_task_name": "Market Order Execution",
+      "description": "Implement market order placement for auto-exit functionality",
+      "status": "pending",
+      "estimated_hours": 5,
+      "acceptance_criteria": [
+        "Place market orders for square-off",
+        "Handle order placement for multiple positions",
+        "Order confirmation and status tracking",
+        "Error handling for failed orders"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-02-05",
+      "sub_task_name": "Account Balance & Margin Checks",
+      "description": "Fetch account balance and margin information",
+      "status": "pending",
+      "estimated_hours": 4,
+      "acceptance_criteria": [
+        "API call to fetch account balance",
+        "Margin availability check",
+        "Display available margin in dashboard",
+        "Alert on low margin"
+      ]
+    }
+  ]
+}
+

@@ -1,0 +1,8 @@
+{
+  "api_key": "your_api_key_here",
+  "api_secret": "your_api_secret_here",
+  "environment": "dev",
+  "log_level": "INFO",
+  "notification_email": "your_email@example.com",
+  "notification_phone": "+91XXXXXXXXXX"
+}

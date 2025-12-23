@@ -1,0 +1,90 @@
+{
+  "task_id": "TASK-13",
+  "task_name": "Edge Cases Handling",
+  "description": "Handle edge cases like multiple positions, market closure, system downtime, and profit/loss scenarios",
+  "priority": "High",
+  "estimated_hours": 20,
+  "dependencies": ["TASK-03", "TASK-04", "TASK-06"],
+  "sub_tasks": [
+    {
+      "sub_task_id": "TASK-13-01",
+      "sub_task_name": "Multiple Positions Scenario",
+      "description": "Handle multiple open option positions correctly",
+      "status": "pending",
+      "estimated_hours": 4,
+      "acceptance_criteria": [
+        "Calculate combined P&L of all positions",
+        "Exit ALL positions simultaneously when loss limit hit",
+        "Handle different instruments correctly",
+        "Proper P&L aggregation"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-13-02",
+      "sub_task_name": "Market Closure Handling",
+      "description": "Handle loss limit hit near market close",
+      "status": "pending",
+      "estimated_hours": 4,
+      "acceptance_criteria": [
+        "Detect market closure time (3:30 PM)",
+        "Attempt exit before market closes",
+        "If unable to exit, block trading next day",
+        "Resume monitoring next trading day"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-13-03",
+      "sub_task_name": "System Downtime Recovery",
+      "description": "Handle system disconnections and downtime",
+      "status": "pending",
+      "estimated_hours": 5,
+      "acceptance_criteria": [
+        "Detect system disconnection",
+        "Send critical alert on disconnect",
+        "Auto-reconnect mechanism",
+        "Recover position state from backup",
+        "Resume monitoring after recovery"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-13-04",
+      "sub_task_name": "Profit/Loss on Same Day",
+      "description": "Handle scenario where user has protected profit but new trade loses money",
+      "status": "pending",
+      "estimated_hours": 3,
+      "acceptance_criteria": [
+        "Protected profit remains safe",
+        "Daily loss limit applies only to new trade",
+        "Exit new position if loss limit hit",
+        "Net day P&L calculated correctly (Protected + Current)"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-13-05",
+      "sub_task_name": "Partial Order Fills",
+      "description": "Handle partial fills on exit orders",
+      "status": "pending",
+      "estimated_hours": 2,
+      "acceptance_criteria": [
+        "Track partial fills",
+        "Retry for remaining quantity",
+        "Update position status correctly",
+        "Handle complete fills"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-13-06",
+      "sub_task_name": "Order Rejection Handling",
+      "description": "Handle rejected orders and retry mechanism",
+      "status": "pending",
+      "estimated_hours": 2,
+      "acceptance_criteria": [
+        "Detect order rejections",
+        "Log rejection reasons",
+        "Retry mechanism with backoff",
+        "Alert on persistent failures"
+      ]
+    }
+  ]
+}
+

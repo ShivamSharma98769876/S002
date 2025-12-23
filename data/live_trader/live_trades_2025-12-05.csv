@@ -1,0 +1,1 @@
+segment,mode,signal_type,option_symbol,option_type,strike_price,expiry,lots,quantity,entry_time,entry_price,stop_loss_points,initial_sl_price,trailing_stop_points,exit_time,exit_price,exit_reason,pnl_points,pnl_value,return_pct

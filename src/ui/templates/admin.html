@@ -1,0 +1,2048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Risk Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            --warning-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Login Section */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-form {
+            background: var(--card-bg);
+            padding: 50px 40px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-xl);
+            width: 100%;
+            max-width: 450px;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-form h2 {
+            font-size: 32px;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .login-form .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-danger {
+            background: var(--danger-gradient);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .login-error {
+            margin-top: 16px;
+            padding: 12px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            color: #dc2626;
+            font-size: 14px;
+            display: none;
+        }
+
+        /* Admin Panel */
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .admin-header {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .admin-header h1 {
+            font-size: 36px;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-header .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn-logout {
+            background: var(--danger-gradient);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-dashboard {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-dashboard:hover {
+            border-color: #667eea;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        /* Grid Layout */
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .admin-panel-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease;
+            animation: fadeIn 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .admin-panel-card:nth-child(1) { animation-delay: 0.1s; }
+        .admin-panel-card:nth-child(2) { animation-delay: 0.2s; }
+        .admin-panel-card:nth-child(3) { animation-delay: 0.3s; }
+        .admin-panel-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .admin-panel-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .card-header i {
+            font-size: 24px;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Parameter Cards */
+        .parameter-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .parameter-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary-gradient);
+            transition: width 0.3s ease;
+        }
+
+        .parameter-card.locked::before {
+            background: var(--danger-gradient);
+        }
+
+        .parameter-card:hover {
+            border-color: #667eea;
+            transform: translateX(4px);
+            box-shadow: var(--shadow);
+        }
+
+        .parameter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .parameter-name {
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--text-primary);
+            text-transform: capitalize;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lock-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .lock-badge.locked {
+            background: var(--danger-gradient);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .lock-badge.unlocked {
+            background: var(--success-gradient);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .parameter-value {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 16px 0;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .parameter-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .parameter-actions input {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .parameter-actions input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .parameter-actions .btn {
+            width: auto;
+            padding: 12px 20px;
+            font-size: 14px;
+        }
+
+        /* Version History */
+        .version-item {
+            padding: 16px;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .version-item:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow);
+        }
+
+        .version-item strong {
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        .version-item small {
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        /* Protected Profit Section */
+        .profit-management {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+            padding: 24px;
+            border-radius: 16px;
+            border: 2px solid #fecaca;
+        }
+
+        .profit-management .warning-text {
+            color: #dc2626;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .profit-management .form-group {
+            margin-bottom: 20px;
+        }
+
+        .profit-management input[type="date"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .profit-result {
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            display: none;
+        }
+
+        /* Audit Logs Table */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .data-table thead {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .data-table th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        .data-table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        /* Full Width Card */
+        .full-width-card {
+            grid-column: 1 / -1;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .admin-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .parameter-actions {
+                flex-direction: column;
+            }
+
+            .parameter-actions .btn {
+                width: 100%;
+            }
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .loading i {
+            font-size: 32px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Help Icon Styles - Matching Dashboard */
+        .help-icon {
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--primary-color);
+            transition: all 0.2s ease;
+            padding: 0;
+            flex-shrink: 0;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .help-icon:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Help Modal Styles - Matching Dashboard */
+        .help-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .help-modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s ease;
+            overflow: hidden;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .help-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            border-bottom: 2px solid var(--border-color);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .help-modal-header h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .help-modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 24px;
+            color: white;
+            transition: all 0.2s ease;
+            padding: 0;
+        }
+
+        .help-modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .help-modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .help-modal-body h3 {
+            color: var(--primary-color);
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 12px;
+        }
+
+        .help-modal-body p {
+            color: var(--text-primary);
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+
+        .help-modal-body ul {
+            margin-left: 20px;
+            margin-bottom: 16px;
+        }
+
+        .help-modal-body li {
+            color: var(--text-primary);
+            line-height: 1.8;
+            margin-bottom: 8px;
+        }
+
+        .help-example {
+            background: #f8fafc;
+            border-left: 4px solid var(--primary-color);
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .help-example strong {
+            color: var(--primary-color);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .help-note {
+            background: #fff5f5;
+            border-left: 4px solid var(--warning-color);
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .help-note strong {
+            color: var(--warning-color);
+        }
+
+        /* Simple tooltip for quick hints (fallback) */
+        [data-tooltip] {
+            position: relative;
+            cursor: help;
+        }
+
+        [data-tooltip]:hover::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-4px);
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 11px;
+            white-space: normal;
+            max-width: 280px;
+            z-index: 1000;
+            margin-bottom: 8px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            line-height: 1.5;
+            word-wrap: break-word;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-tooltip]:hover::after {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #1e293b;
+            margin-bottom: 2px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+
+        /* ========== DARK THEME ========== */
+        /* Dark Theme Variables */
+        [data-theme="dark"] {
+            --primary-color: #3b82f6;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+        }
+
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--text-primary) !important;
+        }
+
+        [data-theme="dark"] body * {
+            color: inherit;
+        }
+
+        [data-theme="dark"] .admin-panel-card {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .admin-header {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .login-form {
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .data-table {
+            background: var(--card-bg);
+        }
+
+        [data-theme="dark"] .data-table thead {
+            background: #334155;
+        }
+
+        [data-theme="dark"] .data-table tbody tr {
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .data-table tbody tr:hover {
+            background: #334155;
+        }
+
+        /* Dark Theme Input Fields */
+        [data-theme="dark"] .form-group input,
+        [data-theme="dark"] .form-group textarea,
+        [data-theme="dark"] .form-group select,
+        [data-theme="dark"] input[type="text"],
+        [data-theme="dark"] input[type="number"],
+        [data-theme="dark"] input[type="password"],
+        [data-theme="dark"] input[type="date"],
+        [data-theme="dark"] input[type="email"],
+        [data-theme="dark"] textarea,
+        [data-theme="dark"] select {
+            background: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+
+        [data-theme="dark"] .form-group input:focus,
+        [data-theme="dark"] .form-group textarea:focus,
+        [data-theme="dark"] .form-group select:focus,
+        [data-theme="dark"] input[type="text"]:focus,
+        [data-theme="dark"] input[type="number"]:focus,
+        [data-theme="dark"] input[type="password"]:focus,
+        [data-theme="dark"] input[type="date"]:focus,
+        [data-theme="dark"] textarea:focus,
+        [data-theme="dark"] select:focus {
+            background: var(--card-bg) !important;
+            border-color: var(--primary-color) !important;
+            color: var(--text-primary) !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+        }
+
+        [data-theme="dark"] .form-group input::placeholder,
+        [data-theme="dark"] .form-group textarea::placeholder,
+        [data-theme="dark"] input::placeholder,
+        [data-theme="dark"] textarea::placeholder {
+            color: var(--text-secondary) !important;
+            opacity: 0.7 !important;
+        }
+
+        [data-theme="dark"] .parameter-actions input {
+            background: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+
+        [data-theme="dark"] .parameter-actions input:focus {
+            background: var(--card-bg) !important;
+            border-color: var(--primary-color) !important;
+            color: var(--text-primary) !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+        }
+
+        [data-theme="dark"] .login-error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border-left-color: var(--danger-color);
+        }
+
+        [data-theme="dark"] .help-example {
+            background: #334155;
+            border-left-color: var(--primary-color);
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .help-note {
+            background: #334155;
+            border-left-color: var(--warning-color);
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .form-group label {
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .card-header h2 {
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .admin-panel-card h2,
+        [data-theme="dark"] .admin-panel-card h3 {
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .loading {
+            color: var(--primary-color);
+        }
+
+        [data-theme="dark"] .version-item {
+            background: #334155;
+            border-left-color: var(--primary-color);
+        }
+
+        [data-theme="dark"] .version-item strong {
+            color: var(--primary-color);
+        }
+
+        [data-theme="dark"] .parameter-card {
+            background: #334155;
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .parameter-card:hover {
+            border-color: var(--primary-color);
+        }
+
+        [data-theme="dark"] .parameter-header h3,
+        [data-theme="dark"] .parameter-header p,
+        [data-theme="dark"] .parameter-value {
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .status-badge {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border-color: var(--danger-color);
+        }
+
+        [data-theme="dark"] .status-badge.enabled {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+            border-color: var(--success-color);
+        }
+
+        [data-theme="dark"] .parameter-name {
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .parameter-value {
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        [data-theme="dark"] .current-value {
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .parameter-description,
+        [data-theme="dark"] .subtitle {
+            color: var(--text-secondary);
+        }
+
+        /* Global text color fix for dark theme */
+        [data-theme="dark"] * {
+            color: inherit;
+        }
+
+        [data-theme="dark"] .admin-container,
+        [data-theme="dark"] .admin-container *,
+        [data-theme="dark"] .login-container,
+        [data-theme="dark"] .login-container * {
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .admin-container h1,
+        [data-theme="dark"] .admin-container h2,
+        [data-theme="dark"] .admin-container h3,
+        [data-theme="dark"] .admin-container h4,
+        [data-theme="dark"] .admin-container h5,
+        [data-theme="dark"] .admin-container h6,
+        [data-theme="dark"] .login-container h1,
+        [data-theme="dark"] .login-container h2,
+        [data-theme="dark"] .login-container h3 {
+            color: var(--text-primary) !important;
+        }
+
+        [data-theme="dark"] .admin-container p,
+        [data-theme="dark"] .admin-container span,
+        [data-theme="dark"] .admin-container div,
+        [data-theme="dark"] .admin-container small,
+        [data-theme="dark"] .admin-container strong,
+        [data-theme="dark"] .admin-container li,
+        [data-theme="dark"] .admin-container td,
+        [data-theme="dark"] .admin-container th,
+        [data-theme="dark"] .login-container p,
+        [data-theme="dark"] .login-container span,
+        [data-theme="dark"] .login-container div,
+        [data-theme="dark"] .login-container small,
+        [data-theme="dark"] .login-container strong {
+            color: var(--text-primary) !important;
+        }
+
+        /* Override any hardcoded dark colors */
+        [data-theme="dark"] *[style*="color: #1a202c"],
+        [data-theme="dark"] *[style*="color: #4a5568"],
+        [data-theme="dark"] *[style*="color: black"],
+        [data-theme="dark"] *[style*="color: #000"],
+        [data-theme="dark"] *[style*="color:#1a202c"],
+        [data-theme="dark"] *[style*="color:#4a5568"],
+        [data-theme="dark"] *[style*="color:black"],
+        [data-theme="dark"] *[style*="color:#000"] {
+            color: var(--text-primary) !important;
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: var(--border-color, #e2e8f0);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: background 0.3s;
+            border: none;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-toggle:hover {
+            background: var(--text-secondary, #64748b);
+        }
+
+        .theme-toggle-slider {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            left: 3px;
+        }
+
+        [data-theme="dark"] .theme-toggle {
+            background: var(--primary-color, #2563eb);
+        }
+
+        [data-theme="dark"] .theme-toggle-slider {
+            transform: translateX(24px);
+        }
+
+        .theme-toggle-icon {
+            position: absolute;
+            font-size: 12px;
+            transition: opacity 0.3s;
+        }
+
+        .theme-toggle-icon.sun {
+            left: 6px;
+            color: #f59e0b;
+        }
+
+        .theme-toggle-icon.moon {
+            right: 6px;
+            color: #f1f5f9;
+        }
+
+        [data-theme="light"] .theme-toggle-icon.moon {
+            opacity: 0;
+        }
+
+        [data-theme="dark"] .theme-toggle-icon.sun {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Section -->
+    <div id="loginSection" class="login-container">
+        <div class="login-form">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0;"><i class="fas fa-shield-alt"></i> Admin Access</h2>
+                <!-- Theme Toggle Button -->
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 12px; color: var(--text-secondary); font-weight: 500;">
+                        <i class="fas fa-sun" style="font-size: 14px;"></i>
+                    </span>
+                    <button class="theme-toggle" id="themeToggleLogin" onclick="toggleTheme()" title="Toggle Dark/Light Theme">
+                        <span class="theme-toggle-slider"></span>
+                        <i class="fas fa-sun theme-toggle-icon sun"></i>
+                        <i class="fas fa-moon theme-toggle-icon moon"></i>
+                    </button>
+                    <span style="font-size: 12px; color: var(--text-secondary); font-weight: 500;">
+                        <i class="fas fa-moon" style="font-size: 14px;"></i>
+                    </span>
+                </div>
+            </div>
+            <p class="subtitle">Enter your admin password to continue</p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-lock"></i> Admin Password
+                        <span class="tooltip-container">
+                            <span class="tooltip-icon">?</span>
+                            <span class="tooltip">Enter the admin password to access the control panel. Default password is 'admin123' (change in production).</span>
+                        </span>
+                    </label>
+                    <input type="password" id="adminPassword" required placeholder="Enter admin password" 
+                           data-tooltip="Enter your admin password to authenticate">
+                </div>
+                <button type="submit" class="btn btn-primary" data-tooltip="Click to login to the admin panel">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </form>
+            <div id="loginError" class="login-error"></div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" style="display: none;">
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1>
+                    <i class="fas fa-shield-alt"></i>
+                    Admin Control Panel
+                </h1>
+                <div class="header-actions">
+                    <!-- Theme Toggle Button -->
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 12px; color: var(--text-secondary); font-weight: 500;">
+                            <i class="fas fa-sun" style="font-size: 14px;"></i>
+                        </span>
+                        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Dark/Light Theme">
+                            <span class="theme-toggle-slider"></span>
+                            <i class="fas fa-sun theme-toggle-icon sun"></i>
+                            <i class="fas fa-moon theme-toggle-icon moon"></i>
+                        </button>
+                        <span style="font-size: 12px; color: var(--text-secondary); font-weight: 500;">
+                            <i class="fas fa-moon" style="font-size: 14px;"></i>
+                        </span>
+                    </div>
+                    <a href="/" class="btn-dashboard" data-tooltip="Return to the main trading dashboard">
+                        <i class="fas fa-chart-line"></i> Dashboard
+                    </a>
+                    <button class="btn-logout" onclick="logout()" data-tooltip="Logout from admin panel and return to login screen">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <div class="admin-grid">
+                <!-- Risk Parameters Card -->
+                <div class="admin-panel-card">
+                    <div class="card-header">
+                        <i class="fas fa-sliders-h"></i>
+                        <h2>Risk Parameters</h2>
+                        <button class="help-icon" onclick="showAdminHelp('risk-parameters')" title="Help">❓</button>
+                    </div>
+                    <div id="parametersList">
+                        <div class="loading">
+                            <i class="fas fa-spinner"></i>
+                            <p>Loading parameters...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Protected Profit Management Card -->
+                <div class="admin-panel-card">
+                    <div class="card-header">
+                        <i class="fas fa-wallet"></i>
+                        <h2>Protected Profit</h2>
+                        <button class="help-icon" onclick="showAdminHelp('protected-profit')" title="Help">❓</button>
+                    </div>
+                    <div class="profit-management">
+                        <p class="warning-text">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            WARNING: This is a destructive operation!
+                        </p>
+                        <p style="margin-bottom: 20px; color: var(--text-secondary); font-size: 14px;">
+                            Clear Protected Profit by deleting all trade records for a specific date.
+                        </p>
+                        <div class="form-group">
+                            <label>
+                                Date to Clear
+                                <button class="help-icon" onclick="showAdminHelp('protected-profit')" title="Help" style="margin-left: 8px;">❓</button>
+                            </label>
+                            <input type="date" id="clearProfitDate" 
+                                   data-tooltip="Select date to clear trades from (leave empty for today)">
+                            <small style="color: var(--text-secondary); margin-top: 4px; display: block; font-size: 12px;">
+                                Leave empty to clear today's trades
+                            </small>
+                        </div>
+                        <button class="btn btn-danger" onclick="clearProtectedProfit()" 
+                                data-tooltip="⚠️ WARNING: This will permanently delete all trade records for the selected date. This action cannot be undone!">
+                            <i class="fas fa-trash-alt"></i> Clear Protected Profit
+                        </button>
+                        <div id="clearProfitResult" class="profit-result"></div>
+                    </div>
+                </div>
+
+                <!-- Version History Card -->
+                <div class="admin-panel-card">
+                    <div class="card-header">
+                        <i class="fas fa-history"></i>
+                        <h2>Version History</h2>
+                        <button class="help-icon" onclick="showAdminHelp('version-history')" title="Help">❓</button>
+                    </div>
+                    <div id="versionHistory">
+                        <div class="loading">
+                            <i class="fas fa-spinner"></i>
+                            <p>Loading version history...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audit Logs Card -->
+                <div class="admin-panel-card full-width-card">
+                    <div class="card-header">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h2>Audit Logs</h2>
+                        <button class="help-icon" onclick="showAdminHelp('audit-logs')" title="Help">❓</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table" id="auditLogsTable">
+                            <thead>
+                                <tr>
+                                    <th data-tooltip="Date and time when the action occurred">
+                                        <i class="fas fa-clock"></i> Timestamp
+                                    </th>
+                                    <th data-tooltip="Type of action performed (e.g., parameter_update, login, logout)">
+                                        <i class="fas fa-tasks"></i> Action
+                                    </th>
+                                    <th data-tooltip="User who performed the action">
+                                        <i class="fas fa-user"></i> User
+                                    </th>
+                                    <th data-tooltip="Additional details about the action, including parameter names and values">
+                                        <i class="fas fa-info-circle"></i> Details
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="auditLogsBody">
+                                <tr>
+                                    <td colspan="4" class="loading">
+                                        <i class="fas fa-spinner"></i> Loading audit logs...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal - Beautiful Style Matching Dashboard -->
+    <div id="helpModal" class="help-modal" style="display: none;">
+        <div class="help-modal-content">
+            <div class="help-modal-header">
+                <h2 id="helpModalTitle">Help</h2>
+                <button class="help-modal-close" onclick="closeAdminHelp()">×</button>
+            </div>
+            <div class="help-modal-body" id="helpModalBody">
+                <!-- Help content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let adminToken = null;
+
+        // Parameter tooltips mapping
+        function getParameterTooltip(paramName) {
+            const tooltips = {
+                'daily_loss_limit': 'Maximum loss allowed per day in ₹. When this limit is reached, trading will be blocked automatically.',
+                'trailing_sl_activation': 'Profit threshold in ₹ that activates trailing stop loss. Once profit reaches this level, trailing SL starts protecting your gains.',
+                'trailing_sl_increment': 'Increment amount in ₹ for trailing stop loss. Each time profit increases by this amount, the stop loss level is raised.',
+                'loss_warning_threshold': 'Warning threshold as a percentage (0-1) of daily loss limit. System will warn when loss reaches this percentage (e.g., 0.9 = 90% of limit).',
+                'trading_block_enabled': 'Enable or disable automatic trading block when daily loss limit is reached. When enabled, trading stops automatically at the loss limit.',
+                'exclude_equity_trades': 'When enabled, equity trades (NSE, BSE) are excluded from Active Positions and Trade History. Only derivatives, commodities, and currency trades are shown.'
+            };
+            return tooltips[paramName] || `Parameter: ${paramName.replace(/_/g, ' ')}`;
+        }
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('adminPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+            submitBtn.disabled = true;
+            errorDiv.style.display = 'none';
+            
+            try {
+                const response = await fetch('/admin/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({password})
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    adminToken = data.token;
+                    document.getElementById('loginSection').style.display = 'none';
+                    document.getElementById('adminPanel').style.display = 'block';
+                    loadAdminData();
+                } else {
+                    errorDiv.textContent = data.error || 'Login failed';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Connection error. Please try again.';
+                errorDiv.style.display = 'block';
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Logout
+        function logout() {
+            if (adminToken) {
+                fetch('/admin/logout', {
+                    method: 'POST',
+                    headers: {'Authorization': `Bearer ${adminToken}`}
+                });
+            }
+            adminToken = null;
+            document.getElementById('loginSection').style.display = 'flex';
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('adminPassword').value = '';
+        }
+
+        // Admin Help Content - Beautiful Detailed Help Matching Dashboard
+        const adminHelpContent = {
+            'risk-parameters': {
+                title: 'Risk Parameters',
+                content: `
+                    <h3>What are Risk Parameters?</h3>
+                    <p>Risk Parameters are critical settings that control how the risk management system protects your trading account. These parameters determine loss limits, trailing stop loss behavior, and trading restrictions.</p>
+                    
+                    <h3>Available Parameters:</h3>
+                    <ul>
+                        <li><strong>Daily Loss Limit:</strong> Maximum loss allowed per day in ₹. When reached, all positions are closed and trading is blocked.</li>
+                        <li><strong>Trailing SL Activation:</strong> Profit threshold in ₹ that activates trailing stop loss protection.</li>
+                        <li><strong>Trailing SL Increment:</strong> Amount in ₹ by which trailing stop loss adjusts as profit increases.</li>
+                        <li><strong>Loss Warning Threshold:</strong> Percentage (0-1) of daily loss limit that triggers a warning (e.g., 0.9 = 90%).</li>
+                        <li><strong>Trading Block Enabled:</strong> Enable/disable automatic trading block when loss limit is reached.</li>
+                        <li><strong>Exclude Equity Trades:</strong> When enabled, equity trades (NSE, BSE) are excluded from positions and trade history.</li>
+                    </ul>
+                    
+                    <h3>Locked vs Unlocked:</h3>
+                    <ul>
+                        <li><strong>Locked Parameters:</strong> Require admin password to modify. Changes are tracked in version history.</li>
+                        <li><strong>Unlocked Parameters:</strong> Can be modified without admin password (not recommended for production).</li>
+                    </ul>
+                    
+                    <h3>How to update:</h3>
+                    <ul>
+                        <li>Enter the new value in the input field (or check/uncheck for boolean parameters)</li>
+                        <li>Enter your admin password</li>
+                        <li>Click "Update" button</li>
+                        <li>Changes are automatically logged in version history</li>
+                    </ul>
+                    
+                    <div class="help-example">
+                        <strong>Example:</strong><br>
+                        Current Daily Loss Limit: ₹5,000<br>
+                        You want to change it to ₹7,500<br>
+                        → Enter 7500 in the input field<br>
+                        → Enter admin password<br>
+                        → Click Update<br>
+                        → New limit is saved and logged
+                    </div>
+                    
+                    <div class="help-note">
+                        <strong>Security:</strong> All parameter changes are tracked in version history and audit logs for compliance and security purposes.
+                    </div>
+                `
+            },
+            'protected-profit': {
+                title: 'Protected Profit Management',
+                content: `
+                    <h3>What is Protected Profit?</h3>
+                    <p>Protected Profit represents the cumulative P&L from all completed trades for the day. This includes both profitable and loss-making trades. Once a trade is closed, its realized P&L is "locked" into Protected Profit.</p>
+                    
+                    <h3>How it works:</h3>
+                    <ul>
+                        <li>When you close a trade, its realized P&L is added to Protected Profit</li>
+                        <li>Protected Profit includes ALL completed trades (profit + loss combined)</li>
+                        <li>This value is "locked" and separate from your current live positions</li>
+                        <li>Daily loss limit applies only to live positions, NOT to protected profit</li>
+                    </ul>
+                    
+                    <h3>Clearing Protected Profit:</h3>
+                    <ul>
+                        <li><strong>Purpose:</strong> Permanently delete trade records for a specific date</li>
+                        <li><strong>Warning:</strong> This is a DESTRUCTIVE operation that cannot be undone!</li>
+                        <li><strong>Use Case:</strong> Useful for testing, data cleanup, or correcting errors</li>
+                    </ul>
+                    
+                    <h3>How to clear:</h3>
+                    <ul>
+                        <li>Select a date (or leave empty for today's trades)</li>
+                        <li>Click "Clear Protected Profit" button</li>
+                        <li>Confirm the action (you'll be asked to confirm)</li>
+                        <li>All trade records for that date will be permanently deleted</li>
+                    </ul>
+                    
+                    <div class="help-example">
+                        <strong>Example:</strong><br>
+                        Trade A closes with ₹8,000 profit → Protected Profit = ₹8,000<br>
+                        Trade B closes with ₹-3,000 loss → Protected Profit = ₹5,000 (₹8,000 - ₹3,000)<br>
+                        Trade C is still open with ₹-2,000 unrealized → Protected Profit remains ₹5,000<br><br>
+                        If you clear Protected Profit for today:<br>
+                        → All trade records for today are deleted<br>
+                        → Protected Profit resets to ₹0
+                    </div>
+                    
+                    <div class="help-note">
+                        <strong>⚠️ WARNING:</strong> Clearing Protected Profit is permanent and irreversible. Use this feature with extreme caution!
+                    </div>
+                `
+            },
+            'version-history': {
+                title: 'Version History',
+                content: `
+                    <h3>What is Version History?</h3>
+                    <p>Version History provides a complete audit trail of all changes made to risk parameters. Each modification is recorded with details about what changed, who made the change, when it was changed, and why.</p>
+                    
+                    <h3>Information tracked:</h3>
+                    <ul>
+                        <li><strong>Version Number:</strong> Sequential version number for each parameter</li>
+                        <li><strong>Old Value:</strong> The previous value before the change</li>
+                        <li><strong>New Value:</strong> The new value after the change</li>
+                        <li><strong>Changed By:</strong> User who made the change (admin username)</li>
+                        <li><strong>Changed At:</strong> Timestamp when the change was made</li>
+                        <li><strong>Reason:</strong> Optional reason provided for the change</li>
+                    </ul>
+                    
+                    <h3>Why it's important:</h3>
+                    <ul>
+                        <li><strong>Compliance:</strong> Maintains audit trail for regulatory requirements</li>
+                        <li><strong>Security:</strong> Tracks who changed critical risk parameters</li>
+                        <li><strong>Debugging:</strong> Helps identify when and why parameters were modified</li>
+                        <li><strong>Rollback:</strong> Allows you to see previous values if needed</li>
+                    </ul>
+                    
+                    <h3>How to use:</h3>
+                    <ul>
+                        <li>View all version history for each parameter</li>
+                        <li>See the complete change timeline</li>
+                        <li>Identify patterns or unauthorized changes</li>
+                    </ul>
+                    
+                    <div class="help-example">
+                        <strong>Example:</strong><br>
+                        Parameter: daily_loss_limit<br>
+                        v1: 5000.0 → 7500.0 (Changed by: admin, Reason: Increased limit for testing)<br>
+                        v2: 7500.0 → 5000.0 (Changed by: admin, Reason: Reverted to production value)<br>
+                        v3: 5000.0 → 6000.0 (Changed by: admin, Reason: Updated via admin panel)
+                    </div>
+                    
+                    <div class="help-note">
+                        <strong>Note:</strong> Version history is automatically created whenever a parameter is updated. You cannot manually edit or delete version history entries.
+                    </div>
+                `
+            },
+            'audit-logs': {
+                title: 'Audit Logs',
+                content: `
+                    <h3>What are Audit Logs?</h3>
+                    <p>Audit Logs provide a complete security and compliance trail of all admin actions in the system. Every critical operation is logged with timestamp, user, action type, and details.</p>
+                    
+                    <h3>Actions tracked:</h3>
+                    <ul>
+                        <li><strong>Parameter Updates:</strong> All changes to risk parameters</li>
+                        <li><strong>Login Attempts:</strong> Admin login and logout events</li>
+                        <li><strong>Password Changes:</strong> Admin password modifications</li>
+                        <li><strong>Protected Profit Operations:</strong> Clearing of trade records</li>
+                    </ul>
+                    
+                    <h3>Information shown:</h3>
+                    <ul>
+                        <li><strong>Timestamp:</strong> Exact date and time when action occurred</li>
+                        <li><strong>Action:</strong> Type of action performed (e.g., parameter_update, login, logout)</li>
+                        <li><strong>User:</strong> User who performed the action</li>
+                        <li><strong>Details:</strong> Additional information including parameter names, values, and reasons</li>
+                    </ul>
+                    
+                    <h3>Why it's important:</h3>
+                    <ul>
+                        <li><strong>Security:</strong> Detect unauthorized access or suspicious activities</li>
+                        <li><strong>Compliance:</strong> Meet regulatory requirements for audit trails</li>
+                        <li><strong>Accountability:</strong> Track who did what and when</li>
+                        <li><strong>Forensics:</strong> Investigate issues or incidents</li>
+                    </ul>
+                    
+                    <h3>How to use:</h3>
+                    <ul>
+                        <li>Review recent admin activities</li>
+                        <li>Monitor for unusual patterns</li>
+                        <li>Track parameter change history</li>
+                        <li>Export logs for compliance reporting</li>
+                    </ul>
+                    
+                    <div class="help-example">
+                        <strong>Example Log Entry:</strong><br>
+                        Timestamp: 2025-11-19 22:30:15<br>
+                        Action: parameter_update<br>
+                        User: admin<br>
+                        Details: daily_loss_limit changed from 5000.0 to 7500.0 (Reason: Testing new limit)
+                    </div>
+                    
+                    <div class="help-note">
+                        <strong>Security:</strong> Audit logs are read-only and cannot be modified or deleted. They provide an immutable record of all admin activities.
+                    </div>
+                `
+            },
+            'parameter-daily_loss_limit': {
+                title: 'Daily Loss Limit',
+                content: `
+                    <h3>What is Daily Loss Limit?</h3>
+                    <p>The Daily Loss Limit is the maximum amount of unrealized loss you can have from your live positions in a single trading day. When this limit is reached, the system automatically exits all positions and blocks further trading.</p>
+                    
+                    <h3>How it works:</h3>
+                    <ul>
+                        <li>Monitors unrealized P&L from all active positions</li>
+                        <li>When loss reaches the limit, all positions are automatically closed</li>
+                        <li>Trading is blocked until the next trading day (9:15 AM)</li>
+                    </ul>
+                    
+                    <h3>Important Notes:</h3>
+                    <ul>
+                        <li>Only applies to <strong>unrealized</strong> loss from live positions</li>
+                        <li>Does <strong>NOT</strong> include protected profit from closed trades</li>
+                        <li>Default value: ₹5,000 (configurable)</li>
+                        <li>This is a locked parameter requiring admin password to change</li>
+                    </ul>
+                    
+                    <div class="help-example">
+                        <strong>Example:</strong><br>
+                        Daily Loss Limit: ₹5,000<br>
+                        You have open positions showing ₹-4,500 unrealized loss<br>
+                        → Still within limit, trading continues<br><br>
+                        Loss increases to ₹-5,000<br>
+                        → Limit reached!<br>
+                        → All positions auto-exited<br>
+                        → Trading blocked until next day
+                    </div>
+                    
+                    <div class="help-note">
+                        <strong>Security:</strong> This is a critical risk parameter. Changes are logged in version history and audit logs.
+                    </div>
+                `
+            },
+            'parameter-trailing_sl_activation': {
+                title: 'Trailing Stop Loss Activation',
+                content: `
+                    <h3>What is Trailing SL Activation?</h3>
+                    <p>This is the profit threshold that activates the trailing stop loss feature. Once your total unrealized profit from live positions reaches this amount, trailing stop loss protection begins.</p>
+                    
+                    <h3>How it works:</h3>
+                    <ul>
+                        <li>Monitors total unrealized profit from all active positions</li>
+                        <li>When profit reaches the activation threshold, trailing SL starts</li>
+                        <li>Initial trailing SL level is set equal to the activation amount</li>
+                        <li>As profit increases, trailing SL adjusts upward</li>
+                    </ul>
+                    
+                    <h3>Important Notes:</h3>
+                    <ul>
+                        <li>Only applies to <strong>unrealized</strong> profit from live positions</li>
+                        <li>Default value: ₹5,000 (configurable)</li>
+                        <li>This is a locked parameter requiring admin password to change</li>
+                    </ul>
+                    
+                    <div class="help-example">
+                        <strong>Example:</strong><br>
+                        Activation Threshold: ₹5,000<br>
+                        Your positions reach ₹5,000 profit<br>
+                        → Trailing SL activates<br>
+                        → Initial trailing SL set at ₹5,000<br>
+                        → If profit drops to ₹5,000, positions auto-exit
+                    </div>
+                `
+            },
+            'parameter-trailing_sl_increment': {
+                title: 'Trailing Stop Loss Increment',
+                content: `
+                    <h3>What is Trailing SL Increment?</h3>
+                    <p>This is the amount by which the trailing stop loss level increases as your profit grows. Each time your profit increases by this increment, the trailing SL level is raised accordingly.</p>
+                    
+                    <h3>How it works:</h3>
+                    <ul>
+                        <li>When profit increases by the increment amount, trailing SL moves up</li>
+                        <li>Trailing SL always stays below current profit by the increment amount</li>
+                        <li>Protects your gains while allowing profit to grow</li>
+                        <li>Default value: ₹10,000 (configurable)</li>
+                    </ul>
+                    
+                    <div class="help-example">
+                        <strong>Example:</strong><br>
+                        Increment: ₹10,000<br>
+                        Profit at ₹5,000 → Trailing SL at ₹5,000<br>
+                        Profit grows to ₹15,000 → Trailing SL moves to ₹10,000<br>
+                        Profit grows to ₹25,000 → Trailing SL moves to ₹20,000<br>
+                        If profit drops to ₹20,000 → Auto-exit triggers, locking ₹20,000 profit
+                    </div>
+                `
+            },
+            'parameter-loss_warning_threshold': {
+                title: 'Loss Warning Threshold',
+                content: `
+                    <h3>What is Loss Warning Threshold?</h3>
+                    <p>This is a percentage (between 0 and 1) of the daily loss limit that triggers a warning notification. It alerts you when you're approaching the loss limit so you can take action.</p>
+                    
+                    <h3>How it works:</h3>
+                    <ul>
+                        <li>Expressed as a decimal (e.g., 0.9 = 90% of loss limit)</li>
+                        <li>When loss reaches this percentage of the limit, a warning is sent</li>
+                        <li>Default value: 0.9 (90% of loss limit)</li>
+                        <li>Warning is sent only once per day</li>
+                    </ul>
+                    
+                    <div class="help-example">
+                        <strong>Example:</strong><br>
+                        Daily Loss Limit: ₹5,000<br>
+                        Warning Threshold: 0.9 (90%)<br>
+                        Warning triggers at: ₹4,500 loss (90% of ₹5,000)<br>
+                        → System sends warning notification<br>
+                        → You still have ₹500 buffer before limit is hit
+                    </div>
+                `
+            },
+            'parameter-trading_block_enabled': {
+                title: 'Trading Block Enabled',
+                content: `
+                    <h3>What is Trading Block?</h3>
+                    <p>This setting enables or disables the automatic trading block feature. When enabled, trading is automatically blocked when the daily loss limit is reached.</p>
+                    
+                    <h3>How it works:</h3>
+                    <ul>
+                        <li><strong>Enabled:</strong> Trading is automatically blocked when loss limit is reached</li>
+                        <li><strong>Disabled:</strong> Trading continues even after loss limit is reached (not recommended)</li>
+                        <li>Default: Enabled (recommended for production)</li>
+                    </ul>
+                    
+                    <div class="help-note">
+                        <strong>Warning:</strong> Disabling trading block removes an important safety mechanism. Only disable for testing purposes.
+                    </div>
+                `
+            },
+            'parameter-exclude_equity_trades': {
+                title: 'Exclude Equity Trades',
+                content: `
+                    <h3>What is Exclude Equity Trades?</h3>
+                    <p>This setting controls whether equity trades (stocks from NSE and BSE exchanges) are excluded from the Active Positions and Trade History sections.</p>
+                    
+                    <h3>How it works:</h3>
+                    <ul>
+                        <li><strong>Enabled:</strong> Equity trades (NSE, BSE) are filtered out</li>
+                        <li><strong>Disabled:</strong> All trades including equity are shown</li>
+                        <li>Only affects display - does not affect risk calculations</li>
+                        <li>Default: Enabled (recommended for options trading focus)</li>
+                    </ul>
+                    
+                    <h3>What gets excluded:</h3>
+                    <ul>
+                        <li>NSE equity stocks</li>
+                        <li>BSE equity stocks</li>
+                    </ul>
+                    
+                    <h3>What remains visible:</h3>
+                    <ul>
+                        <li>NFO (NSE Futures & Options)</li>
+                        <li>BFO (BSE Futures & Options)</li>
+                        <li>MCX (Commodities)</li>
+                        <li>CDS (Currency Derivatives)</li>
+                    </ul>
+                    
+                    <div class="help-example">
+                        <strong>Example:</strong><br>
+                        You have positions in:<br>
+                        - NIFTY 25000CE (NFO) → Shown<br>
+                        - RELIANCE (NSE Equity) → Hidden if enabled<br>
+                        - BANKNIFTY 50000PE (NFO) → Shown<br>
+                        - TCS (NSE Equity) → Hidden if enabled
+                    </div>
+                `
+            }
+        };
+
+        // Show admin help modal
+        function showAdminHelp(helpId) {
+            const modal = document.getElementById('helpModal');
+            const title = document.getElementById('helpModalTitle');
+            const body = document.getElementById('helpModalBody');
+            
+            if (!modal || !title || !body) return;
+            
+            const content = adminHelpContent[helpId];
+            if (!content) {
+                console.error('Help content not found for:', helpId);
+                return;
+            }
+            
+            title.textContent = content.title;
+            body.innerHTML = content.content;
+            modal.style.display = 'flex';
+            
+            // Close on background click
+            modal.onclick = function(e) {
+                if (e.target === modal) {
+                    closeAdminHelp();
+                }
+            };
+            
+            // Close on Escape key
+            document.addEventListener('keydown', function escapeHandler(e) {
+                if (e.key === 'Escape') {
+                    closeAdminHelp();
+                    document.removeEventListener('keydown', escapeHandler);
+                }
+            });
+        }
+
+        // Close admin help modal
+        function closeAdminHelp() {
+            const modal = document.getElementById('helpModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Load admin data
+        async function loadAdminData() {
+            await Promise.all([
+                loadParameters(),
+                loadVersions(),
+                loadAuditLogs()
+            ]);
+        }
+
+        // Load parameters
+        async function loadParameters() {
+            try {
+                const response = await fetch('/admin/parameters', {
+                    headers: {'Authorization': `Bearer ${adminToken}`}
+                });
+                const params = await response.json();
+                
+                const container = document.getElementById('parametersList');
+                if (Object.keys(params).length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No parameters found</p>';
+                    return;
+                }
+                
+                container.innerHTML = Object.entries(params).map(([name, info]) => `
+                    <div class="parameter-card ${info.is_locked ? 'locked' : ''}">
+                        <div class="parameter-header">
+                            <span class="parameter-name">
+                                <i class="fas fa-${info.is_locked ? 'lock' : 'unlock'}"></i>
+                                ${name.replace(/_/g, ' ')}
+                                <button class="help-icon" onclick="showAdminHelp('parameter-${name}')" title="Help" style="margin-left: 8px; width: 20px; height: 20px; font-size: 12px;">❓</button>
+                            </span>
+                            <span class="lock-badge ${info.is_locked ? 'locked' : 'unlocked'}" 
+                                  data-tooltip="${info.is_locked ? 'This parameter is locked and requires admin password to modify' : 'This parameter is unlocked and can be modified by any user'}">
+                                ${info.is_locked ? '🔒 Locked' : '🔓 Unlocked'}
+                            </span>
+                        </div>
+                        ${typeof info.current_value === 'boolean' ? `
+                            <div class="parameter-value">${info.current_value ? '✓ Enabled' : '✗ Disabled'}</div>
+                        ` : name.includes('limit') || name.includes('activation') || name.includes('increment') || name.includes('threshold') ? `
+                            <div class="parameter-value">₹${parseFloat(info.current_value).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        ` : `
+                            <div class="parameter-value">${info.current_value}</div>
+                        `}
+                        ${info.is_locked ? `
+                            <div class="parameter-actions">
+                                ${typeof info.current_value === 'boolean' ? `
+                                    <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;" 
+                                           data-tooltip="Check to enable this feature, uncheck to disable">
+                                        <input type="checkbox" id="param_${name}" ${info.current_value ? 'checked' : ''} style="width: 20px; height: 20px; cursor: pointer;">
+                                        <span>Enable ${name.replace(/_/g, ' ')}</span>
+                                    </label>
+                                ` : `
+                                    <input type="number" id="param_${name}" value="${info.current_value}" step="0.01" placeholder="New value" 
+                                           data-tooltip="Enter the new value for this parameter. Must be a valid number.">
+                                `}
+                                <input type="password" id="pass_${name}" placeholder="Admin password" 
+                                       data-tooltip="Enter admin password to confirm parameter update">
+                                <button class="btn btn-primary" onclick="updateParameter('${name}')" 
+                                        data-tooltip="Save the new parameter value. Changes will be logged in version history.">
+                                    <i class="fas fa-save"></i> Update
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } catch (error) {
+                document.getElementById('parametersList').innerHTML = 
+                    '<p style="color: var(--danger-color);">Error loading parameters</p>';
+            }
+        }
+
+        // Update parameter
+        async function updateParameter(name) {
+            const paramInput = document.getElementById(`param_${name}`);
+            // Check if it's a checkbox (boolean) or number input
+            const value = paramInput.type === 'checkbox' ? paramInput.checked : parseFloat(paramInput.value);
+            const password = document.getElementById(`pass_${name}`).value;
+            const btn = event.target.closest('button');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch(`/admin/parameters/${name}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({
+                        value,
+                        admin_password: password,
+                        reason: 'Updated via admin panel'
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    // Show success notification
+                    const notification = document.createElement('div');
+                    notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: var(--success-gradient); color: white; padding: 16px 24px; border-radius: 12px; box-shadow: var(--shadow-lg); z-index: 10000; animation: slideIn 0.3s ease-out;';
+                    notification.innerHTML = '<i class="fas fa-check-circle"></i> Parameter updated successfully!';
+                    document.body.appendChild(notification);
+                    setTimeout(() => notification.remove(), 3000);
+                    
+                    loadParameters();
+                    document.getElementById(`pass_${name}`).value = '';
+                } else {
+                    alert('Failed to update: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Load versions
+        async function loadVersions() {
+            try {
+                const response = await fetch('/admin/versions', {
+                    headers: {'Authorization': `Bearer ${adminToken}`}
+                });
+                const versions = await response.json();
+                
+                const container = document.getElementById('versionHistory');
+                if (Object.keys(versions).length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No version history</p>';
+                    return;
+                }
+                
+                container.innerHTML = Object.entries(versions).map(([param, history]) => `
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 12px; color: var(--text-primary);">
+                            ${param.replace(/_/g, ' ')}
+                        </h3>
+                        ${history.map(v => `
+                            <div class="version-item" data-tooltip="Version ${v.version_number}: Changed from ${v.old_value} to ${v.new_value} by ${v.changed_by} on ${new Date(v.changed_at).toLocaleString()}${v.reason ? '. Reason: ' + v.reason : ''}">
+                                <strong>v${v.version_number}</strong>: ${v.old_value} → ${v.new_value}
+                                <br><small><i class="fas fa-user"></i> ${v.changed_by} | <i class="fas fa-clock"></i> ${new Date(v.changed_at).toLocaleString()}</small>
+                            </div>
+                        `).join('')}
+                    </div>
+                `).join('');
+            } catch (error) {
+                document.getElementById('versionHistory').innerHTML = 
+                    '<p style="color: var(--danger-color);">Error loading version history</p>';
+            }
+        }
+
+        // Load audit logs
+        async function loadAuditLogs() {
+            try {
+                const response = await fetch('/admin/audit-logs?limit=50', {
+                    headers: {'Authorization': `Bearer ${adminToken}`}
+                });
+                const logs = await response.json();
+                
+                const tbody = document.getElementById('auditLogsBody');
+                if (logs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-secondary);">No audit logs</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = logs.map(log => `
+                    <tr>
+                        <td><i class="fas fa-clock"></i> ${new Date(log.timestamp).toLocaleString()}</td>
+                        <td><span style="padding: 4px 12px; background: #e0e7ff; color: #4338ca; border-radius: 12px; font-size: 12px; font-weight: 600;">${log.action}</span></td>
+                        <td><i class="fas fa-user"></i> ${log.user}</td>
+                        <td>${log.details}</td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                document.getElementById('auditLogsBody').innerHTML = 
+                    '<tr><td colspan="4" style="color: var(--danger-color);">Error loading audit logs</td></tr>';
+            }
+        }
+
+        // Clear Protected Profit
+        async function clearProtectedProfit() {
+            const dateInput = document.getElementById('clearProfitDate');
+            const dateValue = dateInput.value;
+            const resultDiv = document.getElementById('clearProfitResult');
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            
+            if (!confirm('⚠️ WARNING: This will permanently delete all trade records for the selected date. This action cannot be undone!\n\nAre you sure you want to continue?')) {
+                return;
+            }
+            
+            resultDiv.style.display = 'block';
+            resultDiv.style.background = '#fff5f5';
+            resultDiv.style.color = '#991b1b';
+            resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Clearing protected profit...';
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            
+            try {
+                const requestBody = {};
+                if (dateValue) {
+                    requestBody.date = dateValue;
+                }
+                
+                const response = await fetch('/api/protected-profit/clear', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.style.background = '#d1fae5';
+                    resultDiv.style.color = '#065f46';
+                    resultDiv.innerHTML = `
+                        <strong><i class="fas fa-check-circle"></i> Success!</strong><br>
+                        Deleted ${data.deleted_count} trade(s) for ${data.date || 'today'}.<br>
+                        Protected Profit after clearing: ₹${data.protected_profit_after?.toFixed(2) || '0.00'}
+                    `;
+                } else {
+                    resultDiv.style.background = '#fee2e2';
+                    resultDiv.style.color = '#991b1b';
+                    resultDiv.innerHTML = `<strong><i class="fas fa-exclamation-circle"></i> Error:</strong> ${data.error || 'Unknown error'}`;
+                }
+            } catch (error) {
+                resultDiv.style.background = '#fee2e2';
+                resultDiv.style.color = '#991b1b';
+                resultDiv.innerHTML = `<strong><i class="fas fa-exclamation-circle"></i> Error:</strong> ${error.message}`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        // Add slide-in animation for notifications
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+    <script>
+        // ========== GLOBAL THEME MANAGEMENT ==========
+        // Theme Toggle Functions (Shared across all pages)
+        function getTheme() {
+            return localStorage.getItem('theme') || 'light';
+        }
+
+        function setTheme(theme) {
+            localStorage.setItem('theme', theme);
+            document.documentElement.setAttribute('data-theme', theme);
+            updateThemeToggle(theme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = getTheme();
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+            console.log(`Theme switched to ${newTheme}`);
+        }
+
+        function updateThemeToggle(theme) {
+            const toggle = document.getElementById('themeToggle');
+            const toggleLogin = document.getElementById('themeToggleLogin');
+            if (toggle) {
+                toggle.setAttribute('data-theme', theme);
+            }
+            if (toggleLogin) {
+                toggleLogin.setAttribute('data-theme', theme);
+            }
+        }
+
+        // Initialize theme on page load (runs immediately, before DOMContentLoaded)
+        (function() {
+            const savedTheme = getTheme();
+            setTheme(savedTheme);
+        })();
+    </script>
+</body>
+</html>

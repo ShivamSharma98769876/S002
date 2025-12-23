@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backtesting System - RSI Strategy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .backtest-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .backtest-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .backtest-header h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 700;
+        }
+        
+        .backtest-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        
+        .backtest-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 1024px) {
+            .backtest-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .backtest-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .backtest-card h2 {
+            margin: 0 0 20px 0;
+            color: #1a202c;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn-run-backtest {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .btn-run-backtest:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-run-backtest:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .results-container {
+            margin-top: 30px;
+        }
+        
+        .results-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .summary-card.positive {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .summary-card.negative {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .summary-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .summary-card .value {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .trades-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .trades-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .trades-table th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .trades-table td {
+            padding: 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .trades-table tbody tr:hover {
+            background: #f7fafc;
+        }
+        
+        .trades-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .pnl-positive {
+            color: #10b981;
+            font-weight: 600;
+        }
+        
+        .pnl-negative {
+            color: #ef4444;
+            font-weight: 600;
+        }
+        
+        .btn-export {
+            padding: 12px 24px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .btn-export:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+        
+        .loading i {
+            font-size: 48px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #ef4444;
+        }
+
+        [data-theme="dark"] .error-message {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border-left-color: var(--danger-color);
+        }
+
+        [data-theme="dark"] .loading {
+            color: var(--primary-color);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .nav-link {
+            padding: 10px 20px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid #667eea;
+        }
+        
+        .nav-link:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        /* Checkbox styling */
+        input[type="checkbox"] {
+            accent-color: #667eea;
+        }
+        
+        label:has(input[type="checkbox"]:checked) {
+            border-color: #667eea !important;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        label:has(input[type="checkbox"]):hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.02);
+        }
+
+        /* ========== DARK THEME ========== */
+        /* Dark Theme Variables */
+        [data-theme="dark"] {
+            --primary-color: #3b82f6;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+        }
+
+        [data-theme="dark"] body {
+            background-color: var(--bg-color);
+            color: var(--text-primary) !important;
+        }
+
+        [data-theme="dark"] body * {
+            color: inherit;
+        }
+
+        [data-theme="dark"] .backtest-card {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .backtest-card h2,
+        [data-theme="dark"] .backtest-card h3,
+        [data-theme="dark"] .backtest-card h4 {
+            color: var(--text-primary) !important;
+        }
+
+        [data-theme="dark"] .backtest-card label,
+        [data-theme="dark"] .form-group label,
+        [data-theme="dark"] label {
+            color: var(--text-primary) !important;
+        }
+
+        [data-theme="dark"] .backtest-card p,
+        [data-theme="dark"] .backtest-card span,
+        [data-theme="dark"] .backtest-card div,
+        [data-theme="dark"] .backtest-card small,
+        [data-theme="dark"] .backtest-card strong {
+            color: var(--text-primary) !important;
+        }
+
+        [data-theme="dark"] .backtest-header p,
+        [data-theme="dark"] .backtest-header span {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+
+        [data-theme="dark"] .backtest-header {
+            background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+        }
+
+        [data-theme="dark"] .nav-link {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .nav-link:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Dark Theme Input Fields */
+        [data-theme="dark"] .form-group input,
+        [data-theme="dark"] .form-group textarea,
+        [data-theme="dark"] .form-group select,
+        [data-theme="dark"] input[type="text"],
+        [data-theme="dark"] input[type="number"],
+        [data-theme="dark"] input[type="date"],
+        [data-theme="dark"] input[type="email"],
+        [data-theme="dark"] textarea,
+        [data-theme="dark"] select {
+            background: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+
+        [data-theme="dark"] .form-group input:focus,
+        [data-theme="dark"] .form-group textarea:focus,
+        [data-theme="dark"] .form-group select:focus,
+        [data-theme="dark"] input[type="text"]:focus,
+        [data-theme="dark"] input[type="number"]:focus,
+        [data-theme="dark"] input[type="date"]:focus,
+        [data-theme="dark"] textarea:focus,
+        [data-theme="dark"] select:focus {
+            background: var(--card-bg) !important;
+            border-color: #667eea !important;
+            color: var(--text-primary) !important;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2) !important;
+        }
+
+        [data-theme="dark"] .form-group input::placeholder,
+        [data-theme="dark"] .form-group textarea::placeholder,
+        [data-theme="dark"] input::placeholder,
+        [data-theme="dark"] textarea::placeholder {
+            color: var(--text-secondary) !important;
+            opacity: 0.7 !important;
+        }
+
+        [data-theme="dark"] .summary-card {
+            background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .summary-card.positive {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+        }
+
+        [data-theme="dark"] .summary-card.negative {
+            background: linear-gradient(135deg, #991b1b 0%, #dc2626 100%);
+            color: white;
+        }
+
+        [data-theme="dark"] .results-table {
+            background: var(--card-bg);
+        }
+
+        [data-theme="dark"] .results-table th {
+            background: #334155;
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .results-table td {
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .results-table tbody tr:hover {
+            background: #334155;
+        }
+
+        [data-theme="dark"] .trades-table {
+            background: var(--card-bg);
+        }
+
+        [data-theme="dark"] .trades-table th {
+            background: #334155;
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .trades-table td {
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .trades-table tbody tr:hover {
+            background: #334155;
+        }
+
+        /* Fix all text colors in dark theme */
+        [data-theme="dark"] p,
+        [data-theme="dark"] span:not(.theme-toggle-icon),
+        [data-theme="dark"] div:not(.theme-toggle),
+        [data-theme="dark"] small,
+        [data-theme="dark"] strong,
+        [data-theme="dark"] li {
+            color: var(--text-primary) !important;
+        }
+
+        [data-theme="dark"] .nav-links,
+        [data-theme="dark"] .nav-links * {
+            color: var(--text-primary) !important;
+        }
+
+        [data-theme="dark"] .backtest-header h1 {
+            color: white !important;
+        }
+
+        [data-theme="dark"] .strategy-info,
+        [data-theme="dark"] .strategy-info * {
+            color: var(--text-primary) !important;
+        }
+
+        [data-theme="dark"] .strategy-info h3,
+        [data-theme="dark"] .strategy-info h4 {
+            color: var(--text-primary) !important;
+        }
+
+        /* Global text color fix for dark theme */
+        [data-theme="dark"] * {
+            color: inherit;
+        }
+
+        [data-theme="dark"] .backtest-container,
+        [data-theme="dark"] .backtest-container * {
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .backtest-container h1,
+        [data-theme="dark"] .backtest-container h2,
+        [data-theme="dark"] .backtest-container h3,
+        [data-theme="dark"] .backtest-container h4,
+        [data-theme="dark"] .backtest-container h5,
+        [data-theme="dark"] .backtest-container h6 {
+            color: var(--text-primary) !important;
+        }
+
+        [data-theme="dark"] .backtest-container p,
+        [data-theme="dark"] .backtest-container span,
+        [data-theme="dark"] .backtest-container div,
+        [data-theme="dark"] .backtest-container small,
+        [data-theme="dark"] .backtest-container strong,
+        [data-theme="dark"] .backtest-container li,
+        [data-theme="dark"] .backtest-container td,
+        [data-theme="dark"] .backtest-container th {
+            color: var(--text-primary) !important;
+        }
+
+        /* Override any hardcoded dark colors */
+        [data-theme="dark"] *[style*="color: #1a202c"],
+        [data-theme="dark"] *[style*="color: #4a5568"],
+        [data-theme="dark"] *[style*="color: #666"],
+        [data-theme="dark"] *[style*="color: black"],
+        [data-theme="dark"] *[style*="color: #000"],
+        [data-theme="dark"] *[style*="color:#1a202c"],
+        [data-theme="dark"] *[style*="color:#4a5568"],
+        [data-theme="dark"] *[style*="color:#666"],
+        [data-theme="dark"] *[style*="color:black"],
+        [data-theme="dark"] *[style*="color:#000"] {
+            color: var(--text-primary) !important;
+        }
+
+        /* Fix border colors in dark theme */
+        [data-theme="dark"] *[style*="border.*#e2e8f0"] {
+            border-color: var(--border-color) !important;
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: var(--border-color, #e2e8f0);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: background 0.3s;
+            border: none;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-toggle:hover {
+            background: var(--text-secondary, #64748b);
+        }
+
+        .theme-toggle-slider {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            left: 3px;
+        }
+
+        [data-theme="dark"] .theme-toggle {
+            background: var(--primary-color, #2563eb);
+        }
+
+        [data-theme="dark"] .theme-toggle-slider {
+            transform: translateX(24px);
+        }
+
+        .theme-toggle-icon {
+            position: absolute;
+            font-size: 12px;
+            transition: opacity 0.3s;
+        }
+
+        .theme-toggle-icon.sun {
+            left: 6px;
+            color: #f59e0b;
+        }
+
+        .theme-toggle-icon.moon {
+            right: 6px;
+            color: #f1f5f9;
+        }
+
+        [data-theme="light"] .theme-toggle-icon.moon {
+            opacity: 0;
+        }
+
+        [data-theme="dark"] .theme-toggle-icon.sun {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="backtest-container">
+        <div class="nav-links" style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+            <!-- Theme Toggle Button -->
+            <div style="display: flex; align-items: center; gap: 8px; margin-right: auto;">
+                <span style="font-size: 12px; color: var(--text-secondary, #64748b); font-weight: 500;">
+                    <i class="fas fa-sun" style="font-size: 14px;"></i>
+                </span>
+                <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Dark/Light Theme">
+                    <span class="theme-toggle-slider"></span>
+                    <i class="fas fa-sun theme-toggle-icon sun"></i>
+                    <i class="fas fa-moon theme-toggle-icon moon"></i>
+                </button>
+                <span style="font-size: 12px; color: var(--text-secondary, #64748b); font-weight: 500;">
+                    <i class="fas fa-moon" style="font-size: 14px;"></i>
+                </span>
+            </div>
+            <a href="/" class="nav-link">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </a>
+            <a href="/admin/panel" class="nav-link">
+                <i class="fas fa-cog"></i> Admin Panel
+            </a>
+            <a href="/live/" class="nav-link">
+                <i class="fas fa-robot"></i> Live Trader
+            </a>
+        </div>
+        
+        <div class="backtest-header">
+            <h1><i class="fas fa-chart-bar"></i> RSI Strategy Backtesting System</h1>
+            <p>Test your RSI Divergence + Trend Reversal strategy on historical data</p>
+        </div>
+        
+        <div class="backtest-grid">
+            <div class="backtest-card">
+                <h2><i class="fas fa-sliders-h"></i> Backtest Parameters</h2>
+                
+                <form id="backtestForm">
+                    <div class="form-group">
+                        <label>Trading Segments *</label>
+                        <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 8px;">
+                            <div style="border: 2px solid var(--border-color, #e2e8f0); border-radius: 8px; padding: 12px;">
+                                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 8px;">
+                                    <input type="checkbox" id="segment_nifty" name="segments" value="NIFTY" checked style="width: 20px; height: 20px; cursor: pointer;">
+                                    <span style="font-weight: 600; color: var(--text-primary, #1a202c);">NIFTY</span>
+                                </label>
+                                <div style="margin-left: 30px; margin-top: 8px;">
+                                    <label for="expiry_nifty" style="display: block; margin-bottom: 4px; font-size: 13px; color: var(--text-primary, #666);">Expiry:</label>
+                                    <input type="date" id="expiry_nifty" name="expiry_nifty" class="form-input" style="width: 100%; padding: 8px;">
+                                    <small style="color: var(--text-secondary, #666); font-size: 11px; display: block; margin-top: 4px;">Latest expiry will be loaded automatically</small>
+                                </div>
+                            </div>
+                            <div style="border: 2px solid var(--border-color, #e2e8f0); border-radius: 8px; padding: 12px;">
+                                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 8px;">
+                                    <input type="checkbox" id="segment_sensex" name="segments" value="SENSEX" checked style="width: 20px; height: 20px; cursor: pointer;">
+                                    <span style="font-weight: 600; color: var(--text-primary, #1a202c);">SENSEX</span>
+                                </label>
+                                <div style="margin-left: 30px; margin-top: 8px;">
+                                    <label for="expiry_sensex" style="display: block; margin-bottom: 4px; font-size: 13px; color: var(--text-primary, #666);">Expiry:</label>
+                                    <input type="date" id="expiry_sensex" name="expiry_sensex" class="form-input" style="width: 100%; padding: 8px;">
+                                    <small style="color: var(--text-secondary, #666); font-size: 11px; display: block; margin-top: 4px;">Latest expiry will be loaded automatically</small>
+                                </div>
+                            </div>
+                            <div style="border: 2px solid var(--border-color, #e2e8f0); border-radius: 8px; padding: 12px;">
+                                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 8px;">
+                                    <input type="checkbox" id="segment_banknifty" name="segments" value="BANKNIFTY" checked style="width: 20px; height: 20px; cursor: pointer;">
+                                    <span style="font-weight: 600; color: var(--text-primary, #1a202c);">BANKNIFTY</span>
+                                </label>
+                                <div style="margin-left: 30px; margin-top: 8px;">
+                                    <label for="expiry_banknifty" style="display: block; margin-bottom: 4px; font-size: 13px; color: var(--text-primary, #666);">Expiry:</label>
+                                    <input type="date" id="expiry_banknifty" name="expiry_banknifty" class="form-input" style="width: 100%; padding: 8px;">
+                                    <small style="color: var(--text-secondary, #666); font-size: 11px; display: block; margin-top: 4px;">Latest expiry will be loaded automatically</small>
+                                </div>
+                            </div>
+                        </div>
+                        <small style="color: var(--text-secondary, #666); margin-top: 8px; display: block;">Select one or more segments to backtest. Expiry dates default to latest available.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="from_date">From Date *</label>
+                        <input type="date" id="from_date" name="from_date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="to_date">To Date *</label>
+                        <input type="date" id="to_date" name="to_date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="time_interval">Time Interval *</label>
+                        <select id="time_interval" name="time_interval" required>
+                            <option value="3minute">3 Minutes</option>
+                            <option value="5minute" selected>5 Minutes</option>
+                            <option value="15minute">15 Minutes</option>
+                            <option value="30minute">30 Minutes</option>
+                            <option value="1hour">1 Hour</option>
+                        </select>
+                        <small style="color: var(--text-secondary, #666); margin-top: 4px; display: block;">Select the candle timeframe for backtesting</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="rsi_period">RSI Period</label>
+                        <input type="number" id="rsi_period" name="rsi_period" value="9" min="5" max="50">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="price_strength_ema">Price Strength (EMA Period)</label>
+                        <input type="number" id="price_strength_ema" name="price_strength_ema" value="3" min="2" max="20">
+                        <small style="color: var(--text-secondary, #666); margin-top: 4px; display: block;">EMA period applied to RSI for Price Strength calculation (default: 3)</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="volume_strength_wma">Volume Strength (WMA Period)</label>
+                        <input type="number" id="volume_strength_wma" name="volume_strength_wma" value="21" min="5" max="50">
+                        <small style="color: var(--text-secondary, #666); margin-top: 4px; display: block;">WMA period applied to RSI for Volume Strength calculation (default: 21, matching TradingView)</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="initial_capital">Initial Capital (₹)</label>
+                        <input type="number" id="initial_capital" name="initial_capital" value="100000" min="10000" step="1000">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="stop_loss">Stop Loss (Points)</label>
+                        <input type="number" id="stop_loss" name="stop_loss" value="50" min="1" step="1">
+                        <small style="color: var(--text-secondary, #666); margin-top: 4px; display: block;">Default: 50 points. This will override segment-specific defaults.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="trade_regime">Trade Regime *</label>
+                        <select id="trade_regime" name="trade_regime" required>
+                            <option value="Buy" selected>Buy</option>
+                            <option value="Sell">Sell</option>
+                        </select>
+                        <small style="color: var(--text-secondary, #666); margin-top: 4px; display: block;">
+                            <strong>Buy:</strong> Buy options (SL = entry_premium - stop_loss)<br>
+                            <strong>Sell:</strong> Sell options (SL = entry_premium + stop_loss)
+                        </small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="expiry">Option Expiry (Optional - YYYY-MM-DD)</label>
+                        <input type="date" id="expiry" name="expiry">
+                    </div>
+                    
+                    <button type="submit" class="btn-run-backtest" id="runBacktestBtn">
+                        <i class="fas fa-play"></i> Run Backtest
+                    </button>
+                </form>
+            </div>
+            
+            <div class="backtest-card">
+                <h2><i class="fas fa-info-circle"></i> Strategy Information</h2>
+                <div style="line-height: 1.8; color: var(--text-primary, #4a5568);">
+                    <h3 style="color: var(--text-primary, #1a202c); margin-top: 0;">RSI Divergence + Trend Reversal</h3>
+                    <p><strong>Timeframe:</strong> <span id="selectedTimeframe">5 minutes</span></p>
+                    <p><strong>Entry Conditions:</strong></p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li><strong>PE Buy:</strong> RSI crosses from blue zone to red zone + Bearish candle</li>
+                        <li><strong>CE Buy:</strong> RSI crosses upward + Bullish candle</li>
+                    </ul>
+                    <p><strong>Exit Conditions:</strong></p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>Stop Loss hit</li>
+                        <li>Trailing Stop Loss hit</li>
+                        <li>Target reached</li>
+                    </ul>
+                    <p><strong>Scaling Rules:</strong></p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>Add lots at profit milestones</li>
+                        <li>Trailing stop loss applied</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div id="resultsContainer" class="results-container" style="display: none;">
+            <div class="backtest-card">
+                <h2><i class="fas fa-chart-pie"></i> Backtest Results</h2>
+                
+                <div id="resultsSummary" class="results-summary"></div>
+                
+                <div style="margin-top: 30px;">
+                    <h3 style="margin-bottom: 15px;">Trade History</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="trades-table" id="tradesTable">
+                            <thead>
+                                <tr>
+                                    <th>Segment</th>
+                                    <th>Entry Time</th>
+                                    <th>Exit Time</th>
+                                    <th>Trade Type</th>
+                                    <th>Strike</th>
+                                    <th>Entry Premium</th>
+                                    <th>Exit Premium</th>
+                                    <th>Entry Price Strength</th>
+                                    <th>Entry Volume Strength</th>
+                                    <th>Premium Source</th>
+                                    <th>Entry Spot Value</th>
+                                    <th>Exit Spot Value</th>
+                                    <th>Remarks</th>
+                                    <th>Lots</th>
+                                    <th>Stop Loss</th>
+                                    <th>SL Level</th>
+                                    <th>P&L</th>
+                                    <th>Return %</th>
+                                    <th>Exit Reason</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tradesTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <button class="btn-export" id="exportBtn">
+                        <i class="fas fa-download"></i> Export to Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="loadingContainer" class="loading" style="display: none;">
+            <i class="fas fa-spinner"></i>
+            <p>Running backtest... This may take a few minutes.</p>
+        </div>
+        
+        <div id="errorContainer"></div>
+    </div>
+    
+    <script>
+        // Form state management - save and restore form values
+        const FORM_STORAGE_KEY = 'backtest_form_state';
+        
+        // Save form state to localStorage
+        function saveFormState() {
+            const form = document.getElementById('backtestForm');
+            const formData = new FormData(form);
+            const state = {};
+            
+            // Save all form inputs
+            for (const [key, value] of formData.entries()) {
+                if (key === 'segments') {
+                    // Handle checkboxes - store as array
+                    if (!state[key]) state[key] = [];
+                    state[key].push(value);
+                } else {
+                    state[key] = value;
+                }
+            }
+            
+            // Also save checkbox states explicitly
+            const checkboxes = document.querySelectorAll('input[name="segments"]');
+            state.segments = Array.from(checkboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.value);
+            
+            // Save other inputs
+            state.rsi_period = document.getElementById('rsi_period').value;
+            state.price_strength_ema = document.getElementById('price_strength_ema').value;
+            state.volume_strength_wma = document.getElementById('volume_strength_wma').value;
+            state.initial_capital = document.getElementById('initial_capital').value;
+            state.stop_loss = document.getElementById('stop_loss').value;
+            state.time_interval = document.getElementById('time_interval').value;
+            state.expiry = document.getElementById('expiry').value;
+            
+            localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(state));
+        }
+        
+        // Restore form state from localStorage
+        function restoreFormState() {
+            try {
+                const saved = localStorage.getItem(FORM_STORAGE_KEY);
+                if (!saved) return;
+                
+                const state = JSON.parse(saved);
+                
+                // Restore dates
+                if (state.from_date) {
+                    document.getElementById('from_date').value = state.from_date;
+                }
+                if (state.to_date) {
+                    document.getElementById('to_date').value = state.to_date;
+                }
+                
+                // Restore other inputs
+                if (state.rsi_period) {
+                    document.getElementById('rsi_period').value = state.rsi_period;
+                }
+                if (state.price_strength_ema) {
+                    document.getElementById('price_strength_ema').value = state.price_strength_ema;
+                }
+                if (state.volume_strength_wma) {
+                    document.getElementById('volume_strength_wma').value = state.volume_strength_wma;
+                }
+                if (state.initial_capital) {
+                    document.getElementById('initial_capital').value = state.initial_capital;
+                }
+                if (state.stop_loss) {
+                    document.getElementById('stop_loss').value = state.stop_loss;
+                }
+                if (state.time_interval) {
+                    document.getElementById('time_interval').value = state.time_interval;
+                }
+                if (state.expiry) {
+                    document.getElementById('expiry').value = state.expiry;
+                }
+                
+                // Restore checkboxes
+                if (state.segments && Array.isArray(state.segments)) {
+                    const checkboxes = document.querySelectorAll('input[name="segments"]');
+                    checkboxes.forEach(cb => {
+                        cb.checked = state.segments.includes(cb.value);
+                    });
+                }
+            } catch (e) {
+                console.error('Error restoring form state:', e);
+            }
+        }
+        
+        // Set default dates (last 30 days) only if not already set
+        const today = new Date();
+        const thirtyDaysAgo = new Date(today);
+        thirtyDaysAgo.setDate(today.getDate() - 30);
+        
+        const fromDateInput = document.getElementById('from_date');
+        const toDateInput = document.getElementById('to_date');
+        
+        // Restore saved state first
+        restoreFormState();
+        
+        // Only set default dates if they're empty (after restore)
+        if (!fromDateInput.value) {
+            fromDateInput.value = thirtyDaysAgo.toISOString().split('T')[0];
+        }
+        if (!toDateInput.value) {
+            toDateInput.value = today.toISOString().split('T')[0];
+        }
+        
+        // Save form state whenever any input changes
+        const form = document.getElementById('backtestForm');
+        const formInputs = form.querySelectorAll('input, select');
+        
+        // Flag to prevent restore loops
+        let isRestoring = false;
+        let lastSavedState = null;
+        
+        // Enhanced save that stores a snapshot
+        function saveFormStateSnapshot() {
+            if (isRestoring) return;
+            
+            const snapshot = {
+                from_date: fromDateInput.value,
+                to_date: toDateInput.value,
+                rsi_period: document.getElementById('rsi_period').value,
+                initial_capital: document.getElementById('initial_capital').value,
+                stop_loss: document.getElementById('stop_loss').value,
+                time_interval: document.getElementById('time_interval').value,
+                expiry: document.getElementById('expiry').value,
+                segments: Array.from(document.querySelectorAll('input[name="segments"]:checked')).map(cb => cb.value)
+            };
+            
+            lastSavedState = snapshot;
+            localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(snapshot));
+        }
+        
+        // Enhanced restore that only restores if values changed unexpectedly
+        function restoreFormStateIfNeeded() {
+            if (isRestoring || !lastSavedState) return;
+            
+            const currentState = {
+                from_date: fromDateInput.value,
+                to_date: toDateInput.value,
+                rsi_period: document.getElementById('rsi_period').value,
+                initial_capital: document.getElementById('initial_capital').value,
+                stop_loss: document.getElementById('stop_loss').value,
+                time_interval: document.getElementById('time_interval').value,
+                expiry: document.getElementById('expiry').value,
+                segments: Array.from(document.querySelectorAll('input[name="segments"]:checked')).map(cb => cb.value)
+            };
+            
+            // Check if any non-date field was reset (date fields are allowed to change)
+            const nonDateFields = ['rsi_period', 'initial_capital', 'stop_loss', 'time_interval', 'expiry', 'segments'];
+            let needsRestore = false;
+            
+            for (const field of nonDateFields) {
+                if (JSON.stringify(currentState[field]) !== JSON.stringify(lastSavedState[field])) {
+                    // Check if it's reset to default
+                    const input = document.getElementById(field);
+                    if (input) {
+                        const defaultValue = input.getAttribute('value') || (input.type === 'checkbox' ? input.hasAttribute('checked') : '');
+                        if (currentState[field] === defaultValue || 
+                            (field === 'segments' && currentState[field].length === 3)) { // All segments checked = default
+                            needsRestore = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if (needsRestore) {
+                isRestoring = true;
+                restoreFormState();
+                setTimeout(() => {
+                    isRestoring = false;
+                    saveFormStateSnapshot(); // Update snapshot after restore
+                }, 50);
+            }
+        }
+        
+        // Save initial state
+        saveFormStateSnapshot();
+        
+        // Add event listeners to all inputs
+        formInputs.forEach(input => {
+            // Save state before any change (on focus)
+            input.addEventListener('focus', function() {
+                saveFormStateSnapshot();
+            });
+            
+            // Save state on change
+            input.addEventListener('change', function() {
+                if (!isRestoring) {
+                    saveFormStateSnapshot();
+                    // Check if other fields were reset
+                    setTimeout(restoreFormStateIfNeeded, 10);
+                }
+            });
+            
+            // Save state on input (for real-time updates)
+            input.addEventListener('input', function() {
+                if (!isRestoring) {
+                    saveFormStateSnapshot();
+                }
+            });
+        });
+        
+        // Prevent form reset completely
+        form.addEventListener('reset', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            // Immediately restore state
+            isRestoring = true;
+            restoreFormState();
+            setTimeout(() => {
+                isRestoring = false;
+                saveFormStateSnapshot();
+            }, 10);
+            return false;
+        }, true); // Use capture phase to catch early
+        
+        // Override form.reset() method
+        Object.defineProperty(form, 'reset', {
+            value: function() {
+                // Don't reset, just restore
+                isRestoring = true;
+                restoreFormState();
+                setTimeout(() => {
+                    isRestoring = false;
+                    saveFormStateSnapshot();
+                }, 10);
+            },
+            writable: false,
+            configurable: false
+        });
+        
+        // Update timeframe display when interval changes
+        document.getElementById('time_interval').addEventListener('change', function() {
+            const interval = this.value;
+            const displayMap = {
+                '3minute': '3 minutes',
+                '5minute': '5 minutes',
+                '15minute': '15 minutes',
+                '30minute': '30 minutes',
+                '1hour': '1 hour'
+            };
+            document.getElementById('selectedTimeframe').textContent = displayMap[interval] || interval;
+        });
+        
+        // Check system status
+        async function checkStatus() {
+            try {
+                const response = await fetch('/backtest/status');
+                const data = await response.json();
+                
+                if (!data.yfinance_available) {
+                    document.getElementById('errorContainer').innerHTML = 
+                        '<div class="error-message">⚠️ yfinance library not installed. Please install it: <code>pip install yfinance</code></div>';
+                    document.getElementById('runBacktestBtn').disabled = true;
+                } else {
+                    const infoMsg = document.createElement('div');
+                    infoMsg.style.cssText = 'background: #dbeafe; color: #1e40af; padding: 12px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #3b82f6;';
+                    infoMsg.innerHTML = `<i class="fas fa-info-circle"></i> Using <strong>Yahoo Finance</strong> for historical data. No Zerodha authentication required for backtesting.`;
+                    document.getElementById('backtest-container').insertBefore(infoMsg, document.getElementById('backtest-container').firstChild);
+                }
+            } catch (error) {
+                console.error('Error checking status:', error);
+            }
+        }
+        
+        // Load latest expiries for each segment
+        async function loadLatestExpiries() {
+            try {
+                const response = await fetch('/backtest/expiries');
+                if (response.ok) {
+                    const expiries = await response.json();
+                    if (expiries.NIFTY) {
+                        document.getElementById('expiry_nifty').value = expiries.NIFTY;
+                    }
+                    if (expiries.SENSEX) {
+                        document.getElementById('expiry_sensex').value = expiries.SENSEX;
+                    }
+                    if (expiries.BANKNIFTY) {
+                        document.getElementById('expiry_banknifty').value = expiries.BANKNIFTY;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading expiries:', error);
+            }
+        }
+        
+        checkStatus();
+        loadLatestExpiries();
+        
+        // Handle form submission
+        document.getElementById('backtestForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Get selected segments
+            const segmentCheckboxes = document.querySelectorAll('input[name="segments"]:checked');
+            const selectedSegments = Array.from(segmentCheckboxes).map(cb => cb.value);
+            
+            if (selectedSegments.length === 0) {
+                showError('Please select at least one trading segment');
+                return;
+            }
+            
+            // Get expiry for each selected segment
+            const segmentExpiries = {};
+            selectedSegments.forEach(segment => {
+                const expiryId = `expiry_${segment.toLowerCase()}`;
+                const expiryInput = document.getElementById(expiryId);
+                if (expiryInput && expiryInput.value) {
+                    segmentExpiries[segment] = expiryInput.value;
+                }
+            });
+            
+            const formData = {
+                segments: selectedSegments,
+                segment_expiries: segmentExpiries,  // Map of segment -> expiry
+                from_date: document.getElementById('from_date').value,
+                to_date: document.getElementById('to_date').value,
+                time_interval: document.getElementById('time_interval').value,
+                rsi_period: parseInt(document.getElementById('rsi_period').value),
+                price_strength_ema: parseInt(document.getElementById('price_strength_ema').value),
+                volume_strength_wma: parseInt(document.getElementById('volume_strength_wma').value),
+                initial_capital: parseFloat(document.getElementById('initial_capital').value),
+                stop_loss: parseFloat(document.getElementById('stop_loss').value),
+                trade_regime: document.getElementById('trade_regime').value
+            };
+            
+            // Show loading
+            document.getElementById('loadingContainer').style.display = 'block';
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('errorContainer').innerHTML = '';
+            document.getElementById('runBacktestBtn').disabled = true;
+            
+            try {
+                const response = await fetch('/backtest/run', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    displayResults(data.result, data.segments_tested || []);
+                } else {
+                    showError(data.error || 'Backtest failed');
+                }
+            } catch (error) {
+                showError('Error running backtest: ' + error.message);
+            } finally {
+                document.getElementById('loadingContainer').style.display = 'none';
+                document.getElementById('runBacktestBtn').disabled = false;
+            }
+        });
+        
+        function displayResults(result, segmentsTested) {
+            const summary = result.summary;
+            
+            // Show segments tested info
+            if (segmentsTested && segmentsTested.length > 0) {
+                const segmentsInfo = document.createElement('div');
+                segmentsInfo.style.cssText = 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; font-weight: 600;';
+                segmentsInfo.innerHTML = `<i class="fas fa-chart-line"></i> Segments Tested: ${segmentsTested.join(', ')}`;
+                document.getElementById('resultsContainer').insertBefore(segmentsInfo, document.getElementById('resultsContainer').firstChild);
+            }
+            
+            // Display summary
+            const summaryHtml = `
+                <div class="summary-card ${summary.net_pnl >= 0 ? 'positive' : 'negative'}">
+                    <h3>Net P&L</h3>
+                    <p class="value">₹${summary.net_pnl.toFixed(2)}</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Total Trades</h3>
+                    <p class="value">${summary.total_trades}</p>
+                </div>
+                <div class="summary-card positive">
+                    <h3>Win Rate</h3>
+                    <p class="value">${summary.win_rate.toFixed(2)}%</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Winning Trades</h3>
+                    <p class="value">${summary.winning_trades}</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Losing Trades</h3>
+                    <p class="value">${summary.losing_trades}</p>
+                </div>
+                <div class="summary-card positive">
+                    <h3>Total Profit</h3>
+                    <p class="value">₹${summary.total_profit.toFixed(2)}</p>
+                </div>
+                <div class="summary-card negative">
+                    <h3>Total Loss</h3>
+                    <p class="value">₹${summary.total_loss.toFixed(2)}</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Profit Factor</h3>
+                    <p class="value">${summary.profit_factor === null || summary.profit_factor === undefined ? '∞' : summary.profit_factor.toFixed(2)}</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Return %</h3>
+                    <p class="value">${summary.return_pct.toFixed(2)}%</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Max Drawdown</h3>
+                    <p class="value">${summary.max_drawdown.toFixed(2)}%</p>
+                </div>
+            `;
+            
+            document.getElementById('resultsSummary').innerHTML = summaryHtml;
+            
+            // Display trades
+            const tbody = document.getElementById('tradesTableBody');
+            tbody.innerHTML = '';
+            
+            result.trades.forEach(trade => {
+                const row = document.createElement('tr');
+                const pnlClass = trade.pnl >= 0 ? 'pnl-positive' : 'pnl-negative';
+                const pnlSign = trade.pnl >= 0 ? '+' : '';
+                const segment = trade.segment || 'N/A';
+                
+                // Display trade type: Only show CE or PE (not BUY_CE or BUY_PE)
+                const optionType = trade.option_type || '';
+                const tradeTypeDisplay = optionType ? `<span style="background: ${optionType === 'CE' ? '#10b981' : '#ef4444'}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: 600;">${optionType}</span>` : '-';
+                
+                // Display Stop Loss information
+                const stopLossPoints = trade.stop_loss_points || 0;
+                const stopLossLevel = trade.stop_loss_level || 0;
+                
+                // Format SL display with direction indicator
+                let slDisplay = '';
+                let slLevelDisplay = '';
+                if (stopLossPoints > 0) {
+                    if (optionType === 'PE') {
+                        // PE: SL is above entry (entry + SL)
+                        slDisplay = `<span style="color: #ef4444; font-weight: 600;">${stopLossPoints} pts ↑</span>`;
+                        slLevelDisplay = `₹${stopLossLevel.toFixed(2)}<br><small style="color: var(--text-secondary, #666); font-size: 0.85em;">(Entry + ${stopLossPoints})</small>`;
+                    } else {
+                        // CE: SL is below entry (entry - SL)
+                        slDisplay = `<span style="color: #ef4444; font-weight: 600;">${stopLossPoints} pts ↓</span>`;
+                        slLevelDisplay = `₹${stopLossLevel.toFixed(2)}<br><small style="color: var(--text-secondary, #666); font-size: 0.85em;">(Entry - ${stopLossPoints})</small>`;
+                    }
+                } else {
+                    slDisplay = '-';
+                    slLevelDisplay = '-';
+                }
+                
+                // Format strike, entry premium, and exit premium
+                // Strike already includes OptionType+Strike+Expiry from backend
+                const strike = trade.strike || '-';
+                const entryPremium = trade.entry_premium ? `₹${trade.entry_premium.toFixed(2)}` : '-';
+                const exitPremium = trade.exit_premium ? `₹${trade.exit_premium.toFixed(2)}` : '-';
+                const entryPriceStrength = trade.entry_price_strength !== null && trade.entry_price_strength !== undefined ? trade.entry_price_strength.toFixed(2) : '-';
+                const entryVolumeStrength = trade.entry_volume_strength !== null && trade.entry_volume_strength !== undefined ? trade.entry_volume_strength.toFixed(2) : '-';
+                
+                row.innerHTML = `
+                    <td><strong>${segment}</strong></td>
+                    <td>${new Date(trade.entry_time).toLocaleString()}</td>
+                    <td>${new Date(trade.exit_time).toLocaleString()}</td>
+                    <td>${tradeTypeDisplay}</td>
+                    <td><strong>${strike}</strong></td>
+                    <td>${entryPremium}</td>
+                    <td>${exitPremium}</td>
+                    <td>${entryPriceStrength}</td>
+                    <td>${entryVolumeStrength}</td>
+                    <td>${trade.premium_source || 'Unknown'}</td>
+                    <td>${trade.entry_spot ? '₹' + parseFloat(trade.entry_spot).toFixed(2) : 'N/A'}</td>
+                    <td>${trade.exit_spot ? '₹' + parseFloat(trade.exit_spot).toFixed(2) : 'N/A'}</td>
+                    <td>${trade.remarks || 'N/A'}</td>
+                    <td>${trade.lots}</td>
+                    <td style="text-align: center;">${slDisplay}</td>
+                    <td>${slLevelDisplay}</td>
+                    <td class="${pnlClass}">${pnlSign}₹${trade.pnl.toFixed(2)}</td>
+                    <td class="${pnlClass}">${pnlSign}${trade.return_pct.toFixed(2)}%</td>
+                    <td>${trade.reason}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            // Store results for export
+            window.backtestResults = result;
+            
+            // Show results
+            document.getElementById('resultsContainer').style.display = 'block';
+        }
+        
+        function showError(message) {
+            document.getElementById('errorContainer').innerHTML = 
+                `<div class="error-message">${message}</div>`;
+        }
+        
+        // Export to Excel
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            if (!window.backtestResults) {
+                alert('No results to export');
+                return;
+            }
+            
+            // Convert to CSV (simple Excel-compatible format)
+            const results = window.backtestResults;
+            let csv = 'Backtest Results\n\n';
+            csv += 'Summary\n';
+            csv += `Total Trades,${results.summary.total_trades}\n`;
+            csv += `Winning Trades,${results.summary.winning_trades}\n`;
+            csv += `Losing Trades,${results.summary.losing_trades}\n`;
+            csv += `Total Profit,${results.summary.total_profit}\n`;
+            csv += `Total Loss,${results.summary.total_loss}\n`;
+            csv += `Net P&L,${results.summary.net_pnl}\n`;
+            csv += `Win Rate,${results.summary.win_rate}%\n`;
+            csv += `Profit Factor,${results.summary.profit_factor}\n`;
+            csv += `Return %,${results.summary.return_pct}%\n`;
+            csv += `Max Drawdown,${results.summary.max_drawdown}%\n`;
+            csv += `Initial Capital,${results.summary.initial_capital}\n`;
+            csv += `Final Capital,${results.summary.final_capital}\n\n`;
+            
+            csv += 'Trade History\n';
+            csv += 'Segment,Entry Time,Exit Time,Trade Type,Strike,Entry Premium,Exit Premium,Entry Price Strength,Entry Volume Strength,Premium Source,Entry Spot Value,Exit Spot Value,Remarks,Lots,Stop Loss,SL Level,P&L,Return %,Exit Reason\n';
+            
+            results.trades.forEach(trade => {
+                const segment = trade.segment || 'N/A';
+                const strike = trade.strike || '';
+                const entryPremium = trade.entry_premium ? trade.entry_premium.toFixed(2) : '';
+                const exitPremium = trade.exit_premium ? trade.exit_premium.toFixed(2) : '';
+                const entryPriceStrength = trade.entry_price_strength !== null && trade.entry_price_strength !== undefined ? trade.entry_price_strength.toFixed(2) : '';
+                const entryVolumeStrength = trade.entry_volume_strength !== null && trade.entry_volume_strength !== undefined ? trade.entry_volume_strength.toFixed(2) : '';
+                const stopLoss = trade.stop_loss_points || '';
+                const slLevel = trade.stop_loss_level ? trade.stop_loss_level.toFixed(2) : '';
+                // Trade Type: Only show CE or PE (not BUY_CE or BUY_PE)
+                const tradeType = trade.option_type || '';
+                
+                const premiumSource = trade.premium_source || 'Unknown';
+                const entrySpot = trade.entry_spot ? parseFloat(trade.entry_spot).toFixed(2) : 'N/A';
+                const exitSpot = trade.exit_spot ? parseFloat(trade.exit_spot).toFixed(2) : 'N/A';
+                const remarks = trade.remarks || 'N/A';
+                csv += `${segment},${trade.entry_time},${trade.exit_time},${tradeType},${strike},${entryPremium},${exitPremium},${entryPriceStrength},${entryVolumeStrength},${premiumSource},${entrySpot},${exitSpot},${remarks},${trade.lots},${stopLoss},${slLevel},${trade.pnl},${trade.return_pct},${trade.reason}\n`;
+            });
+            
+            // Download
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `backtest_results_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        });
+
+        // ========== GLOBAL THEME MANAGEMENT ==========
+        // Theme Toggle Functions (Shared across all pages)
+        function getTheme() {
+            return localStorage.getItem('theme') || 'light';
+        }
+
+        function setTheme(theme) {
+            localStorage.setItem('theme', theme);
+            document.documentElement.setAttribute('data-theme', theme);
+            updateThemeToggle(theme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = getTheme();
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+            console.log(`Theme switched to ${newTheme}`);
+        }
+
+        function updateThemeToggle(theme) {
+            const toggle = document.getElementById('themeToggle');
+            if (toggle) {
+                toggle.setAttribute('data-theme', theme);
+            }
+        }
+
+        // Initialize theme on page load (runs immediately, before DOMContentLoaded)
+        (function() {
+            const savedTheme = getTheme();
+            setTheme(savedTheme);
+        })();
+    </script>
+</body>
+</html>
+

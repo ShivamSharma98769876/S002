@@ -1,0 +1,114 @@
+{
+  "task_id": "TASK-09",
+  "task_name": "Notification System",
+  "description": "Implement multi-channel notification system for alerts and critical events",
+  "priority": "High",
+  "estimated_hours": 16,
+  "dependencies": ["TASK-03", "TASK-04"],
+  "sub_tasks": [
+    {
+      "sub_task_id": "TASK-09-01",
+      "sub_task_name": "Notification Framework",
+      "description": "Create notification service with multiple delivery channels",
+      "status": "pending",
+      "estimated_hours": 4,
+      "acceptance_criteria": [
+        "Notification service architecture",
+        "Support for multiple channels (SMS, Email, In-app, WhatsApp)",
+        "Notification queue system",
+        "Priority-based delivery"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-09-02",
+      "sub_task_name": "Loss Limit Warning Alert",
+      "description": "Send warning when daily loss approaches 90% of limit (₹4,500)",
+      "status": "pending",
+      "estimated_hours": 2,
+      "acceptance_criteria": [
+        "Trigger at ₹4,500 loss",
+        "Message: 'Daily loss approaching ₹4,500'",
+        "Send to all configured channels",
+        "Avoid duplicate notifications"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-09-03",
+      "sub_task_name": "Loss Limit Reached Alert",
+      "description": "Notify when daily loss limit is hit and positions are closed",
+      "status": "pending",
+      "estimated_hours": 2,
+      "acceptance_criteria": [
+        "Trigger when loss limit reached",
+        "Message: 'Daily loss limit hit - All positions closed. Trading blocked until [date]'",
+        "High priority notification",
+        "Delivery within 5 seconds"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-09-04",
+      "sub_task_name": "Trailing SL Notifications",
+      "description": "Notify on trailing SL activation and updates",
+      "status": "pending",
+      "estimated_hours": 3,
+      "acceptance_criteria": [
+        "Alert: 'Profit ₹5,000 reached - Trailing SL activated'",
+        "Alert: 'Trailing SL updated to ₹X'",
+        "Alert: 'Trailing SL triggered - All positions closed'",
+        "Real-time delivery"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-09-05",
+      "sub_task_name": "Trade Completion Notification",
+      "description": "Notify when trade is closed manually with profit",
+      "status": "pending",
+      "estimated_hours": 2,
+      "acceptance_criteria": [
+        "Message: 'Trade closed manually - Profit ₹X protected'",
+        "Include trade details",
+        "Update protected profit display"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-09-06",
+      "sub_task_name": "Email Integration",
+      "description": "Implement email notifications using SMTP",
+      "status": "pending",
+      "estimated_hours": 2,
+      "acceptance_criteria": [
+        "SMTP configuration",
+        "HTML email templates",
+        "Email delivery testing",
+        "Error handling for failed emails"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-09-07",
+      "sub_task_name": "SMS Integration (Optional)",
+      "description": "Implement SMS notifications using SMS gateway API",
+      "status": "pending",
+      "estimated_hours": 3,
+      "acceptance_criteria": [
+        "SMS gateway API integration",
+        "SMS delivery for critical alerts",
+        "Cost-effective implementation",
+        "Error handling"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-09-08",
+      "sub_task_name": "In-app Notifications",
+      "description": "Display notifications within the application UI",
+      "status": "pending",
+      "estimated_hours": 2,
+      "acceptance_criteria": [
+        "Notification panel/area in UI",
+        "Real-time notification display",
+        "Notification history",
+        "Mark as read functionality"
+      ]
+    }
+  ]
+}
+

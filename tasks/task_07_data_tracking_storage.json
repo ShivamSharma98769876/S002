@@ -1,0 +1,78 @@
+{
+  "task_id": "TASK-07",
+  "task_name": "Data Tracking & Storage",
+  "description": "Implement data persistence for positions, trades, P&L, and daily statistics",
+  "priority": "High",
+  "estimated_hours": 18,
+  "dependencies": ["TASK-01"],
+  "sub_tasks": [
+    {
+      "sub_task_id": "TASK-07-01",
+      "sub_task_name": "Database Schema Design",
+      "description": "Design database schema for positions, trades, and daily statistics",
+      "status": "pending",
+      "estimated_hours": 4,
+      "acceptance_criteria": [
+        "Tables for positions, trades, daily_stats",
+        "Proper relationships and foreign keys",
+        "Indexes for performance",
+        "Schema migration scripts"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-07-02",
+      "sub_task_name": "Position Data Tracking",
+      "description": "Track per-position data: entry time, price, quantity, P&L",
+      "status": "pending",
+      "estimated_hours": 4,
+      "acceptance_criteria": [
+        "Store entry time and price",
+        "Track current market price",
+        "Store quantity and lot size",
+        "Calculate and store unrealized P&L"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-07-03",
+      "sub_task_name": "Trade History Storage",
+      "description": "Store completed trades with realized P&L",
+      "status": "pending",
+      "estimated_hours": 3,
+      "acceptance_criteria": [
+        "Store entry and exit prices",
+        "Store entry and exit times",
+        "Calculate and store realized P&L",
+        "Link trades to positions"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-07-04",
+      "sub_task_name": "Daily Statistics Tracking",
+      "description": "Track daily metrics: total P&L, protected profit, trade count, etc.",
+      "status": "pending",
+      "estimated_hours": 4,
+      "acceptance_criteria": [
+        "Total realized profit/loss per day",
+        "Total unrealized P&L",
+        "Protected profit counter",
+        "Number of trades",
+        "Daily loss limit status",
+        "Trailing SL status and level"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-07-05",
+      "sub_task_name": "Data Persistence Layer",
+      "description": "Implement database operations (CRUD) for all data entities",
+      "status": "pending",
+      "estimated_hours": 3,
+      "acceptance_criteria": [
+        "Database connection management",
+        "CRUD operations for all entities",
+        "Transaction support",
+        "Data validation before storage"
+      ]
+    }
+  ]
+}
+

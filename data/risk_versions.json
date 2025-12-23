@@ -1,0 +1,136 @@
+{
+  "loss_warning_threshold": [
+    {
+      "parameter_name": "loss_warning_threshold",
+      "old_value": 0.81,
+      "new_value": 0.82,
+      "changed_by": "admin",
+      "changed_at": "2025-11-13T11:17:56.873076",
+      "reason": "Updated via admin panel",
+      "version_number": 1
+    },
+    {
+      "parameter_name": "loss_warning_threshold",
+      "old_value": 0.81,
+      "new_value": 0.82,
+      "changed_by": "admin",
+      "changed_at": "2025-11-13T11:17:56.886139",
+      "reason": "Updated via admin panel",
+      "version_number": 2
+    },
+    {
+      "parameter_name": "loss_warning_threshold",
+      "old_value": 0.82,
+      "new_value": 0.82,
+      "changed_by": "admin",
+      "changed_at": "2025-11-13T11:18:01.820194",
+      "reason": "Updated via admin panel",
+      "version_number": 3
+    },
+    {
+      "parameter_name": "loss_warning_threshold",
+      "old_value": 0.82,
+      "new_value": 0.82,
+      "changed_by": "admin",
+      "changed_at": "2025-11-13T11:18:01.833131",
+      "reason": "Updated via admin panel",
+      "version_number": 4
+    },
+    {
+      "parameter_name": "loss_warning_threshold",
+      "old_value": 0.82,
+      "new_value": 0.81,
+      "changed_by": "admin",
+      "changed_at": "2025-11-13T13:21:26.802831",
+      "reason": "Updated via admin panel",
+      "version_number": 5
+    },
+    {
+      "parameter_name": "loss_warning_threshold",
+      "old_value": 0.82,
+      "new_value": 0.81,
+      "changed_by": "admin",
+      "changed_at": "2025-11-13T13:21:26.811401",
+      "reason": "Updated via admin panel",
+      "version_number": 6
+    }
+  ],
+  "trailing_sl_increment": [
+    {
+      "parameter_name": "trailing_sl_increment",
+      "old_value": 5000.0,
+      "new_value": 2000,
+      "changed_by": "admin",
+      "changed_at": "2025-11-19T17:39:47.573832",
+      "reason": "Updated via admin panel",
+      "version_number": 1
+    },
+    {
+      "parameter_name": "trailing_sl_increment",
+      "old_value": 5000.0,
+      "new_value": 2000,
+      "changed_by": "admin",
+      "changed_at": "2025-11-19T17:39:47.580493",
+      "reason": "Updated via admin panel",
+      "version_number": 2
+    },
+    {
+      "parameter_name": "trailing_sl_increment",
+      "old_value": 2000.0,
+      "new_value": 12000,
+      "changed_by": "admin",
+      "changed_at": "2025-11-28T03:49:15.702354",
+      "reason": "Updated via admin panel",
+      "version_number": 3
+    },
+    {
+      "parameter_name": "trailing_sl_increment",
+      "old_value": 2000.0,
+      "new_value": 12000,
+      "changed_by": "admin",
+      "changed_at": "2025-11-28T03:49:15.706540",
+      "reason": "Updated via admin panel",
+      "version_number": 4
+    }
+  ],
+  "daily_loss_limit": [
+    {
+      "parameter_name": "daily_loss_limit",
+      "old_value": 5000.0,
+      "new_value": 15000,
+      "changed_by": "admin",
+      "changed_at": "2025-11-28T03:48:53.272544",
+      "reason": "Updated via admin panel",
+      "version_number": 1
+    },
+    {
+      "parameter_name": "daily_loss_limit",
+      "old_value": 5000.0,
+      "new_value": 15000,
+      "changed_by": "admin",
+      "changed_at": "2025-11-28T03:48:53.276090",
+      "reason": "Updated via admin panel",
+      "version_number": 2
+    }
+  ],
+  "trailing_sl_activation": [
+    {
+      "parameter_name": "trailing_sl_activation",
+      "old_value": 5000.0,
+      "new_value": 15000,
+      "changed_by": "admin",
+      "changed_at": "2025-11-28T03:49:11.853434",
+      "reason": "Updated via admin panel",
+      "version_number": 1
+    },
+    {
+      "parameter_name": "trailing_sl_activation",
+      "old_value": 5000.0,
+      "new_value": 15000,
+      "changed_by": "admin",
+      "changed_at": "2025-11-28T03:49:11.857186",
+      "reason": "Updated via admin panel",
+      "version_number": 2
+    }
+  ]
+}

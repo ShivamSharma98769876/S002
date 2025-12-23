@@ -1,0 +1,76 @@
+{
+  "task_id": "TASK-06",
+  "task_name": "Real-time Monitoring & WebSocket",
+  "description": "Implement WebSocket connection for real-time price updates and position monitoring",
+  "priority": "Critical",
+  "estimated_hours": 20,
+  "dependencies": ["TASK-02"],
+  "sub_tasks": [
+    {
+      "sub_task_id": "TASK-06-01",
+      "sub_task_name": "Kite Connect WebSocket Setup",
+      "description": "Establish WebSocket connection with Zerodha for live price feeds",
+      "status": "pending",
+      "estimated_hours": 6,
+      "acceptance_criteria": [
+        "WebSocket connection to Kite Connect",
+        "Subscribe to option instruments",
+        "Handle connection drops and reconnection",
+        "Error handling for WebSocket failures"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-06-02",
+      "sub_task_name": "Real-time Price Updates",
+      "description": "Process live price ticks and update position P&L",
+      "status": "pending",
+      "estimated_hours": 5,
+      "acceptance_criteria": [
+        "Receive price ticks every second",
+        "Update position P&L in real-time",
+        "Handle multiple instruments simultaneously",
+        "Low latency processing (< 2 seconds)"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-06-03",
+      "sub_task_name": "Position Monitoring Loop",
+      "description": "Continuous monitoring loop that checks risk limits every second",
+      "status": "pending",
+      "estimated_hours": 4,
+      "acceptance_criteria": [
+        "Background thread/process for monitoring",
+        "Check loss limit every 1 second",
+        "Check trailing SL every 1 second",
+        "Non-blocking execution"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-06-04",
+      "sub_task_name": "Auto-reconnect Mechanism",
+      "description": "Automatically reconnect WebSocket on disconnection",
+      "status": "pending",
+      "estimated_hours": 3,
+      "acceptance_criteria": [
+        "Detect WebSocket disconnection",
+        "Automatic reconnection with exponential backoff",
+        "Resubscribe to instruments after reconnect",
+        "Alert on connection issues"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-06-05",
+      "sub_task_name": "Position Snapshot Backup",
+      "description": "Backup position data every 30 seconds for recovery",
+      "status": "pending",
+      "estimated_hours": 2,
+      "acceptance_criteria": [
+        "Save position snapshot every 30 seconds",
+        "Store in local file/database",
+        "Recovery mechanism on system restart",
+        "Handle system downtime gracefully"
+      ]
+    }
+  ]
+}
+

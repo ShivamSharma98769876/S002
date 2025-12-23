@@ -1,0 +1,104 @@
+{
+  "task_id": "TASK-15",
+  "task_name": "Deployment & Maintenance",
+  "description": "Deploy the system and set up maintenance procedures",
+  "priority": "Medium",
+  "estimated_hours": 16,
+  "dependencies": ["TASK-14"],
+  "sub_tasks": [
+    {
+      "sub_task_id": "TASK-15-01",
+      "sub_task_name": "Production Environment Setup",
+      "description": "Set up production server and environment",
+      "status": "pending",
+      "estimated_hours": 4,
+      "acceptance_criteria": [
+        "Production server configured",
+        "Database setup in production",
+        "Environment variables configured",
+        "SSL certificates installed",
+        "Firewall rules configured"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-15-02",
+      "sub_task_name": "Deployment Scripts",
+      "description": "Create deployment and rollback scripts",
+      "status": "pending",
+      "estimated_hours": 3,
+      "acceptance_criteria": [
+        "Automated deployment script",
+        "Rollback mechanism",
+        "Database migration scripts",
+        "Zero-downtime deployment (if possible)"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-15-03",
+      "sub_task_name": "Monitoring & Alerting Setup",
+      "description": "Set up system monitoring and alerting",
+      "status": "pending",
+      "estimated_hours": 3,
+      "acceptance_criteria": [
+        "System health monitoring",
+        "Performance metrics tracking",
+        "Alert on system failures",
+        "Dashboard for system status"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-15-04",
+      "sub_task_name": "Documentation",
+      "description": "Create user and technical documentation",
+      "status": "pending",
+      "estimated_hours": 3,
+      "acceptance_criteria": [
+        "User manual",
+        "API documentation",
+        "Configuration guide",
+        "Troubleshooting guide",
+        "Admin guide"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-15-05",
+      "sub_task_name": "24/7 Monitoring Setup",
+      "description": "Set up monitoring during market hours (9:15 AM - 3:30 PM IST)",
+      "status": "pending",
+      "estimated_hours": 2,
+      "acceptance_criteria": [
+        "Automated system startup at 9:15 AM",
+        "Automated system shutdown at 3:30 PM",
+        "Monitoring during market hours",
+        "Alert on system downtime"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-15-06",
+      "sub_task_name": "Maintenance Procedures",
+      "description": "Establish maintenance and support procedures",
+      "status": "pending",
+      "estimated_hours": 2,
+      "acceptance_criteria": [
+        "Bug fix response time: < 2 hours critical, < 24 hours non-critical",
+        "Monthly system health reports",
+        "Quarterly risk parameter review",
+        "Backup and recovery procedures"
+      ]
+    },
+    {
+      "sub_task_id": "TASK-15-07",
+      "sub_task_name": "Compliance & Legal",
+      "description": "Ensure compliance with SEBI regulations",
+      "status": "pending",
+      "estimated_hours": 2,
+      "acceptance_criteria": [
+        "SEBI compliance review",
+        "User agreement documentation",
+        "Liability disclaimers",
+        "Audit trail for regulatory review"
+      ]
+    }
+  ]
+}
+
