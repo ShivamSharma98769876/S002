@@ -865,7 +865,7 @@ class LiveSegmentAgent(threading.Thread):
                                             f"L:{newest_row['low']:.2f} C:{newest_row['close']:.2f})"
                                         )
                                         
-                                        # Save the new candles to database
+                                        # Save the new candles to database AND add to DataFrame immediately
                                         candles_to_save = []
                                         for ts, row in usable_candles:
                                             # Save all usable candles that are at least 1 minute old
@@ -880,10 +880,22 @@ class LiveSegmentAgent(threading.Thread):
                                                 'volume': float(row.get('volume', 0.0)),
                                                 'is_synthetic': False
                                             })
+                                            
+                                            # Add to DataFrame immediately so it's available for next tick
+                                            if ts not in self.df.index:
+                                                self.df.loc[ts] = {
+                                                    'open': float(row['open']),
+                                                    'high': float(row['high']),
+                                                    'low': float(row['low']),
+                                                    'close': float(row['close']),
+                                                    'volume': float(row.get('volume', 0.0))
+                                                }
                                         
                                         if candles_to_save:
                                             saved_count = self.candle_repo.save_candles_batch(candles_to_save)
-                                            self.logger.info(f" Saved {saved_count} new candles to database")
+                                            self.logger.info(f" Saved {saved_count} new candles to database and DataFrame")
+                                            # Sort DataFrame after adding new candles
+                                            self.df = self.df.sort_index()
                                     else:
                                         # No exact candle available from API
                                         # CRITICAL: Only use candles from the SAME WINDOW to avoid PS/VS mismatch
@@ -1032,7 +1044,7 @@ class LiveSegmentAgent(threading.Thread):
                                                                 f"L:{newest_row['low']:.2f} C:{newest_row['close']:.2f})"
                                                             )
                                                             
-                                                            # Save candles to database
+                                                            # Save candles to database AND add to DataFrame immediately
                                                             candles_to_save = []
                                                             for ts, row in usable_candles:
                                                                 candles_to_save.append({
@@ -1046,10 +1058,22 @@ class LiveSegmentAgent(threading.Thread):
                                                                     'volume': float(row.get('volume', 0.0)),
                                                                     'is_synthetic': False
                                                                 })
+                                                                
+                                                                # Add to DataFrame immediately
+                                                                if ts not in self.df.index:
+                                                                    self.df.loc[ts] = {
+                                                                        'open': float(row['open']),
+                                                                        'high': float(row['high']),
+                                                                        'low': float(row['low']),
+                                                                        'close': float(row['close']),
+                                                                        'volume': float(row.get('volume', 0.0))
+                                                                    }
                                                             
                                                             if candles_to_save:
                                                                 saved_count = self.candle_repo.save_candles_batch(candles_to_save)
-                                                                self.logger.info(f" Saved {saved_count} new candles to database")
+                                                                self.logger.info(f" Saved {saved_count} new candles to database and DataFrame")
+                                                                # Sort DataFrame after adding
+                                                                self.df = self.df.sort_index()
                                                             
                                                             found_fallback = True
                                                             break
@@ -1288,6 +1312,7 @@ class LiveSegmentAgent(threading.Thread):
                                             f"Will use this candle but signal generation may be limited."
                                         )
                                     
+                                    # Save to database and add to DataFrame immediately
                                     self.candle_repo.save_candle(
                                         segment=self.params.segment,
                                         timestamp=signal_candle_time,
@@ -1300,9 +1325,14 @@ class LiveSegmentAgent(threading.Thread):
                                         is_synthetic=not is_real_candle
                                     )
                                     
+                                    # Add to DataFrame immediately so it's available for next tick
+                                    if signal_candle_time not in self.df.index:
+                                        self.df.loc[signal_candle_time] = candle
+                                        self.df = self.df.sort_index()
+                                    
                                     if is_real_candle:
                                         self.logger.info(
-                                            f" ✅ Fetched and saved REAL candle from API for {signal_candle_time}: "
+                                            f" ✅ Fetched and saved REAL candle from API for {signal_candle_time} (added to DataFrame): "
                                             f"O:{candle['open']:.2f} H:{candle['high']:.2f} L:{candle['low']:.2f} C:{candle['close']:.2f}"
                                         )
                                     else:
@@ -1402,6 +1432,7 @@ class LiveSegmentAgent(threading.Thread):
                                     
                                     # Save the candle with TODAY's timestamp (not yesterday's)
                                     # This ensures the DataFrame uses today's timestamp for signal generation
+                                    # Save with TODAY's timestamp and add to DataFrame immediately
                                     self.candle_repo.save_candle(
                                         segment=self.params.segment,
                                         timestamp=original_signal_candle_time,  # Use TODAY's timestamp, not yesterday's
@@ -1413,6 +1444,11 @@ class LiveSegmentAgent(threading.Thread):
                                         volume=candle['volume'],
                                         is_synthetic=not is_real_candle
                                     )
+                                    
+                                    # Add to DataFrame immediately so it's available for next tick
+                                    if original_signal_candle_time not in self.df.index:
+                                        self.df.loc[original_signal_candle_time] = candle
+                                        self.df = self.df.sort_index()
                                     
                                     if is_real_candle:
                                         self.logger.info(

@@ -131,7 +131,10 @@ def fetch_recent_index_candles(
     if instrument_token is None:
         raise ValueError(f"Unsupported segment for historical data: {segment}")
 
-    end = datetime.now()
+    # Use IST time for all calculations (critical for Azure which runs in GMT)
+    from src.utils.date_utils import get_current_ist_time
+    ist_now = get_current_ist_time()
+    end = ist_now.replace(tzinfo=None)  # Convert to naive for API compatibility
     start = end - timedelta(minutes=lookback_minutes)
 
     # Convert interval to Kite API format
