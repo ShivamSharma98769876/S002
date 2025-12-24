@@ -1090,149 +1090,149 @@ class LiveSegmentAgent(threading.Thread):
                 
                 if not candle:
                     # Candle not in database or is synthetic, try to fetch from historical data
+                    # Use progressive lookback strategy: try multiple lookback periods
                     try:
-                        # Fetch more candles to ensure we get the completed one
-                        # Use longer lookback (10 intervals) to ensure we get the completed candle
-                        fetched = fetch_recent_index_candles(
-                            self.kite_client,
-                            self.params.segment,
-                            self.params.time_interval,
-                            lookback_minutes=interval_minutes * 10  # Fetch 10 intervals to ensure we get completed candle
-                        )
+                        # Progressive lookback multipliers: try 10, 20, 30, 60 intervals
+                        lookback_multipliers = [10, 20, 30, 60]
+                        original_signal_candle_time = signal_candle_time
+                        found_candle = False
                         
-                        if fetched is not None and not fetched.empty:
-                            # Normalize timezone: convert fetched index to timezone-naive if needed
-                            # and ensure signal_candle_time matches
-                            fetched_index = fetched.index
-                            if getattr(fetched_index, "tz", None) is not None:
-                                # Convert to IST then remove timezone
-                                fetched.index = fetched_index.tz_convert("Asia/Kolkata").tz_localize(None)
+                        for multiplier in lookback_multipliers:
+                            if found_candle:
+                                break
+                                
+                            lookback_minutes = interval_minutes * multiplier
+                            self.logger.info(
+                                f" 🔍 Fetching historical candles with {multiplier}x lookback ({lookback_minutes} minutes) "
+                                f"to find candle for {signal_candle_time}..."
+                            )
                             
-                            # Find the candle for N-1 (one interval behind current)
-                            # Use the most recent candle that's at least 1 minute old (N-1 logic)
-                            usable_candles = []
-                            for ts, row_data in fetched.iterrows():
-                                time_since_ts = (now - ts).total_seconds()
-                                if time_since_ts >= 60:  # At least 1 minute old
-                                    # Check if it's not synthetic
-                                    is_syn = (row_data['open'] == row_data['high'] == row_data['low'] == row_data['close'])
-                                    if not is_syn:
-                                        usable_candles.append((ts, row_data))
+                            fetched = fetch_recent_index_candles(
+                                self.kite_client,
+                                self.params.segment,
+                                self.params.time_interval,
+                                lookback_minutes=lookback_minutes
+                            )
                             
-                            if usable_candles:
-                                # Use the most recent usable candle (closest to N-1)
-                                newest_ts, row = max(usable_candles, key=lambda x: x[0])
-                                # Update signal_candle_time to use this candle
-                                signal_candle_time = newest_ts
-                                self.logger.info(
-                                    f" Using N-1 candle from API: {newest_ts} (requested: {signal_candle_time})"
-                                )
-                            else:
-                                row = None
-                            
-                            if row is not None:
-                                candle = {
-                                    "open": float(row['open']),
-                                    "high": float(row['high']),
-                                    "low": float(row['low']),
-                                    "close": float(row['close']),
-                                    "volume": float(row.get('volume', 0.0))
-                                }
+                            if fetched is not None and not fetched.empty:
+                                # Normalize timezone: convert fetched index to timezone-naive if needed
+                                fetched_index = fetched.index
+                                if getattr(fetched_index, "tz", None) is not None:
+                                    # Convert to IST then remove timezone
+                                    fetched.index = fetched_index.tz_convert("Asia/Kolkata").tz_localize(None)
                                 
-                                # Check if this is a real candle (OHLC not all same)
-                                is_real_candle = not (candle['open'] == candle['high'] == candle['low'] == candle['close'])
+                                # Find usable candles: at least interval_minutes old and not synthetic
+                                min_age_seconds = interval_minutes * 60  # Candle must be at least one interval old
+                                usable_candles = []
+                                for ts, row_data in fetched.iterrows():
+                                    # ts is the timestamp from the DataFrame index
+                                    time_since_ts = (now - ts).total_seconds()
+                                    if time_since_ts >= min_age_seconds:  # At least one interval old
+                                        # Check if it's not synthetic
+                                        is_syn = (row_data['open'] == row_data['high'] == row_data['low'] == row_data['close'])
+                                        if not is_syn:
+                                            usable_candles.append((ts, row_data))
                                 
-                                # For completed candles, if API returns all OHLC same, this might be a data quality issue
-                                # But we should still try to use it if it's the best we have
-                                # However, we'll log a warning
-                                if not is_real_candle and signal_candle_completed:
-                                    self.logger.warning(
-                                        f" ⚠️ WARNING: API returned candle with all OHLC same for COMPLETED interval {signal_candle_time}! "
-                                        f"This might indicate low volatility or data quality issue. "
-                                        f"Candle: O:{candle['open']:.2f} H:{candle['high']:.2f} L:{candle['low']:.2f} C:{candle['close']:.2f}. "
-                                        f"Will use this candle but signal generation may be limited."
-                                    )
-                                    # For now, we'll accept it but mark as synthetic
-                                    # This allows the system to continue, though signals may not be generated
-                                
-                                self.candle_repo.save_candle(
-                                    segment=self.params.segment,
-                                    timestamp=signal_candle_time,
-                                    interval=self.params.time_interval,
-                                    open=candle['open'],
-                                    high=candle['high'],
-                                    low=candle['low'],
-                                    close=candle['close'],
-                                    volume=candle['volume'],
-                                    is_synthetic=not is_real_candle
-                                )
-                                
-                                if is_real_candle:
-                                    self.logger.info(f" ✅ Fetched and saved REAL completed candle from API for {signal_candle_time}: O:{candle['open']:.2f} H:{candle['high']:.2f} L:{candle['low']:.2f} C:{candle['close']:.2f}")
-                                else:
-                                    self.logger.warning(f" ⚠️ Fetched candle from API but all OHLC are same (synthetic-like): {signal_candle_time}")
-                            else:
-                                # signal_candle_time not found in fetched data - this is a problem for completed candles
-                                self.logger.warning(f" ⚠️ Candle for {signal_candle_time} not found in fetched data")
-                                # Try to fetch with longer lookback
-                                self.logger.warning(f" Trying longer lookback to find {signal_candle_time}...")
-                                fetched_longer = fetch_recent_index_candles(
-                                    self.kite_client,
-                                    self.params.segment,
-                                    self.params.time_interval,
-                                    lookback_minutes=interval_minutes * 20  # Fetch more to ensure we get it
-                                )
-                                if fetched_longer is not None and not fetched_longer.empty:
-                                    # Normalize timezone: convert fetched index to timezone-naive if needed
-                                    fetched_longer_index = fetched_longer.index
-                                    if getattr(fetched_longer_index, "tz", None) is not None:
-                                        # Convert to IST then remove timezone
-                                        fetched_longer.index = fetched_longer_index.tz_convert("Asia/Kolkata").tz_localize(None)
+                                if usable_candles:
+                                    # Try to find exact match first
+                                    exact_match = None
+                                    for ts, row_data in usable_candles:
+                                        if ts == signal_candle_time:
+                                            exact_match = (ts, row_data)
+                                            break
                                     
-                                    # Try to find the candle again with longer lookback
-                                    if signal_candle_time in fetched_longer.index:
-                                        row = fetched_longer.loc[signal_candle_time]
+                                    if exact_match:
+                                        # Found exact match
+                                        found_ts, row = exact_match
+                                        self.logger.info(f" ✅ Found exact candle match: {found_ts}")
                                     else:
-                                        # Try to find the closest available candle
-                                        available_candles = fetched_longer[fetched_longer.index <= signal_candle_time]
-                                        if not available_candles.empty:
-                                            row = available_candles.iloc[-1]
-                                            self.logger.info(f" Using closest available candle: {row.name}")
+                                        # No exact match, use the most recent usable candle
+                                        # Prefer candles <= signal_candle_time, but if none, use most recent
+                                        available_before = [(ts, row) for ts, row in usable_candles if ts <= signal_candle_time]
+                                        if available_before:
+                                            found_ts, row = max(available_before, key=lambda x: x[0])
+                                            self.logger.info(
+                                                f" ✅ Using closest available candle before/at {signal_candle_time}: {found_ts} "
+                                                f"(requested: {original_signal_candle_time})"
+                                            )
                                         else:
-                                            row = None
+                                            # All usable candles are after signal_candle_time, use most recent one
+                                            found_ts, row = max(usable_candles, key=lambda x: x[0])
+                                            self.logger.warning(
+                                                f" ⚠️ No candles found before {signal_candle_time}, using most recent available: {found_ts} "
+                                                f"(requested: {original_signal_candle_time})"
+                                            )
                                     
-                                    if row is not None:
-                                        candle = {
-                                            "open": float(row['open']),
-                                            "high": float(row['high']),
-                                            "low": float(row['low']),
-                                            "close": float(row['close']),
-                                            "volume": float(row.get('volume', 0.0))
-                                        }
-                                        is_real = not (candle['open'] == candle['high'] == candle['low'] == candle['close'])
-                                        self.candle_repo.save_candle(
-                                            segment=self.params.segment,
-                                            timestamp=signal_candle_time,
-                                            interval=self.params.time_interval,
-                                            open=candle['open'],
-                                            high=candle['high'],
-                                            low=candle['low'],
-                                            close=candle['close'],
-                                            volume=candle['volume'],
-                                            is_synthetic=not is_real
+                                    # Update signal_candle_time to use the found candle
+                                    signal_candle_time = found_ts
+                                    
+                                    candle = {
+                                        "open": float(row['open']),
+                                        "high": float(row['high']),
+                                        "low": float(row['low']),
+                                        "close": float(row['close']),
+                                        "volume": float(row.get('volume', 0.0))
+                                    }
+                                    
+                                    # Check if this is a real candle (OHLC not all same)
+                                    is_real_candle = not (candle['open'] == candle['high'] == candle['low'] == candle['close'])
+                                    
+                                    # For completed candles, if API returns all OHLC same, this might be a data quality issue
+                                    # But we should still try to use it if it's the best we have
+                                    if not is_real_candle and signal_candle_completed:
+                                        self.logger.warning(
+                                            f" ⚠️ WARNING: API returned candle with all OHLC same for interval {signal_candle_time}! "
+                                            f"This might indicate low volatility or data quality issue. "
+                                            f"Candle: O:{candle['open']:.2f} H:{candle['high']:.2f} L:{candle['low']:.2f} C:{candle['close']:.2f}. "
+                                            f"Will use this candle but signal generation may be limited."
                                         )
-                                        self.logger.info(f" ✅ Found candle with longer lookback for {signal_candle_time}: O:{candle['open']:.2f} H:{candle['high']:.2f} L:{candle['low']:.2f} C:{candle['close']:.2f}")
+                                    
+                                    self.candle_repo.save_candle(
+                                        segment=self.params.segment,
+                                        timestamp=signal_candle_time,
+                                        interval=self.params.time_interval,
+                                        open=candle['open'],
+                                        high=candle['high'],
+                                        low=candle['low'],
+                                        close=candle['close'],
+                                        volume=candle['volume'],
+                                        is_synthetic=not is_real_candle
+                                    )
+                                    
+                                    if is_real_candle:
+                                        self.logger.info(
+                                            f" ✅ Fetched and saved REAL candle from API for {signal_candle_time}: "
+                                            f"O:{candle['open']:.2f} H:{candle['high']:.2f} L:{candle['low']:.2f} C:{candle['close']:.2f}"
+                                        )
                                     else:
-                                        self.logger.error(f" ❌ Could not find candle for {signal_candle_time} even with longer lookback")
+                                        self.logger.warning(
+                                            f" ⚠️ Fetched candle from API but all OHLC are same (synthetic-like): {signal_candle_time}"
+                                        )
+                                    
+                                    found_candle = True
+                                    break  # Successfully found candle, exit lookback loop
                                 else:
-                                    self.logger.error(f" ❌ Failed to fetch candles with longer lookback")
-                        else:
-                            # Historical fetch failed - this is critical for completed candles
+                                    # No usable candles found with this lookback, try next multiplier
+                                    self.logger.warning(
+                                        f" ⚠️ No usable candles found with {multiplier}x lookback. "
+                                        f"Trying next lookback period..."
+                                    )
+                            else:
+                                # Fetch returned None or empty, try next multiplier
+                                self.logger.warning(
+                                    f" ⚠️ Historical fetch returned empty with {multiplier}x lookback. "
+                                    f"Trying next lookback period..."
+                                )
+                        
+                        # If we exhausted all lookback attempts without finding a candle
+                        if not found_candle:
                             self.logger.error(
-                                f" ❌ CRITICAL: Historical fetch failed for completed candle {signal_candle_time}! "
+                                f" ❌ CRITICAL: Could not find any usable candle after trying all lookback periods "
+                                f"(up to {interval_minutes * 60} minutes) for {original_signal_candle_time}! "
                                 f"Cannot generate signals without real candle data. Skipping this tick."
                             )
                             return  # Skip this tick - we can't proceed without real candle data
+                            
                     except Exception as e:
                         # This is a critical error - we can't proceed without real candle data
                         self.logger.error(
