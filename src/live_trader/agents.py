@@ -173,6 +173,8 @@ class LiveSegmentAgent(threading.Thread):
             )
 
         self.df = pd.DataFrame(columns=["open", "high", "low", "close", "volume"])
+        # Store last trading day's candles for fallback use
+        self._last_trading_day_candles = pd.DataFrame(columns=["open", "high", "low", "close", "volume"])
         self._bootstrap_history()
         self.trades_taken_today = 0
         self._position_key: Optional[str] = None  # For tracking live positions
@@ -278,6 +280,9 @@ class LiveSegmentAgent(threading.Thread):
                         self.logger.info(
                             f" ✅ Sufficient candles ({len(self.df)}) loaded for calculations"
                         )
+                    
+                    # Fetch and store last trading day's candles for fallback use
+                    self._fetch_and_store_last_trading_day_candles()
                     return
             elif db_candles and len(db_candles) > 0:
                 self.logger.info(
@@ -443,6 +448,8 @@ class LiveSegmentAgent(threading.Thread):
                 history = None
                 if existing_count >= min_candles_needed:
                     self.logger.info(f" ✅ Sufficient candles ({existing_count}) from database for calculations")
+                    # Fetch and store last trading day's candles for fallback use
+                    self._fetch_and_store_last_trading_day_candles()
                     return
             
             if history is None or history.empty:
@@ -459,12 +466,16 @@ class LiveSegmentAgent(threading.Thread):
                             f" ⚠️ Only {existing_count} candles from database, need {min_candles_needed}. "
                             f"Indicators may not be accurate initially."
                         )
+                    # Fetch and store last trading day's candles for fallback use
+                    self._fetch_and_store_last_trading_day_candles()
                     return
                 else:
                     self.logger.warning(
                         f" Unable to bootstrap candles; will build history live. "
                         f"Indicators may not be accurate until enough candles are collected."
                     )
+                    # Still fetch last trading day's candles for fallback use
+                    self._fetch_and_store_last_trading_day_candles()
                     return
 
             # Keep OHLCV columns and drop timezone info
@@ -522,6 +533,66 @@ class LiveSegmentAgent(threading.Thread):
             if hasattr(self, 'df') and not self.df.empty:
                 self.logger.info(
                     f" Continuing with {len(self.df)} candles from database"
+                )
+        
+        # Always fetch and store last trading day's candles for fallback use
+        self._fetch_and_store_last_trading_day_candles()
+
+    def _fetch_and_store_last_trading_day_candles(self) -> None:
+        """
+        Fetch complete last trading day's candles and store them for fallback use.
+        This ensures we have historical data available when recent candles aren't available.
+        """
+        try:
+            from src.api.live_data import fetch_last_trading_day_candles
+            
+            self.logger.info("📅 Fetching complete last trading day's candles for fallback use...")
+            
+            fetched_last_day = fetch_last_trading_day_candles(
+                self.kite_client,
+                self.params.segment,
+                self.params.time_interval
+            )
+            
+            if fetched_last_day is not None and not fetched_last_day.empty:
+                # Normalize timezone: convert fetched index to timezone-naive if needed
+                fetched_last_day_index = fetched_last_day.index
+                if getattr(fetched_last_day_index, "tz", None) is not None:
+                    # Convert to IST then remove timezone
+                    fetched_last_day.index = fetched_last_day_index.tz_convert("Asia/Kolkata").tz_localize(None)
+                
+                # Store in instance variable for quick access
+                self._last_trading_day_candles = fetched_last_day
+                
+                # Also save to database for persistence
+                try:
+                    for ts, row in fetched_last_day.iterrows():
+                        is_synthetic = (row['open'] == row['high'] == row['low'] == row['close'])
+                        self.candle_repo.save_candle(
+                            segment=self.params.segment,
+                            timestamp=ts,
+                            interval=self.params.time_interval,
+                            open=float(row['open']),
+                            high=float(row['high']),
+                            low=float(row['low']),
+                            close=float(row['close']),
+                            volume=float(row.get('volume', 0.0)),
+                            is_synthetic=is_synthetic
+                        )
+                except Exception as e:
+                    self.logger.warning(f"Failed to save last trading day candles to database: {e}")
+                
+                self.logger.info(
+                    f" ✅ Stored {len(fetched_last_day)} candles from last trading day "
+                    f"({fetched_last_day.index[0]} to {fetched_last_day.index[-1]}) for fallback use"
+                )
+            else:
+                self.logger.warning("⚠️ Could not fetch last trading day's candles. Fallback may not work.")
+        except Exception as e:
+            self.logger.warning(
+                f"⚠️ Error fetching last trading day's candles: {e}. "
+                f"Fallback may not work.",
+                exc_info=True
             )
 
     def run(self) -> None:
@@ -1225,21 +1296,30 @@ class LiveSegmentAgent(threading.Thread):
                                 )
                         
                         # If we exhausted all lookback attempts without finding a candle,
-                        # try fetching the complete last trading day's candles
+                        # use the stored last trading day's candles (fetched at startup)
                         if not found_candle:
                             self.logger.warning(
                                 f" ⚠️ Could not find any usable candle after trying all lookback periods "
                                 f"(up to {interval_minutes * 60} minutes) for {original_signal_candle_time}. "
-                                f"Trying to fetch complete last trading day's candles..."
+                                f"Using stored last trading day's candles..."
                             )
                             
-                            from src.api.live_data import fetch_last_trading_day_candles
-                            
-                            fetched_last_day = fetch_last_trading_day_candles(
-                                self.kite_client,
-                                self.params.segment,
-                                self.params.time_interval
-                            )
+                            # Use stored last trading day candles (fetched at startup)
+                            if hasattr(self, '_last_trading_day_candles') and not self._last_trading_day_candles.empty:
+                                fetched_last_day = self._last_trading_day_candles
+                                self.logger.info(
+                                    f" ✅ Using {len(fetched_last_day)} pre-fetched candles from last trading day "
+                                    f"({fetched_last_day.index[0]} to {fetched_last_day.index[-1]})"
+                                )
+                            else:
+                                # Fallback: try to fetch now if not stored (shouldn't happen if startup worked)
+                                self.logger.warning("⚠️ Last trading day candles not stored, fetching now...")
+                                from src.api.live_data import fetch_last_trading_day_candles
+                                fetched_last_day = fetch_last_trading_day_candles(
+                                    self.kite_client,
+                                    self.params.segment,
+                                    self.params.time_interval
+                                )
                             
                             if fetched_last_day is not None and not fetched_last_day.empty:
                                 # Normalize timezone: convert fetched index to timezone-naive if needed
