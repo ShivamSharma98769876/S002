@@ -1,0 +1,14 @@
+2025-12-24 16:18:01 - INFO - Initialized LIVE trading agent for SENSEX
+2025-12-24 16:18:01 - INFO - Hybrid Monitoring: Signal timeframe=5minute (for PS/VS calculation), Monitoring interval=1minute (for entry/exit checks)
+2025-12-24 16:18:01 - INFO - Trade Regime: Sell
+2025-12-24 16:18:01 - INFO - Segment config loaded from params for SENSEX: lot_size=20, itm_offset=-500, stop_loss=50, pyramid_points=20, lot_addition=10, max_quantity=1000
+2025-12-24 16:18:01 - INFO -  ✅ Loaded 200 candles from database (5minute) from 2025-12-12 11:41:50 to 2025-12-12 15:10:32
+2025-12-24 16:18:01 - INFO -  ✅ Sufficient candles (200) loaded for calculations
+2025-12-24 16:18:01 - INFO - 📅 Fetching complete last trading day's candles for fallback use...
+2025-12-24 16:18:04 - INFO -  ✅ Stored 69 candles from last trading day (2025-12-23 09:30:00 to 2025-12-23 15:10:00) for fallback use
+2025-12-24 16:18:04 - INFO - 🔄 Recovering positions from Kite API on startup...
+2025-12-24 16:18:05 - INFO - ✅ Position recovery completed
+2025-12-24 16:18:05 - INFO - LiveSegmentAgent started for SENSEX interval=5minute, rsi=9, tick_interval=60s (monitoring interval=1minute)
+2025-12-24 16:18:05 - INFO -  Waiting for market to open (09:30 IST)...
+2025-12-24 16:18:05 - INFO -  ✅ Market is open! Starting trading at 16:18:05 IST
+2025-12-24 16:18:05 - INFO -  Market closed (after 15:15 IST). Waiting for next trading day...

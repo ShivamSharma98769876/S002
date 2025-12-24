@@ -692,6 +692,19 @@ class LiveSegmentAgent(threading.Thread):
             # Check if we need to square off positions before market close
             # Square off at 15:15 (3:15 PM) - 15 minutes before market close at 15:30
             if current_time.hour == 15 and current_time.minute == 15:
+                # Update P&L before squaring off
+                try:
+                    from src.utils.daily_pnl_updater import update_daily_pnl_before_market_close
+                    pnl_result = update_daily_pnl_before_market_close()
+                    self.logger.info(
+                        f"📊 Pre-close P&L Update: Total=Rs.{pnl_result['total_pnl']:,.2f} "
+                        f"(Protected: Rs.{pnl_result['protected_profit']:,.2f}, "
+                        f"Unrealized: Rs.{pnl_result['unrealized_pnl']:,.2f})"
+                    )
+                except Exception as e:
+                    self.logger.warning(f"Error updating P&L before market close: {e}")
+                
+                # Square off all open positions
                 if self.current_position is not None:
                     self.logger.warning(
                         f"🕐 Market close approaching (15:15 IST). Squaring off all open positions..."
@@ -726,6 +739,19 @@ class LiveSegmentAgent(threading.Thread):
                                 self.logger.info(f"✅ Emergency square off executed: {order_ids}")
                         except Exception as e2:
                             self.logger.critical(f"❌ CRITICAL: Emergency square off also failed: {e2}")
+                    
+                    # Update P&L again after square off
+                    try:
+                        from src.utils.daily_pnl_updater import update_daily_pnl_before_market_close
+                        pnl_result = update_daily_pnl_before_market_close()
+                        self.logger.info(
+                            f"📊 Post-square-off P&L Update: Total=Rs.{pnl_result['total_pnl']:,.2f} "
+                            f"(Protected: Rs.{pnl_result['protected_profit']:,.2f}, "
+                            f"Unrealized: Rs.{pnl_result['unrealized_pnl']:,.2f})"
+                        )
+                    except Exception as e:
+                        self.logger.warning(f"Error updating P&L after square off: {e}")
+                    
                     # After square off, continue with normal tick processing (but won't enter new positions)
                     return
             # Use IST time for all calculations (critical for Azure which runs in GMT)

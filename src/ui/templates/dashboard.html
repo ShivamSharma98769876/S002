@@ -314,48 +314,11 @@
 
         <!-- Main Content -->
         <section class="main-content">
-            <!-- Active Positions -->
-            <div class="panel">
-                <div class="panel-header">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <h2>Active Positions</h2>
-                        <button class="help-icon-panel" onclick="showHelp('active-positions')" title="Help">❓</button>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span class="badge" id="positionCount">0</span>
-                        <button id="clearCacheBtn" onclick="clearPositionsCache()" 
-                                style="padding: 6px 12px; background: #f59e0b; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">
-                            🔄 Clear Cache & Refresh
-                        </button>
-                    </div>
-                </div>
-                <div class="table-container">
-                    <table class="data-table" id="positionsTable">
-                        <thead>
-                            <tr>
-                                <th>Symbol</th>
-                                <th>Exchange</th>
-                                <th>Entry Price</th>
-                                <th>Current Price</th>
-                                <th>Quantity (Type)</th>
-                                <th>P&L</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="positionsBody">
-                            <tr>
-                                <td colspan="6" class="empty-state">No active positions</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
             <!-- Trade History -->
             <div class="panel">
                 <div class="panel-header">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <h2>Trade History (All Inactive Trades)</h2>
+                        <h2>Trade History (All Trades)</h2>
                         <button class="help-icon-panel" onclick="showHelp('trade-history')" title="Help">❓</button>
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px;">
@@ -374,7 +337,7 @@
                 <div id="tradeSummary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
                     <div style="text-align: center;">
                         <div style="font-size: 11px; color: #666; margin-bottom: 5px;">Total Trades</div>
-                        <div id="totalTrades" style="font-size: 18px; font-weight: 600;">0</div>
+                        <div id="totalTrades" style="font-size: 18px; font-weight: 600; color: #10b981;">0</div>
                     </div>
                     <div style="text-align: center;">
                         <div style="font-size: 11px; color: #666; margin-bottom: 5px;">Total Profit</div>
@@ -404,7 +367,11 @@
                                 <th>Exit Price</th>
                                 <th>Quantity</th>
                                 <th>P&L</th>
-                                <th>Type</th>
+                                <th>
+                                    Type
+                                    <span style="margin-left: 5px; cursor: help; font-size: 11px; color: #64748b;" 
+                                          title="BUY: Buy options (SL = entry_premium - stop_loss points)&#10;SELL: Sell options (SL = entry_premium + stop_loss% of premium)">❓</span>
+                                </th>
                             </tr>
                         </thead>
                         <tbody id="tradesBody">
@@ -416,19 +383,188 @@
                 </div>
             </div>
 
-            <!-- Charts -->
+            <!-- P&L Calendar Heatmap (Kite-style) -->
             <div class="panel">
                 <div class="panel-header">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <h2>P&L Chart</h2>
+                        <h2>P&L</h2>
                         <button class="help-icon-panel" onclick="showHelp('pnl-chart')" title="Help">❓</button>
                     </div>
                 </div>
-                <div class="chart-container">
-                    <canvas id="pnlChart"></canvas>
+                <div class="pnl-heatmap-container">
+                    <!-- Filter Controls -->
+                    <div class="pnl-filters">
+                        <div class="filter-group">
+                            <label for="pnlSegment">Segment:</label>
+                            <select id="pnlSegment" class="filter-select">
+                                <option value="all">All Segments</option>
+                                <option value="NIFTY">NIFTY</option>
+                                <option value="BANKNIFTY">BANKNIFTY</option>
+                                <option value="SENSEX">SENSEX</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="pnlType">P&L:</label>
+                            <select id="pnlType" class="filter-select">
+                                <option value="combined">Combined</option>
+                                <option value="paper">Paper</option>
+                                <option value="live">Live</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="pnlSymbol">Symbol:</label>
+                            <input type="text" id="pnlSymbol" class="filter-input" placeholder="eg: INFY">
+                        </div>
+                        <div class="filter-group">
+                            <label for="pnlDateRange">Date range:</label>
+                            <button type="button" id="pnlDateRangeBtn" class="filter-input" style="text-align: left; cursor: pointer; background: var(--card-bg);">
+                                <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                                <span id="pnlDateRangeDisplay">Select Date Range</span>
+                            </button>
+                            <input type="hidden" id="pnlDateRange" value="">
+                        </div>
+                        <button id="applyPnlFilters" class="filter-apply-btn">
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Date Range Display -->
+                    <div class="pnl-date-range-display">
+                        <i class="fas fa-clock"></i>
+                        <span id="pnlDateRangeText">Loading...</span>
+                    </div>
+                    
+                    <!-- Calendar Heatmap -->
+                    <div class="pnl-calendar-container">
+                        <div id="pnlCalendarHeatmap" class="pnl-calendar-heatmap">
+                            <!-- Calendar will be generated here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Realised P&L Summary -->
+                    <div class="pnl-summary-section">
+                        <div class="pnl-summary-header">
+                            <h3>Realised P&L Summary</h3>
+                        </div>
+                        <div class="pnl-summary-grid">
+                            <div class="pnl-summary-item">
+                                <div class="pnl-summary-label">Realised P&L</div>
+                                <div class="pnl-summary-value" id="realisedPnlValue">₹0.00</div>
+                            </div>
+                            <div class="pnl-summary-item">
+                                <div class="pnl-summary-label">Paper P&L</div>
+                                <div class="pnl-summary-value" id="paperPnlValue">₹0.00</div>
+                            </div>
+                            <div class="pnl-summary-item">
+                                <div class="pnl-summary-label">Live P&L</div>
+                                <div class="pnl-summary-value" id="livePnlValue">₹0.00</div>
+                            </div>
+                            <div class="pnl-summary-item">
+                                <div class="pnl-summary-label">Total Trades</div>
+                                <div class="pnl-summary-value" id="totalTradesCount">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Legend -->
+                    <div class="pnl-legend">
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #ebedf0;"></span>
+                            <span>No data</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #c6e48b;"></span>
+                            <span>Small profit</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #7bc96f;"></span>
+                            <span>Medium profit</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #239a3b;"></span>
+                            <span>Large profit</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #ffc0cb;"></span>
+                            <span>Small loss</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #ff6b6b;"></span>
+                            <span>Medium loss</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #c92a2a;"></span>
+                            <span>Large loss</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
+
+        <!-- Date Range Picker Modal -->
+        <div id="dateRangePickerModal" class="date-picker-modal" style="display: none;">
+            <div class="date-picker-content">
+                <div class="date-picker-header">
+                    <h3>Select Date Range</h3>
+                    <button type="button" class="date-picker-close" onclick="closeDateRangePicker()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="date-picker-quick-options">
+                    <button type="button" class="quick-option-btn" onclick="setQuickDateRange('last7')">Last 7 days</button>
+                    <span class="quick-option-separator">|</span>
+                    <button type="button" class="quick-option-btn" onclick="setQuickDateRange('last30')">Last 30 days</button>
+                    <span class="quick-option-separator">|</span>
+                    <button type="button" class="quick-option-btn" onclick="setQuickDateRange('prevFY')">Prev. FY</button>
+                    <span class="quick-option-separator">|</span>
+                    <button type="button" class="quick-option-btn" onclick="setQuickDateRange('currentFY')">Current FY</button>
+                </div>
+                <div class="date-picker-calendars">
+                    <div class="date-picker-calendar">
+                        <div class="calendar-header">From</div>
+                        <div class="calendar-nav">
+                            <button type="button" class="calendar-nav-btn" onclick="changeMonth('from', -12)">
+                                <i class="fas fa-angle-double-left"></i>
+                            </button>
+                            <button type="button" class="calendar-nav-btn" onclick="changeMonth('from', -1)">
+                                <i class="fas fa-angle-left"></i>
+                            </button>
+                            <span class="calendar-month" id="fromMonthDisplay">Oct 2025</span>
+                            <button type="button" class="calendar-nav-btn" onclick="changeMonth('from', 1)">
+                                <i class="fas fa-angle-right"></i>
+                            </button>
+                            <button type="button" class="calendar-nav-btn" onclick="changeMonth('from', 12)">
+                                <i class="fas fa-angle-double-right"></i>
+                            </button>
+                        </div>
+                        <div class="calendar-grid" id="fromCalendar"></div>
+                    </div>
+                    <div class="date-picker-calendar">
+                        <div class="calendar-header">To</div>
+                        <div class="calendar-nav">
+                            <button type="button" class="calendar-nav-btn" onclick="changeMonth('to', -12)">
+                                <i class="fas fa-angle-double-left"></i>
+                            </button>
+                            <button type="button" class="calendar-nav-btn" onclick="changeMonth('to', -1)">
+                                <i class="fas fa-angle-left"></i>
+                            </button>
+                            <span class="calendar-month" id="toMonthDisplay">Dec 2025</span>
+                            <button type="button" class="calendar-nav-btn" onclick="changeMonth('to', 1)">
+                                <i class="fas fa-angle-right"></i>
+                            </button>
+                            <button type="button" class="calendar-nav-btn" onclick="changeMonth('to', 12)">
+                                <i class="fas fa-angle-double-right"></i>
+                            </button>
+                        </div>
+                        <div class="calendar-grid" id="toCalendar"></div>
+                    </div>
+                </div>
+                <div class="date-picker-footer">
+                    <button type="button" class="date-picker-btn date-picker-btn-secondary" onclick="closeDateRangePicker()">Cancel</button>
+                    <button type="button" class="date-picker-btn date-picker-btn-primary" onclick="applyDateRange()">Apply</button>
+                </div>
+            </div>
+        </div>
 
         <!-- Notifications Panel -->
         <div class="notifications-panel" id="notificationsPanel">

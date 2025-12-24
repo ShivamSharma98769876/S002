@@ -315,56 +315,6 @@ class Dashboard:
                 logger.error(f"Error getting quantity changes: {e}")
                 return jsonify({"error": str(e)}), 500
         
-        @self.app.route('/api/positions/clear-cache', methods=['POST'])
-        def clear_positions_cache():
-            """Clear all positions from cache and fetch fresh from Zerodha"""
-            try:
-                logger.info("Cache clear request received")
-                
-                # Clear all active positions
-                cleared_count = self.position_repo.clear_all_positions()
-                logger.info(f"Cleared {cleared_count} positions from cache")
-                
-                # Force fresh sync from Zerodha API
-                if self.risk_monitor.position_sync:
-                    kite_client = self.risk_monitor.position_sync.kite_client
-                    if kite_client and kite_client.is_authenticated():
-                        try:
-                            # Sync fresh positions from API
-                            synced_positions = self.risk_monitor.position_sync.sync_positions_from_api()
-                            logger.info(f"Cache cleared: {cleared_count} positions. Fresh sync: {len(synced_positions)} positions")
-                            return jsonify({
-                                "success": True,
-                                "message": f"Cache cleared. Fetched {len(synced_positions)} fresh positions from Zerodha",
-                                "cleared_count": cleared_count,
-                                "synced_count": len(synced_positions)
-                            })
-                        except Exception as sync_error:
-                            logger.error(f"Error syncing positions after cache clear: {sync_error}", exc_info=True)
-                            return jsonify({
-                                "success": False,
-                                "error": f"Cache cleared but sync failed: {str(sync_error)}",
-                                "cleared_count": cleared_count
-                            }), 500
-                    else:
-                        logger.warning("Cache clear requested but not authenticated with Zerodha")
-                        return jsonify({
-                            "success": False,
-                            "error": "Not authenticated with Zerodha",
-                            "cleared_count": cleared_count
-                        }), 401
-                else:
-                    logger.warning("Cache clear requested but position_sync not available")
-                    return jsonify({
-                        "success": True,
-                        "message": f"Cache cleared: {cleared_count} positions (Position sync not available)",
-                        "cleared_count": cleared_count,
-                        "synced_count": 0
-                    })
-            except Exception as e:
-                logger.error(f"Error clearing positions cache: {e}", exc_info=True)
-                return jsonify({"success": False, "error": str(e)}), 500
-        
         @self.app.route('/api/protected-profit/clear', methods=['POST'])
         def clear_protected_profit():
             """Clear protected profit by deleting trades for a specific date (Admin only)"""
@@ -679,18 +629,31 @@ class Dashboard:
                         
                         # Calculate summary from consolidated trades
                         total_profit = sum(t.get('realized_pnl', 0) for t in trades_data if t.get('realized_pnl', 0) > 0)
-                        total_loss = sum(t.get('realized_pnl', 0) for t in trades_data if t.get('realized_pnl', 0) < 0)
+                        total_loss = sum(abs(t.get('realized_pnl', 0)) for t in trades_data if t.get('realized_pnl', 0) < 0)
                         total_pnl = sum(t.get('realized_pnl', 0) for t in trades_data)
                         profitable_trades = sum(1 for t in trades_data if t.get('realized_pnl', 0) > 0)
                         loss_trades = sum(1 for t in trades_data if t.get('realized_pnl', 0) < 0)
+                        
+                        # Count trades: if both entry_time and exit_time are present, count as 2 trades (entry + exit), otherwise 1
+                        total_trades_count = 0
+                        for trade in trades_data:
+                            has_entry = trade.get('entry_time') is not None and trade.get('entry_time') != ''
+                            has_exit = trade.get('exit_time') is not None and trade.get('exit_time') != ''
+                            if has_entry and has_exit:
+                                total_trades_count += 2  # Entry + Exit
+                            else:
+                                total_trades_count += 1  # Single trade
+                        
+                        win_rate = (profitable_trades / total_trades_count * 100) if total_trades_count > 0 else 0.0
                         
                         summary = {
                             "total_profit": total_profit,
                             "total_loss": total_loss,
                             "total_pnl": total_pnl,
-                            "total_trades": len(trades_data),
+                            "total_trades": total_trades_count,
                             "profitable_trades": profitable_trades,
-                            "loss_trades": loss_trades
+                            "loss_trades": loss_trades,
+                            "win_rate": win_rate
                         }
                         
                         return jsonify({
@@ -716,8 +679,14 @@ class Dashboard:
                             logger.error(f"Invalid date format: {date_str} - {ve}")
                             return jsonify({"error": f"Invalid date format: {date_str}"}), 400
                 
-                # Get inactive positions (quantity=0) - filter by date if not showing all trades
+                # Get both active and inactive positions
+                active_positions = []
+                inactive_positions = []
                 try:
+                    # Get active positions (quantity != 0)
+                    active_positions = self.position_repo.get_active_positions()
+                    
+                    # Get inactive positions (quantity=0)
                     inactive_positions = self.position_repo.get_all_inactive_positions()
                     # Filter inactive positions by date if date is specified
                     if date_str and not all_trades_param:
@@ -743,9 +712,9 @@ class Dashboard:
                     logger.error(f"Error getting inactive positions: {pos_error}")
                     inactive_positions = []
                 
-                # Get summary statistics (includes both trades and inactive positions)
+                # Get summary statistics (includes trades, inactive positions, and active positions)
                 try:
-                    summary = self._calculate_trades_summary(trades, inactive_positions)
+                    summary = self._calculate_trades_summary(trades, inactive_positions, active_positions)
                 except Exception as summary_error:
                     logger.error(f"Error calculating trades summary: {summary_error}")
                     summary = {
@@ -810,13 +779,72 @@ class Dashboard:
                             "realized_pnl": trade.realized_pnl or 0.0,
                             "is_profit": (trade.realized_pnl or 0.0) > 0,
                             "exit_type": trade.exit_type or "unknown",
-                            "source": "trade"  # Mark as completed trade
+                            "source": "trade",  # Mark as completed trade
+                            "is_open": False  # Flag to indicate this is a closed trade
                         })
                     except Exception as trade_error:
                         logger.error(f"Error processing trade {getattr(trade, 'id', 'unknown')}: {trade_error}", exc_info=True)
                         continue  # Skip this trade and continue with others
                 
-                # Add inactive positions (quantity=0) as trades
+                # Add active positions as open trades
+                logger.info(f"Found {len(active_positions)} active positions to add to trade history")
+                for position in active_positions:
+                    try:
+                        # Filter out equity trades (NSE, BSE)
+                        if self._is_equity_trade(position.exchange):
+                            continue
+                        
+                        # Format entry time
+                        entry_time = position.entry_time
+                        if entry_time:
+                            if isinstance(entry_time, datetime):
+                                if entry_time.tzinfo:
+                                    entry_time = entry_time.astimezone(IST)
+                                else:
+                                    entry_time = IST.localize(entry_time)
+                            elif isinstance(entry_time, str):
+                                entry_time = datetime.fromisoformat(entry_time)
+                                if entry_time.tzinfo is None:
+                                    entry_time = IST.localize(entry_time)
+                            entry_time_str = entry_time.isoformat()
+                        else:
+                            entry_time_str = None
+                        
+                        # For active positions, no exit time/price
+                        exit_time_str = None
+                        
+                        # Determine transaction type from quantity
+                        transaction_type = "SELL" if (position.quantity or 0) < 0 else "BUY"
+                        
+                        # Use current quantity
+                        original_quantity = position.quantity or 0
+                        
+                        # Use unrealized P&L for active positions
+                        unrealized_pnl = position.unrealized_pnl or 0.0
+                        is_profit = unrealized_pnl > 0
+                        
+                        trades_data.append({
+                            "id": f"active_pos_{position.id}",
+                            "trading_symbol": position.trading_symbol or "",
+                            "exchange": position.exchange or "",
+                            "entry_time": entry_time_str,
+                            "exit_time": None,  # No exit time for open positions
+                            "entry_price": position.entry_price or 0.0,
+                            "exit_price": None,  # No exit price for open positions
+                            "quantity": original_quantity,
+                            "transaction_type": transaction_type,
+                            "realized_pnl": unrealized_pnl,  # Use unrealized P&L
+                            "is_profit": is_profit,
+                            "exit_type": None,  # No exit type for open positions
+                            "source": "active_position",  # Mark as active position
+                            "is_open": True  # Flag to indicate this is an open position
+                        })
+                        logger.debug(f"Added active position {position.id} ({position.trading_symbol}) to trade history")
+                    except Exception as pos_error:
+                        logger.error(f"Error processing active position {getattr(position, 'id', 'unknown')}: {pos_error}", exc_info=True)
+                        continue
+                
+                # Add inactive positions (quantity=0) as closed trades
                 logger.info(f"Found {len(inactive_positions)} inactive positions to add to trade history")
                 for position in inactive_positions:
                     try:
@@ -917,7 +945,8 @@ class Dashboard:
                             "realized_pnl": realized_pnl,
                             "is_profit": is_profit,
                             "exit_type": "quantity_zero",  # Mark as closed due to quantity=0
-                            "source": "position"  # Mark as inactive position
+                            "source": "position",  # Mark as inactive position
+                            "is_open": False  # Flag to indicate this is a closed position
                         })
                         logger.debug(f"Added inactive position {position.id} ({position.trading_symbol}) to trade history")
                     except Exception as pos_error:
@@ -1338,25 +1367,75 @@ class Dashboard:
         # Fallback
         return datetime.now(IST)
     
-    def _calculate_trades_summary(self, trades, inactive_positions):
-        """Calculate summary statistics from trades and inactive positions"""
+    def _calculate_trades_summary(self, trades, inactive_positions, active_positions=None):
+        """
+        Calculate trade summary with updated trade counting:
+        - If both entry_time and exit_time are present, count as 2 trades (entry + exit)
+        - Otherwise, count as 1 trade
+        """
+        if active_positions is None:
+            active_positions = []
+        
         all_pnl = []
         
         # Add P&L from completed trades
         for trade in trades:
             all_pnl.append(trade.realized_pnl)
         
-        # Add P&L from inactive positions
+        # Add P&L from inactive positions (realized)
         for position in inactive_positions:
             pnl = position.unrealized_pnl if position.unrealized_pnl else 0.0
             all_pnl.append(pnl)
         
+        # Add unrealized P&L from active positions
+        total_unrealized_pnl = 0.0
+        for position in active_positions:
+            unrealized = position.unrealized_pnl or 0.0
+            total_unrealized_pnl += unrealized
+            all_pnl.append(unrealized)
+        
         total_profit = sum(p for p in all_pnl if p > 0)
-        total_loss = sum(p for p in all_pnl if p < 0)
+        total_loss = sum(abs(p) for p in all_pnl if p < 0)
         total_pnl = sum(all_pnl)
-        total_trades = len(trades) + len(inactive_positions)
+        
+        # Count trades: if both entry_time and exit_time are present, count as 2 trades (entry + exit), otherwise 1
+        total_trades = 0
+        
+        # Count completed trades (from trades list)
+        for trade in trades:
+            # Handle both dict (from orderbook) and object (from database) formats
+            if isinstance(trade, dict):
+                has_entry = trade.get('entry_time') is not None and trade.get('entry_time') != ''
+                has_exit = trade.get('exit_time') is not None and trade.get('exit_time') != ''
+            else:
+                has_entry = hasattr(trade, 'entry_time') and trade.entry_time is not None
+                has_exit = hasattr(trade, 'exit_time') and trade.exit_time is not None
+            if has_entry and has_exit:
+                total_trades += 2  # Entry + Exit
+            else:
+                total_trades += 1  # Single trade
+        
+        # Count inactive positions
+        for position in inactive_positions:
+            # Handle both dict and object formats
+            if isinstance(position, dict):
+                has_entry = position.get('entry_time') is not None and position.get('entry_time') != ''
+                has_exit = position.get('exit_time') is not None and position.get('exit_time') != ''
+            else:
+                has_entry = hasattr(position, 'entry_time') and position.entry_time is not None
+                has_exit = hasattr(position, 'exit_time') and position.exit_time is not None
+            if has_entry and has_exit:
+                total_trades += 2  # Entry + Exit
+            else:
+                total_trades += 1  # Single trade
+        
+        # Count active positions (only entry, no exit yet)
+        for position in active_positions:
+            total_trades += 1  # Only entry trade, no exit yet
+        
         profitable_trades = sum(1 for p in all_pnl if p > 0)
         loss_trades = sum(1 for p in all_pnl if p < 0)
+        win_rate = (profitable_trades / total_trades * 100) if total_trades > 0 else 0.0
         
         return {
             "total_profit": total_profit,
@@ -1364,7 +1443,11 @@ class Dashboard:
             "total_pnl": total_pnl,
             "total_trades": total_trades,
             "profitable_trades": profitable_trades,
-            "loss_trades": loss_trades
+            "loss_trades": loss_trades,
+            "win_rate": win_rate,
+            "total_unrealized_pnl": total_unrealized_pnl,
+            "closed_trades": len(trades) + len(inactive_positions),
+            "open_positions": len(active_positions)
         }
     
     def run(self):

@@ -392,6 +392,14 @@ def get_live_trades():
         
         file_path = LOG_DIR / f"live_trades_{date_str}.csv"
         
+        # Try to restore from Azure Blob Storage if file doesn't exist
+        if not file_path.exists():
+            try:
+                from src.utils.csv_backup import restore_csv_file
+                restore_csv_file(file_path)
+            except Exception as e:
+                logger.debug(f"Could not restore CSV from backup: {e}")
+        
         logger.debug(f"Fetching trades from: {file_path}")
         
         if not file_path.exists():
@@ -525,6 +533,14 @@ def get_daily_pnl():
         # Scan all CSV files in the date range
         for date_str in daily_data.keys():
             file_path = LOG_DIR / f"live_trades_{date_str}.csv"
+            
+            # Try to restore from Azure Blob Storage if file doesn't exist
+            if not file_path.exists():
+                try:
+                    from src.utils.csv_backup import restore_csv_file
+                    restore_csv_file(file_path)
+                except Exception as e:
+                    logger.debug(f"Could not restore CSV from backup: {e}")
             
             if not file_path.exists():
                 continue

@@ -101,6 +101,15 @@ class PaperExecutionClient:
     def log_trade(self, record: PaperTradeRecord) -> None:
         """Append a completed trade to today's CSV file."""
         file_path = LOG_DIR / f"live_trades_{_today_str()}.csv"
+        
+        # Try to restore from Azure Blob Storage if file doesn't exist
+        if not file_path.exists():
+            try:
+                from src.utils.csv_backup import restore_csv_file
+                restore_csv_file(file_path)
+            except Exception as e:
+                logger.debug(f"Could not restore CSV from backup: {e}")
+        
         is_new = not file_path.exists()
 
         fieldnames = list(asdict(record).keys())
@@ -116,6 +125,13 @@ class PaperExecutionClient:
                 else:
                     row[k] = v
             writer.writerow(row)
+
+        # Backup to Azure Blob Storage after writing
+        try:
+            from src.utils.csv_backup import backup_csv_file
+            backup_csv_file(file_path)
+        except Exception as e:
+            logger.debug(f"Could not backup CSV to Azure: {e}")
 
         logger.info(
             f"Logged paper trade: segment={record.segment}, symbol={record.option_symbol}, "
@@ -179,6 +195,13 @@ class PaperExecutionClient:
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
                 writer.writerows(rows)
+            
+            # Backup to Azure Blob Storage after writing
+            try:
+                from src.utils.csv_backup import backup_csv_file
+                backup_csv_file(file_path)
+            except Exception as e:
+                logger.debug(f"Could not backup CSV to Azure: {e}")
         
         logger.debug(
             f"Updated open position: segment={record.segment}, symbol={record.option_symbol}, "
@@ -870,6 +893,15 @@ class LiveExecutionClient:
     def log_trade(self, record: PaperTradeRecord) -> None:
         """Append a completed trade to today's CSV file (same as PaperExecutionClient)."""
         file_path = LOG_DIR / f"live_trades_{_today_str()}.csv"
+        
+        # Try to restore from Azure Blob Storage if file doesn't exist
+        if not file_path.exists():
+            try:
+                from src.utils.csv_backup import restore_csv_file
+                restore_csv_file(file_path)
+            except Exception as e:
+                logger.debug(f"Could not restore CSV from backup: {e}")
+        
         is_new = not file_path.exists()
 
         fieldnames = list(asdict(record).keys())
@@ -885,6 +917,13 @@ class LiveExecutionClient:
                 else:
                     row[k] = v
             writer.writerow(row)
+
+        # Backup to Azure Blob Storage after writing
+        try:
+            from src.utils.csv_backup import backup_csv_file
+            backup_csv_file(file_path)
+        except Exception as e:
+            logger.debug(f"Could not backup CSV to Azure: {e}")
 
         logger.info(
             f"Logged LIVE trade: segment={record.segment}, symbol={record.option_symbol}, "

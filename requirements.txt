@@ -43,3 +43,6 @@ yfinance>=0.2.28
 # Document reading
 python-docx>=1.0.0
 
+# Azure Blob Storage (optional, for CSV backup in Azure)
+azure-storage-blob>=12.19.0
+

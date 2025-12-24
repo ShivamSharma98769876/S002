@@ -398,3 +398,9 @@ WHERE trades.exit_time >= ? AND trades.exit_time <= ?]
 2025-12-23 15:22:56 - risk - INFO - Trade completed with profit: ₹2028.75 | Total protected P&L: ₹2343.75
 2025-12-23 15:22:56 - risk - INFO - Trade closed with profit: ₹2028.75 | Symbol: NIFTY25DEC26400CE | Protected P&L updated
 2025-12-23 15:22:56 - risk - INFO - Detected 1 completed trades
+2025-12-24 16:14:37 - risk - INFO - Risk monitoring loop started
+2025-12-24 16:14:37 - risk - INFO - Risk monitoring started
+2025-12-24 16:22:01 - risk - INFO - Risk monitoring loop started
+2025-12-24 16:22:01 - risk - INFO - Risk monitoring started
+2025-12-24 16:28:08 - risk - INFO - Risk monitoring loop started
+2025-12-24 16:28:08 - risk - INFO - Risk monitoring started

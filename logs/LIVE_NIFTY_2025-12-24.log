@@ -1,0 +1,14 @@
+2025-12-24 16:17:50 - INFO - Initialized LIVE trading agent for NIFTY
+2025-12-24 16:17:50 - INFO - Hybrid Monitoring: Signal timeframe=5minute (for PS/VS calculation), Monitoring interval=1minute (for entry/exit checks)
+2025-12-24 16:17:50 - INFO - Trade Regime: Sell
+2025-12-24 16:17:50 - INFO - Segment config loaded from params for NIFTY: lot_size=75, itm_offset=-200, stop_loss=30, pyramid_points=5, lot_addition=5, max_quantity=1500
+2025-12-24 16:17:50 - INFO -  ✅ Loaded 200 candles from database (5minute) from 2025-12-23 13:50:49 to 2025-12-23 15:25:00
+2025-12-24 16:17:50 - INFO -  ✅ Sufficient candles (200) loaded for calculations
+2025-12-24 16:17:50 - INFO - 📅 Fetching complete last trading day's candles for fallback use...
+2025-12-24 16:17:55 - INFO -  ✅ Stored 69 candles from last trading day (2025-12-23 09:30:00 to 2025-12-23 15:10:00) for fallback use
+2025-12-24 16:17:55 - INFO - 🔄 Recovering positions from Kite API on startup...
+2025-12-24 16:17:55 - INFO - ✅ Position recovery completed
+2025-12-24 16:17:55 - INFO - LiveSegmentAgent started for NIFTY interval=5minute, rsi=9, tick_interval=60s (monitoring interval=1minute)
+2025-12-24 16:17:55 - INFO -  Waiting for market to open (09:30 IST)...
+2025-12-24 16:17:55 - INFO -  ✅ Market is open! Starting trading at 16:17:55 IST
+2025-12-24 16:17:55 - INFO -  Market closed (after 15:15 IST). Waiting for next trading day...

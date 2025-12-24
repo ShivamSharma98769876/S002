@@ -343,11 +343,15 @@
         }
 
         .form-group label {
-            display: block;
+            display: flex;
+            align-items: center;
+            flex-wrap: nowrap;
             margin-bottom: 8px;
             font-weight: 600;
             color: var(--text-primary, #1e293b);
             font-size: 14px;
+            white-space: nowrap;
+            gap: 4px;
         }
 
         .form-group small {
@@ -671,6 +675,11 @@
             animation: rotate 2s linear infinite;
             display: inline-block;
         }
+        /* Rotate the blue gear icon in card header when engine is running */
+        .card-header .card-icon i.fa-cog.running {
+            animation: rotate 2s linear infinite;
+            display: inline-block;
+        }
 
         .status-badge.connected {
             background: rgba(16, 185, 129, 0.1);
@@ -917,9 +926,11 @@
             color: white;
             border-radius: 6px;
             font-size: 12px;
-            white-space: nowrap;
+            white-space: normal;
+            max-width: 300px;
             z-index: 1000;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            line-height: 1.5;
         }
 
         .tooltip-content::after {
@@ -1143,14 +1154,14 @@
                             <div class="form-group">
                                 <label>Trading Modes *</label>
                                 <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;">
-                                    <label class="mode-option" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 12px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border: 2px solid var(--border-color); transition: all 0.3s;">
+                                    <label class="mode-option" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 12px; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); border-radius: 8px; border: 1px solid var(--border-color); transition: all 0.3s;">
                                         <input type="checkbox" id="mode_paper" name="modes" value="PAPER" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary-color);">
                                         <div style="flex: 1;">
                                             <strong style="color: var(--text-primary);">Paper Trading</strong>
                                             <small style="display: block; color: var(--text-secondary); margin-top: 4px;">Simulates trades and logs to CSV</small>
                                         </div>
                                     </label>
-                                    <label class="mode-option" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 12px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border: 2px solid var(--border-color); transition: all 0.3s;">
+                                    <label class="mode-option" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 12px; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); border-radius: 8px; border: 1px solid var(--border-color); transition: all 0.3s;">
                                         <input type="checkbox" id="mode_live" name="modes" value="LIVE" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--danger-color);">
                                         <div style="flex: 1;">
                                             <strong style="color: var(--text-primary);">Live Trading</strong>
@@ -1161,9 +1172,9 @@
                                 <small style="color: var(--text-secondary); margin-top: 8px; display: block;">
                                     <strong>Parallel Mode:</strong> Select both to run Paper and Live trading simultaneously for real-time comparison.
                                 </small>
-                                <div id="liveModeWarning" style="display: none; margin-top: 8px; padding: 12px; background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%); border: 2px solid #ffc107; border-radius: 8px; border-left: 4px solid #ffc107;">
-                                    <strong style="color: #856404;">⚠️ WARNING: LIVE MODE SELECTED</strong>
-                                    <p style="color: #856404; margin: 8px 0 0 0; font-size: 13px;">
+                                <div id="liveModeWarning" style="display: none; margin-top: 8px; padding: 12px; background: linear-gradient(135deg, #78350f 0%, #92400e 100%); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 8px; border-left: 3px solid #fbbf24;">
+                                    <strong style="color: #fbbf24;">⚠️ WARNING: LIVE MODE SELECTED</strong>
+                                    <p style="color: rgba(255, 255, 255, 0.9); margin: 8px 0 0 0; font-size: 13px;">
                                         You are about to enable <strong>REAL TRADING</strong>. This will place actual orders in your Kite account using real money. 
                                         Make sure you have thoroughly tested the strategy in Paper mode and understand all risks.
                                     </p>
@@ -1181,8 +1192,8 @@
                                 <i class="fas fa-chevron-down form-section-toggle"></i>
                             </div>
                             <div class="form-section-content">
-                                <div class="form-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
-                                    <div class="form-group">
+                                <div class="form-row" style="display: flex; flex-wrap: nowrap; gap: 16px; overflow-x: auto;">
+                                    <div class="form-group" style="flex: 1; min-width: 0;">
                                         <label for="time_interval">
                                             Signal Timeframe *
                                             <span class="help-tooltip">
@@ -1200,7 +1211,7 @@
                                         <span class="field-error" id="time_interval_error"></span>
                                     </div>
 
-                                    <div class="form-group">
+                                    <div class="form-group" style="flex: 1; min-width: 0;">
                                         <label for="monitoring_interval">
                                             Monitoring Interval
                                             <span class="help-tooltip">
@@ -1215,7 +1226,7 @@
                                         </select>
                                     </div>
 
-                                    <div class="form-group">
+                                    <div class="form-group" style="flex: 1; min-width: 0;">
                                         <label for="rsi_period">
                                             RSI Period
                                             <span class="help-tooltip">
@@ -1227,7 +1238,7 @@
                                         <span class="field-error" id="rsi_period_error"></span>
                                     </div>
 
-                                    <div class="form-group">
+                                    <div class="form-group" style="flex: 1; min-width: 0;">
                                         <label for="price_strength_ema">
                                             Price Strength (EMA)
                                             <span class="help-tooltip">
@@ -1239,10 +1250,10 @@
                                         <span class="field-error" id="price_strength_ema_error"></span>
                                     </div>
 
-                                    <div class="form-group">
-                                        <label for="volume_strength_wma">
-                                            Volume Strength (WMA)
-                                            <span class="help-tooltip">
+                                    <div class="form-group" style="flex: 1; min-width: 0;">
+                                        <label for="volume_strength_wma" style="display: flex; align-items: center; white-space: nowrap; gap: 4px;">
+                                            <span style="white-space: nowrap;">Volume Strength (WMA)</span>
+                                            <span class="help-tooltip" style="flex-shrink: 0; margin-left: 0;">
                                                 <i class="fas fa-question-circle"></i>
                                                 <span class="tooltip-content">WMA period for Volume Strength. Default: 21 (matching TradingView)</span>
                                             </span>
@@ -1251,7 +1262,7 @@
                                         <span class="field-error" id="volume_strength_wma_error"></span>
                                     </div>
 
-                                    <div class="form-group">
+                                    <div class="form-group" style="flex: 1; min-width: 0;">
                                         <label for="initial_capital">
                                             Initial Capital (₹)
                                             <span class="help-tooltip">
@@ -1263,22 +1274,21 @@
                                         <span class="field-error" id="initial_capital_error"></span>
                                     </div>
 
-                                    <div class="form-group">
+                                    <div class="form-group" style="flex: 1; min-width: 0;">
                                         <label for="trade_regime">
                                             Trade Regime *
                                             <span class="help-tooltip">
                                                 <i class="fas fa-question-circle"></i>
-                                                <span class="tooltip-content">Buy: Buy options. Sell: Sell options (opposite strategy)</span>
+                                                <span class="tooltip-content" style="white-space: normal; max-width: 300px; text-align: left;">
+                                                    <strong>Buy:</strong> Buy options (SL = entry_premium - stop_loss points)<br>
+                                                    <strong>Sell:</strong> Sell options (SL = entry_premium + stop_loss% of premium)
+                                                </span>
                                             </span>
                                         </label>
                                         <select id="trade_regime" name="trade_regime" class="form-input" required>
                                             <option value="Buy" selected>Buy</option>
                                             <option value="Sell">Sell</option>
                                         </select>
-                                        <small style="color: var(--text-secondary); margin-top: 4px; display: block;">
-                                            <strong>Buy:</strong> Buy options (SL = entry_premium - stop_loss points)<br>
-                                            <strong>Sell:</strong> Sell options (SL = entry_premium + stop_loss% of premium)
-                                        </small>
                                     </div>
                                 </div>
                             </div>
@@ -1424,7 +1434,7 @@
                 <div class="panel-body">
                     <div id="liveStatusPanel" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
                         <!-- System Status Card -->
-                        <div class="status-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 12px; color: white;">
+                        <div class="status-card" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); padding: 20px; border-radius: 12px; color: white; border: 1px solid rgba(139, 92, 246, 0.2);">
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
                                 <i class="fas fa-cog" style="font-size: 20px;"></i>
                                 <h3 style="margin: 0; font-size: 16px; font-weight: 600;">System Status</h3>
@@ -1450,7 +1460,7 @@
                         </div>
 
                         <!-- Trading Parameters Card -->
-                        <div class="status-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 20px; border-radius: 12px; color: white;">
+                        <div class="status-card" style="background: linear-gradient(135deg, #7c2d12 0%, #991b1b 100%); padding: 20px; border-radius: 12px; color: white; border: 1px solid rgba(239, 68, 68, 0.2);">
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
                                 <i class="fas fa-sliders-h" style="font-size: 20px;"></i>
                                 <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Trading Parameters</h3>
@@ -1476,7 +1486,7 @@
                         </div>
 
                         <!-- Indicator Settings Card -->
-                        <div class="status-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 20px; border-radius: 12px; color: white;">
+                        <div class="status-card" style="background: linear-gradient(135deg, #0c4a6e 0%, #075985 100%); padding: 20px; border-radius: 12px; color: white; border: 1px solid rgba(59, 130, 246, 0.2);">
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
                                 <i class="fas fa-chart-area" style="font-size: 20px;"></i>
                                 <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Indicator Settings</h3>
@@ -1539,7 +1549,7 @@
                         <canvas id="psVsChart"></canvas>
                         </div>
                     <div id="psVsError" style="display: none; margin-top: 16px; padding: 12px; background: #fee; border: 1px solid #fcc; border-radius: 6px; color: #c33; font-size: 14px;"></div>
-                    <div style="margin-top: 20px; padding: 16px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 12px; border: 2px solid #bae6fd;">
+                    <div style="margin-top: 20px; padding: 16px; background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.3); color: rgba(255, 255, 255, 0.9);">
                         <p style="color: var(--text-primary); font-size: 14px; margin: 0;">
                             <strong><i class="fas fa-info-circle"></i> Chart Information:</strong> This chart displays Price Strength (PS) and Volume Strength (VS) over time. 
                             PS is EMA(3) of RSI(9) shown in blue, VS is WMA(21) of RSI(9) shown in orange. 
@@ -1581,8 +1591,8 @@
                     </div>
                 </div>
                 <div class="panel-body">
-                    <div style="padding: 15px; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border: 1px solid #2196f3; border-radius: 8px; margin-bottom: 20px;">
-                        <p style="color: #1565c0; font-size: 14px; margin: 0;">
+                    <div style="padding: 15px; background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; margin-bottom: 20px;">
+                        <p style="color: rgba(255, 255, 255, 0.9); font-size: 14px; margin: 0;">
                             <strong>📋 Log Information:</strong> This section shows real-time logs from Paper and Live trading activities, split by segment (NIFTY, BANKNIFTY, SENSEX). 
                             Logs include agent start/stop events, signal generation, trade entries/exits, order placements, and errors. 
                             Logs are stored in <code>logs/{MODE}_{SEGMENT}_YYYY-MM-DD.log</code> files.
@@ -2239,12 +2249,24 @@
         // Status Badge Updates
         function updateStatusBadge(running) {
             const badge = document.getElementById('statusBadge');
+            // Find the blue gear icon in the Engine Status card header
+            const engineStatusCard = document.getElementById('summaryRunning').closest('.card');
+            const cardIcon = engineStatusCard ? engineStatusCard.querySelector('.card-icon i.fa-cog') : null;
+            
             if (running) {
                 badge.className = 'status-badge running';
                 badge.innerHTML = '<i class="fas fa-cog"></i> Running';
+                // Add running class to blue gear icon for rotation
+                if (cardIcon) {
+                    cardIcon.classList.add('running');
+                }
             } else {
                 badge.className = 'status-badge stopped';
                 badge.innerHTML = '<i class="fas fa-circle"></i> Stopped';
+                // Remove running class from blue gear icon
+                if (cardIcon) {
+                    cardIcon.classList.remove('running');
+                }
             }
         }
         

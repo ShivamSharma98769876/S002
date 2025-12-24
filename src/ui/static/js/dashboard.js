@@ -2,11 +2,17 @@
 
 let updateInterval;
 let positionsUpdateInterval; // Separate interval for positions and P&L
-let pnlChart;
+let pnlCalendarData = {};
+let pnlFilters = {
+    segment: 'all',
+    type: 'combined',
+    symbol: '',
+    dateRange: null
+};
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', function() {
-    initializeChart();
+    initializePnlCalendar();
     checkAuthStatus();
     startUpdates();
     setupEventListeners();
@@ -499,119 +505,13 @@ function updatePnlStatus(status, message) {
     }
 }
 
-// Update positions table
+// Update positions table (disabled - Active Positions section removed)
 async function updatePositions() {
-    try {
-        const response = await fetch('/api/positions');
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        const data = await safeJsonResponse(response);
-        
-        if (data.error) {
-            console.error('Positions error:', data.error);
-            return;
-        }
-        
-        const tbody = document.getElementById('positionsBody');
-        const positionCount = document.getElementById('positionCount');
-        
-        if (data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No active positions</td></tr>';
-            positionCount.textContent = '0';
-            return;
-        }
-        
-        positionCount.textContent = data.length;
-        tbody.innerHTML = data.map(pos => {
-            const quantityChange = pos.quantity_change || 0;
-            const quantityChangeClass = quantityChange > 0 ? 'positive' : quantityChange < 0 ? 'negative' : '';
-            
-            // Display quantity with sign (negative for SELL positions)
-            const quantity = pos.quantity;
-            const quantityDisplay = quantityChange !== 0 
-                ? `${quantity > 0 ? '+' : ''}${quantity} <span class="quantity-change ${quantityChangeClass}">(${quantityChange > 0 ? '+' : ''}${quantityChange})</span>`
-                : `${quantity > 0 ? '+' : ''}${quantity}`;
-            
-            // Determine position type from quantity sign
-            const positionType = quantity > 0 ? 'BUY' : 'SELL';
-            const typeClass = positionType === 'BUY' ? 'positive' : 'negative';
-            const typeLabel = positionType === 'BUY' ? '<span style="color: #10b981; font-size: 11px;">BUY</span>' : '<span style="color: #ef4444; font-size: 11px;">SELL</span>';
-            
-            return `
-            <tr>
-                <td>${pos.trading_symbol}</td>
-                <td>${pos.exchange}</td>
-                <td>₹${pos.entry_price.toFixed(2)}</td>
-                <td>₹${pos.current_price ? pos.current_price.toFixed(2) : '-'}</td>
-                <td class="${typeClass}">${quantityDisplay} ${typeLabel}</td>
-                <td class="${pos.unrealized_pnl >= 0 ? 'positive' : 'negative'}">
-                    ${formatCurrency(pos.unrealized_pnl)}
-                </td>
-                <td>
-                    <button class="btn btn-primary" onclick="exitPosition(${pos.id})" style="padding: 6px 12px; font-size: 12px;">
-                        Exit
-                    </button>
-                </td>
-            </tr>
-            `;
-        }).join('');
-    } catch (error) {
-        console.error('Error updating positions:', error);
-        const tbody = document.getElementById('positionsBody');
-        if (tbody) {
-            tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Error loading positions</td></tr>';
-        }
-    }
+    // Active Positions section has been removed from the dashboard
+    // This function is kept for backward compatibility but does nothing
+    return;
 }
 
-// Clear positions cache and fetch fresh from Zerodha
-async function clearPositionsCache() {
-    if (!confirm('Are you sure you want to clear the cache and fetch fresh positions from Zerodha? This will remove all cached positions.')) {
-        return;
-    }
-    
-    const btn = document.getElementById('clearCacheBtn');
-    const originalText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = 'Clearing...';
-    
-    try {
-        const response = await fetch('/api/positions/clear-cache', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'}
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        const data = await safeJsonResponse(response);
-        
-        if (data.success) {
-            addNotification(
-                `Cache cleared! ${data.synced_count || 0} fresh positions fetched from Zerodha`,
-                'success'
-            );
-            // Refresh positions immediately
-            setTimeout(() => {
-                updatePositions();
-                updateStatus();
-            }, 500);
-        } else {
-            addNotification(`Failed to clear cache: ${data.error || 'Unknown error'}`, 'danger');
-        }
-    } catch (error) {
-        console.error('Error clearing cache:', error);
-        addNotification('Error clearing cache: ' + (error.message || 'Unknown error'), 'danger');
-    } finally {
-        btn.disabled = false;
-        btn.textContent = originalText;
-    }
-}
-
-// Make function globally available
-window.clearPositionsCache = clearPositionsCache;
 
 // Sync orders from Zerodha and create trade records
 async function syncOrdersFromZerodha() {
@@ -723,22 +623,32 @@ async function updateTrades() {
             updateTradeSummary(data.summary);
         }
         
+        // Check if we have any open positions to determine if we need to hide exit columns
+        const hasOpenPositions = trades.some(trade => trade.is_open === true);
+        
         tbody.innerHTML = trades.map(trade => {
             // Get transaction type (BUY or SELL) - use transaction_type from backend, fallback to quantity sign
             const transactionType = trade.transaction_type || (trade.quantity > 0 ? 'BUY' : 'SELL');
             const typeClass = transactionType === 'BUY' ? 'positive' : 'negative';
+            const buyTooltip = "BUY: Buy options (SL = entry_premium - stop_loss points)";
+            const sellTooltip = "SELL: Sell options (SL = entry_premium + stop_loss% of premium)";
             const typeBadge = transactionType === 'BUY' 
-                ? '<span style="color: #10b981; font-weight: 600; font-size: 12px;">BUY</span>' 
-                : '<span style="color: #ef4444; font-weight: 600; font-size: 12px;">SELL</span>';
+                ? `<span style="color: #10b981; font-weight: 600; font-size: 12px; cursor: help;" title="${buyTooltip}">BUY</span>` 
+                : `<span style="color: #ef4444; font-weight: 600; font-size: 12px; cursor: help;" title="${sellTooltip}">SELL</span>`;
             
             // Format times in IST
             const entryTime = formatDateTimeIST(trade.entry_time);
-            const exitTime = formatDateTimeIST(trade.exit_time);
+            const isOpen = trade.is_open === true;
+            const exitTime = isOpen ? '-' : formatDateTimeIST(trade.exit_time);
+            const exitPrice = isOpen ? '-' : `₹${(trade.exit_price || 0).toFixed(2)}`;
             
             // Display quantity with proper sign (negative for SELL, positive for BUY)
             // For SELL trades, quantity should be negative (e.g., -150)
             const quantity = trade.quantity || 0;
             const quantityDisplay = quantity !== 0 ? (quantity > 0 ? `+${quantity}` : `${quantity}`) : '0';
+            
+            // For open positions, use unrealized P&L; for closed, use realized P&L
+            const pnl = trade.realized_pnl || 0;
             
             return `
             <tr>
@@ -746,10 +656,10 @@ async function updateTrades() {
                 <td>${entryTime}</td>
                 <td>${exitTime}</td>
                 <td>₹${(trade.entry_price || 0).toFixed(2)}</td>
-                <td>₹${(trade.exit_price || 0).toFixed(2)}</td>
+                <td>${exitPrice}</td>
                 <td class="${typeClass}" style="font-weight: 600;">${quantityDisplay}</td>
-                <td class="${trade.is_profit ? 'positive' : 'negative'}">
-                    ${formatCurrency(trade.realized_pnl || 0)}
+                <td class="${pnl >= 0 ? 'positive' : 'negative'}">
+                    ${formatCurrency(pnl)}
                 </td>
                 <td>${typeBadge}</td>
             </tr>
@@ -776,7 +686,10 @@ function updateTradeSummary(summary) {
         return;
     }
     
-    document.getElementById('totalTrades').textContent = summary.total_trades || 0;
+    const totalTradesEl = document.getElementById('totalTrades');
+    totalTradesEl.textContent = summary.total_trades || 0;
+    totalTradesEl.style.color = '#10b981'; // Green color for Total Trades
+    
     document.getElementById('totalProfit').textContent = formatCurrency(summary.total_profit || 0);
     document.getElementById('totalLoss').textContent = formatCurrency(summary.total_loss || 0);
     
@@ -788,7 +701,10 @@ function updateTradeSummary(summary) {
     const winRate = summary.total_trades > 0 
         ? ((summary.profitable_trades || 0) / summary.total_trades * 100).toFixed(1)
         : 0;
-    document.getElementById('winRate').textContent = winRate + '%';
+    const winRateEl = document.getElementById('winRate');
+    winRateEl.textContent = winRate + '%';
+    // Green if positive (>= 50%), red otherwise
+    winRateEl.style.color = parseFloat(winRate) >= 50 ? '#10b981' : '#ef4444';
 }
 
 // Update daily stats
@@ -805,90 +721,11 @@ async function updateDailyStats() {
             return;
         }
         
-        // Update chart if needed
-        if (pnlChart) {
-            // Add data point to chart
-            const now = new Date();
-            pnlChart.data.labels.push(now.toLocaleTimeString());
-            pnlChart.data.datasets[0].data.push(data.total_unrealized_pnl || 0);
-            pnlChart.data.datasets[1].data.push(data.protected_profit || 0);
-            pnlChart.data.datasets[2].data.push((data.total_unrealized_pnl || 0) + (data.protected_profit || 0));
-            
-            // Keep only last 50 data points
-            if (pnlChart.data.labels.length > 50) {
-                pnlChart.data.labels.shift();
-                pnlChart.data.datasets.forEach(dataset => dataset.data.shift());
-            }
-            
-            pnlChart.update('none');
-        }
     } catch (error) {
         console.error('Error updating daily stats:', error);
     }
 }
 
-// Initialize chart
-function initializeChart() {
-    const ctx = document.getElementById('pnlChart');
-    if (!ctx) return;
-    
-    pnlChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [
-                {
-                    label: 'Current P&L',
-                    data: [],
-                    borderColor: 'rgb(37, 99, 235)',
-                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                    tension: 0.4
-                },
-                {
-                    label: 'Protected Profit',
-                    data: [],
-                    borderColor: 'rgb(16, 185, 129)',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    tension: 0.4
-                },
-                {
-                    label: 'Total P&L',
-                    data: [],
-                    borderColor: 'rgb(245, 158, 11)',
-                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                    tension: 0.4
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top'
-                },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    ticks: {
-                        callback: function(value) {
-                            return '₹' + value.toLocaleString('en-IN');
-                        }
-                    }
-                }
-            },
-            animation: {
-                duration: 0
-            }
-        }
-    });
-}
 
 // Helper functions
 function updateValue(id, value, className) {
@@ -1294,7 +1131,6 @@ const helpContent = {
             <h3>Actions available:</h3>
             <ul>
                 <li><strong>Exit:</strong> Manually close a position anytime</li>
-                <li><strong>Clear Cache & Refresh:</strong> Force refresh positions from Zerodha API</li>
             </ul>
             
             <div class="help-example">
@@ -1305,38 +1141,48 @@ const helpContent = {
             </div>
             
             <div class="help-note">
-                <strong>Note:</strong> Positions update automatically every 3 seconds. Use "Clear Cache & Refresh" if you notice stale data.
+                <strong>Note:</strong> Positions update automatically every 3 seconds.
             </div>
         `
     },
     'trade-history': {
-        title: 'Trade History (All Inactive Trades)',
+        title: 'Trade History (All Trades)',
         content: `
             <h3>What is Trade History?</h3>
-            <p>This section shows all your completed (closed) trades for the selected date, with detailed P&L information.</p>
+            <p>This section shows all your trades (both open and closed) for the selected date, with detailed P&L information.</p>
             
             <h3>Information shown:</h3>
             <ul>
-                <li><strong>Symbol:</strong> Trading symbol of the completed trade</li>
-                <li><strong>Entry/Exit Time:</strong> When you entered and exited the position (IST)</li>
-                <li><strong>Entry/Exit Price:</strong> Prices at which you entered and exited</li>
-                <li><strong>Quantity:</strong> Number of lots/units traded</li>
-                <li><strong>P&L:</strong> Realized profit or loss from this trade</li>
+                <li><strong>Symbol:</strong> Trading symbol of the trade</li>
+                <li><strong>Entry Time:</strong> When you entered the position (IST)</li>
+                <li><strong>Exit Time:</strong> When you exited the position (IST) - shown as "-" for open positions</li>
+                <li><strong>Entry Price:</strong> Price at which you entered</li>
+                <li><strong>Exit Price:</strong> Price at which you exited - shown as "-" for open positions</li>
+                <li><strong>Quantity:</strong> Number of lots/units traded (negative for SELL, positive for BUY)</li>
+                <li><strong>P&L:</strong> Realized profit/loss for closed trades, unrealized P&L for open positions</li>
                 <li><strong>Type:</strong> BUY or SELL transaction type</li>
             </ul>
+            
+            <h3>Trade Types & Stop Loss:</h3>
+            <div class="help-note" style="background: #e0f2fe; border-left: 4px solid #0284c7; padding: 12px; margin: 16px 0;">
+                <strong>BUY:</strong> Buy options<br>
+                <em>Stop Loss = entry_premium - stop_loss points</em><br><br>
+                <strong>SELL:</strong> Sell options<br>
+                <em>Stop Loss = entry_premium + stop_loss% of premium</em>
+            </div>
             
             <h3>Features:</h3>
             <ul>
                 <li><strong>Sync Orders from Zerodha:</strong> Fetch all completed orders and create trade records</li>
                 <li><strong>Show All Trades:</strong> Toggle to show all trades or filter by date</li>
-                <li><strong>Trade Summary:</strong> Shows total trades, profit, loss, net P&L, and win rate</li>
+                <li><strong>Trade Summary:</strong> Shows total trades, profit, loss, net P&L (including unrealized), and win rate</li>
             </ul>
             
             <div class="help-example">
                 <strong>Example:</strong><br>
-                Trade 1: NIFTY 25000CE, Entry: ₹100, Exit: ₹120, Quantity: 50, P&L: +₹1,000<br>
-                Trade 2: BANKNIFTY 50000PE, Entry: ₹80, Exit: ₹70, Quantity: 25, P&L: -₹250<br>
-                <strong>Net P&L: ₹750</strong>
+                Closed Trade: NIFTY 25000CE, Entry: ₹100, Exit: ₹120, Quantity: 50, P&L: +₹1,000<br>
+                Open Position: BANKNIFTY 50000PE, Entry: ₹80, Exit: -, Quantity: -25, P&L: +₹150 (unrealized)<br>
+                <strong>Net P&L: ₹1,150 (includes both realized and unrealized)</strong>
             </div>
             
             <div class="help-note">
@@ -1428,7 +1274,567 @@ function closeHelp() {
     }
 }
 
+// Date Range Picker State
+let dateRangePickerState = {
+    fromDate: null,
+    toDate: null,
+    fromMonth: new Date(),
+    toMonth: new Date()
+};
+
+// Initialize P&L Calendar with Date Range Picker
+function initializePnlCalendar() {
+    const calendarContainer = document.getElementById('pnlCalendarHeatmap');
+    if (!calendarContainer) return; // Calendar not on this page
+    
+    // Set default date range (last 6 months)
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - 6);
+    
+    dateRangePickerState.fromDate = startDate;
+    dateRangePickerState.toDate = endDate;
+    dateRangePickerState.fromMonth = new Date(startDate);
+    dateRangePickerState.toMonth = new Date(endDate);
+    
+    updateDateRangeDisplay();
+    
+    // Setup date range picker button
+    const dateRangeBtn = document.getElementById('pnlDateRangeBtn');
+    if (dateRangeBtn) {
+        dateRangeBtn.addEventListener('click', () => {
+            openDateRangePicker();
+        });
+    }
+    
+    // Load initial data
+    loadPnlCalendarData();
+    
+    // Setup filter handlers
+    const applyBtn = document.getElementById('applyPnlFilters');
+    if (applyBtn) {
+        applyBtn.addEventListener('click', () => {
+            loadPnlCalendarData();
+        });
+    }
+    
+    // Update filters on change
+    const pnlType = document.getElementById('pnlType');
+    if (pnlType) {
+        pnlType.addEventListener('change', () => {
+            pnlFilters.type = pnlType.value;
+            loadPnlCalendarData();
+        });
+    }
+}
+
+function updateDateRangeDisplay() {
+    const display = document.getElementById('pnlDateRangeDisplay');
+    const hiddenInput = document.getElementById('pnlDateRange');
+    
+    if (dateRangePickerState.fromDate && dateRangePickerState.toDate) {
+        const fromStr = formatDateForInput(dateRangePickerState.fromDate);
+        const toStr = formatDateForInput(dateRangePickerState.toDate);
+        const displayText = `${fromStr} ~ ${toStr}`;
+        
+        if (display) display.textContent = displayText;
+        if (hiddenInput) hiddenInput.value = displayText;
+    } else {
+        if (display) display.textContent = 'Select Date Range';
+        if (hiddenInput) hiddenInput.value = '';
+    }
+}
+
+function formatDateForInput(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function openDateRangePicker() {
+    const modal = document.getElementById('dateRangePickerModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        renderCalendars();
+    }
+}
+
+function closeDateRangePicker() {
+    const modal = document.getElementById('dateRangePickerModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function setQuickDateRange(option) {
+    const today = new Date();
+    let fromDate, toDate;
+    
+    switch(option) {
+        case 'last7':
+            fromDate = new Date(today);
+            fromDate.setDate(today.getDate() - 6);
+            toDate = new Date(today);
+            break;
+        case 'last30':
+            fromDate = new Date(today);
+            fromDate.setDate(today.getDate() - 29);
+            toDate = new Date(today);
+            break;
+        case 'prevFY':
+            // Previous Financial Year (April 1 to March 31)
+            const currentYear = today.getFullYear();
+            const currentMonth = today.getMonth();
+            if (currentMonth >= 3) { // April onwards
+                fromDate = new Date(currentYear - 1, 3, 1); // April 1 of previous year
+                toDate = new Date(currentYear, 2, 31); // March 31 of current year
+            } else {
+                fromDate = new Date(currentYear - 2, 3, 1); // April 1 of year before previous
+                toDate = new Date(currentYear - 1, 2, 31); // March 31 of previous year
+            }
+            break;
+        case 'currentFY':
+            // Current Financial Year (April 1 to today or March 31)
+            const currYear = today.getFullYear();
+            const currMonth = today.getMonth();
+            if (currMonth >= 3) { // April onwards
+                fromDate = new Date(currYear, 3, 1); // April 1 of current year
+                toDate = new Date(today);
+            } else {
+                fromDate = new Date(currYear - 1, 3, 1); // April 1 of previous year
+                toDate = new Date(today);
+            }
+            break;
+    }
+    
+    dateRangePickerState.fromDate = fromDate;
+    dateRangePickerState.toDate = toDate;
+    dateRangePickerState.fromMonth = new Date(fromDate);
+    dateRangePickerState.toMonth = new Date(toDate);
+    
+    renderCalendars();
+}
+
+function changeMonth(calendar, months) {
+    if (calendar === 'from') {
+        dateRangePickerState.fromMonth.setMonth(dateRangePickerState.fromMonth.getMonth() + months);
+    } else {
+        dateRangePickerState.toMonth.setMonth(dateRangePickerState.toMonth.getMonth() + months);
+    }
+    renderCalendars();
+}
+
+function renderCalendars() {
+    renderCalendar('from', dateRangePickerState.fromMonth, dateRangePickerState.fromDate);
+    renderCalendar('to', dateRangePickerState.toMonth, dateRangePickerState.toDate);
+    
+    // Update month displays
+    const fromMonthDisplay = document.getElementById('fromMonthDisplay');
+    const toMonthDisplay = document.getElementById('toMonthDisplay');
+    
+    if (fromMonthDisplay) {
+        fromMonthDisplay.textContent = dateRangePickerState.fromMonth.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    }
+    if (toMonthDisplay) {
+        toMonthDisplay.textContent = dateRangePickerState.toMonth.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    }
+}
+
+function renderCalendar(type, month, selectedDate) {
+    const container = document.getElementById(type + 'Calendar');
+    if (!container) return;
+    
+    const year = month.getFullYear();
+    const monthIndex = month.getMonth();
+    
+    // First day of month
+    const firstDay = new Date(year, monthIndex, 1);
+    const lastDay = new Date(year, monthIndex + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+    
+    // Previous month's last days
+    const prevMonth = new Date(year, monthIndex, 0);
+    const prevMonthDays = prevMonth.getDate();
+    
+    let html = '<div class="calendar-weekdays">';
+    const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    weekdays.forEach(day => {
+        html += `<div class="calendar-weekday">${day}</div>`;
+    });
+    html += '</div><div class="calendar-days">';
+    
+    // Previous month's trailing days
+    for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+        const day = prevMonthDays - i;
+        html += `<div class="calendar-day other-month" onclick="selectDate('${type}', ${year}, ${monthIndex - 1}, ${day})">${day}</div>`;
+    }
+    
+    // Current month's days
+    for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, monthIndex, day);
+        const isToday = isSameDay(date, new Date());
+        const isSelected = selectedDate && isSameDay(date, selectedDate);
+        const isInRange = isDateInRange(date, dateRangePickerState.fromDate, dateRangePickerState.toDate);
+        
+        let classes = 'calendar-day';
+        if (isSelected) classes += ' selected';
+        if (isInRange) classes += ' in-range';
+        if (isToday) classes += ' today';
+        
+        html += `<div class="${classes}" onclick="selectDate('${type}', ${year}, ${monthIndex}, ${day})">${day}</div>`;
+    }
+    
+    // Next month's leading days
+    const totalCells = 42; // 6 weeks * 7 days
+    const cellsUsed = startingDayOfWeek + daysInMonth;
+    const remainingCells = totalCells - cellsUsed;
+    
+    for (let day = 1; day <= remainingCells && day <= 14; day++) {
+        html += `<div class="calendar-day other-month" onclick="selectDate('${type}', ${year}, ${monthIndex + 1}, ${day})">${day}</div>`;
+    }
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function selectDate(type, year, month, day) {
+    const date = new Date(year, month, day);
+    
+    if (type === 'from') {
+        dateRangePickerState.fromDate = date;
+        // If from date is after to date, update to date
+        if (dateRangePickerState.toDate && date > dateRangePickerState.toDate) {
+            dateRangePickerState.toDate = new Date(date);
+        }
+        dateRangePickerState.fromMonth = new Date(date);
+    } else {
+        dateRangePickerState.toDate = date;
+        // If to date is before from date, update from date
+        if (dateRangePickerState.fromDate && date < dateRangePickerState.fromDate) {
+            dateRangePickerState.fromDate = new Date(date);
+        }
+        dateRangePickerState.toMonth = new Date(date);
+    }
+    
+    renderCalendars();
+}
+
+function isSameDay(date1, date2) {
+    if (!date1 || !date2) return false;
+    return date1.getFullYear() === date2.getFullYear() &&
+           date1.getMonth() === date2.getMonth() &&
+           date1.getDate() === date2.getDate();
+}
+
+function isDateInRange(date, fromDate, toDate) {
+    if (!date || !fromDate || !toDate) return false;
+    return date >= fromDate && date <= toDate;
+}
+
+function applyDateRange() {
+    if (dateRangePickerState.fromDate && dateRangePickerState.toDate) {
+        updateDateRangeDisplay();
+        closeDateRangePicker();
+        loadPnlCalendarData();
+    } else {
+        alert('Please select both From and To dates');
+    }
+}
+
+async function loadPnlCalendarData() {
+    try {
+        if (!dateRangePickerState.fromDate || !dateRangePickerState.toDate) {
+            return;
+        }
+        
+        const startStr = formatDateForInput(dateRangePickerState.fromDate);
+        const endStr = formatDateForInput(dateRangePickerState.toDate);
+        const daysDiff = Math.ceil((dateRangePickerState.toDate - dateRangePickerState.fromDate) / (1000 * 60 * 60 * 24));
+        
+        // Update date range display
+        const dateRangeText = document.getElementById('pnlDateRangeText');
+        if (dateRangeText) {
+            dateRangeText.textContent = `${startStr} to ${endStr}`;
+        }
+        
+        // Fetch data
+        let result = { success: false, data: [] };
+        try {
+            const response = await fetch(`/api/live-trader/trades/daily-pnl?days=${daysDiff + 1}`);
+            if (response.ok) {
+                result = await response.json();
+            } else {
+                console.warn('P&L API returned non-OK status:', response.status);
+            }
+        } catch (fetchError) {
+            console.error('Error fetching P&L data:', fetchError);
+        }
+        
+        // Always render calendar, even if no data
+        pnlCalendarData = {};
+        if (result.success && result.data && Array.isArray(result.data)) {
+            result.data.forEach(day => {
+                pnlCalendarData[day.date] = day;
+            });
+        }
+        
+        // Calculate Realised P&L summary
+        let totalRealisedPnl = 0.0;
+        let totalPaperPnl = 0.0;
+        let totalLivePnl = 0.0;
+        let totalTrades = 0;
+        
+        if (result.success && result.data && Array.isArray(result.data)) {
+            result.data.forEach(day => {
+                totalPaperPnl += parseFloat(day.paper_pnl || 0);
+                totalLivePnl += parseFloat(day.live_pnl || 0);
+                totalTrades += parseInt(day.paper_trades || 0) + parseInt(day.live_trades || 0);
+            });
+        }
+        
+        totalRealisedPnl = totalPaperPnl + totalLivePnl;
+        
+        // Update Realised P&L summary
+        updateRealisedPnlSummary(totalRealisedPnl, totalPaperPnl, totalLivePnl, totalTrades);
+        
+        // Always render calendar grid for the selected period
+        renderPnlCalendar(dateRangePickerState.fromDate, dateRangePickerState.toDate);
+    } catch (error) {
+        console.error('Error loading P&L calendar data:', error);
+        // Still render empty grid on error
+        pnlCalendarData = {};
+        updateRealisedPnlSummary(0, 0, 0, 0);
+        renderPnlCalendar(dateRangePickerState.fromDate, dateRangePickerState.toDate);
+    }
+}
+
+function formatCurrency(amount) {
+    if (amount === null || amount === undefined || isNaN(amount)) {
+        return '₹0.00';
+    }
+    
+    const absAmount = Math.abs(amount);
+    let formatted;
+    
+    if (absAmount >= 100000) {
+        formatted = '₹' + (amount / 100000).toFixed(2) + 'L';
+    } else if (absAmount >= 1000) {
+        formatted = '₹' + (amount / 1000).toFixed(2) + 'k';
+    } else {
+        formatted = '₹' + amount.toLocaleString('en-IN', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+    
+    return formatted;
+}
+
+function updateRealisedPnlSummary(totalRealisedPnl, totalPaperPnl, totalLivePnl, totalTrades) {
+    const realisedPnlEl = document.getElementById('realisedPnlValue');
+    const paperPnlEl = document.getElementById('paperPnlValue');
+    const livePnlEl = document.getElementById('livePnlValue');
+    const totalTradesEl = document.getElementById('totalTradesCount');
+    
+    if (realisedPnlEl) {
+        realisedPnlEl.textContent = formatCurrency(totalRealisedPnl);
+        realisedPnlEl.style.color = totalRealisedPnl >= 0 ? '#10b981' : '#ef4444';
+    }
+    
+    if (paperPnlEl) {
+        paperPnlEl.textContent = formatCurrency(totalPaperPnl);
+        paperPnlEl.style.color = totalPaperPnl >= 0 ? '#10b981' : '#ef4444';
+    }
+    
+    if (livePnlEl) {
+        livePnlEl.textContent = formatCurrency(totalLivePnl);
+        livePnlEl.style.color = totalLivePnl >= 0 ? '#10b981' : '#ef4444';
+    }
+    
+    if (totalTradesEl) {
+        totalTradesEl.textContent = totalTrades;
+    }
+}
+
+function renderPnlCalendar(startDate, endDate) {
+    const container = document.getElementById('pnlCalendarHeatmap');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    // Group days by month
+    const months = {};
+    const current = new Date(startDate);
+    
+    while (current <= endDate) {
+        const year = current.getFullYear();
+        const month = current.getMonth();
+        const key = `${year}-${month}`;
+        
+        if (!months[key]) {
+            months[key] = {
+                year,
+                month,
+                days: []
+            };
+        }
+        
+        months[key].days.push(new Date(current));
+        current.setDate(current.getDate() + 1);
+    }
+    
+    // Render each month in chronological order
+    const sortedMonthKeys = Object.keys(months).sort((a, b) => {
+        const [yearA, monthA] = a.split('-').map(Number);
+        const [yearB, monthB] = b.split('-').map(Number);
+        
+        // First compare by year
+        if (yearA !== yearB) {
+            return yearA - yearB;
+        }
+        // Then by month
+        return monthA - monthB;
+    });
+    
+    sortedMonthKeys.forEach(key => {
+        const monthData = months[key];
+        const monthColumn = document.createElement('div');
+        monthColumn.className = 'pnl-month-column';
+        
+        // Month header
+        const monthHeader = document.createElement('div');
+        monthHeader.className = 'pnl-month-header';
+        monthHeader.textContent = new Date(monthData.year, monthData.month, 1)
+            .toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+        monthColumn.appendChild(monthHeader);
+        
+        // Week rows
+        const weekRows = [];
+        let currentWeek = [];
+        
+        // Add empty cells for days before month start
+        const firstDay = monthData.days[0];
+        const firstDayOfWeek = firstDay.getDay(); // 0 = Sunday, 6 = Saturday
+        for (let i = 0; i < firstDayOfWeek; i++) {
+            currentWeek.push(null);
+        }
+        
+        // Add days
+        monthData.days.forEach(day => {
+            if (currentWeek.length === 7) {
+                weekRows.push(currentWeek);
+                currentWeek = [];
+            }
+            currentWeek.push(day);
+        });
+        
+        // Fill remaining week
+        while (currentWeek.length < 7) {
+            currentWeek.push(null);
+        }
+        weekRows.push(currentWeek);
+        
+        // Render week rows
+        weekRows.forEach(week => {
+            const weekRow = document.createElement('div');
+            weekRow.className = 'pnl-week-row';
+            
+            week.forEach(day => {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'pnl-day-cell';
+                
+                if (day) {
+                    const dateStr = formatDateForInput(day);
+                    const dayData = pnlCalendarData[dateStr];
+                    
+                    if (dayData) {
+                        const pnlType = pnlFilters.type;
+                        let pnl = 0;
+                        
+                        if (pnlType === 'combined') {
+                            pnl = dayData.paper_pnl + dayData.live_pnl;
+                        } else if (pnlType === 'paper') {
+                            pnl = dayData.paper_pnl;
+                        } else if (pnlType === 'live') {
+                            pnl = dayData.live_pnl;
+                        }
+                        
+                        // Determine color based on P&L
+                        if (pnl > 0) {
+                            if (pnl < 1000) {
+                                dayCell.className += ' profit-small';
+                            } else if (pnl < 5000) {
+                                dayCell.className += ' profit-medium';
+                            } else {
+                                dayCell.className += ' profit-large';
+                            }
+                        } else if (pnl < 0) {
+                            if (pnl > -1000) {
+                                dayCell.className += ' loss-small';
+                            } else if (pnl > -5000) {
+                                dayCell.className += ' loss-medium';
+                            } else {
+                                dayCell.className += ' loss-large';
+                            }
+                        } else {
+                            dayCell.className += ' no-data';
+                        }
+                        
+                        // Tooltip
+                        dayCell.title = `${dateStr}\nP&L: ₹${pnl.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                        
+                        // Click handler for details
+                        dayCell.addEventListener('click', () => {
+                            showDayDetails(dateStr, dayData);
+                        });
+                    } else {
+                        dayCell.className += ' no-data';
+                        dayCell.title = dateStr + '\nNo data';
+                    }
+                } else {
+                    dayCell.className += ' no-data';
+                    dayCell.style.visibility = 'hidden';
+                }
+                
+                weekRow.appendChild(dayCell);
+            });
+            
+            monthColumn.appendChild(weekRow);
+        });
+        
+        container.appendChild(monthColumn);
+    });
+}
+
+function showDayDetails(dateStr, dayData) {
+    const pnlType = pnlFilters.type;
+    let pnl = 0;
+    
+    if (pnlType === 'combined') {
+        pnl = dayData.paper_pnl + dayData.live_pnl;
+    } else if (pnlType === 'paper') {
+        pnl = dayData.paper_pnl;
+    } else if (pnlType === 'live') {
+        pnl = dayData.live_pnl;
+    }
+    
+    alert(`Date: ${dateStr}\n` +
+          `Paper P&L: ₹${dayData.paper_pnl.toLocaleString('en-IN', {minimumFractionDigits: 2})}\n` +
+          `Live P&L: ₹${dayData.live_pnl.toLocaleString('en-IN', {minimumFractionDigits: 2})}\n` +
+          `Total P&L: ₹${pnl.toLocaleString('en-IN', {minimumFractionDigits: 2})}\n` +
+          `Paper Trades: ${dayData.paper_trades}\n` +
+          `Live Trades: ${dayData.live_trades}`);
+}
+
 // Make functions globally available
 window.showHelp = showHelp;
 window.closeHelp = closeHelp;
+window.openDateRangePicker = openDateRangePicker;
+window.closeDateRangePicker = closeDateRangePicker;
+window.setQuickDateRange = setQuickDateRange;
+window.changeMonth = changeMonth;
+window.selectDate = selectDate;
+window.applyDateRange = applyDateRange;
 

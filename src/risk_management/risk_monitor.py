@@ -8,7 +8,7 @@ import threading
 from datetime import datetime
 from typing import Optional
 from src.utils.logger import get_logger
-from src.utils.date_utils import is_market_open
+from src.utils.date_utils import is_market_open, get_current_ist_time
 from src.risk_management.loss_protection import DailyLossProtection
 from src.risk_management.trailing_stop_loss import TrailingStopLoss
 from src.risk_management.profit_protection import ProfitProtection
@@ -49,9 +49,11 @@ class RiskMonitor:
         self.monitoring_interval = monitoring_interval
         self.monitoring_active = False
         self.monitoring_thread: Optional[threading.Thread] = None
-        self.last_sync_time = datetime.now()
+        # Initialize sync times using IST (timezone-naive for compatibility)
+        ist_now = get_current_ist_time().replace(tzinfo=None)
+        self.last_sync_time = ist_now
         self.sync_interval = 2  # Sync positions every 2 seconds
-        self.last_backup_time = datetime.now()
+        self.last_backup_time = ist_now
         self.backup_interval = 30  # Backup every 30 seconds
         
         # Initialize backup manager
@@ -141,6 +143,12 @@ class RiskMonitor:
         """Main monitoring loop that runs continuously"""
         logger.info("Risk monitoring loop started")
         
+        # Track last hourly P&L update (using IST)
+        ist_now = get_current_ist_time()
+        last_hourly_update = ist_now.replace(minute=0, second=0, microsecond=0)
+        # Track last pre-close update (at 15:00, 15:10, 15:15 IST)
+        last_preclose_update = None
+        
         while self.monitoring_active:
             try:
                 # Check if market is open
@@ -157,7 +165,8 @@ class RiskMonitor:
                     continue
                 
                 # Sync positions from API periodically
-                if (datetime.now() - self.last_sync_time).total_seconds() >= self.sync_interval:
+                ist_now = get_current_ist_time()
+                if (ist_now.replace(tzinfo=None) - self.last_sync_time).total_seconds() >= self.sync_interval:
                     if self.position_sync:
                         self.position_sync.sync_positions_from_api()
                     
@@ -170,15 +179,15 @@ class RiskMonitor:
                             if position:
                                 self.quantity_manager.recalculate_risk_metrics(position)
                     
-                    self.last_sync_time = datetime.now()
+                    self.last_sync_time = ist_now.replace(tzinfo=None)
                 
                 # Create position snapshot backup periodically
-                if (datetime.now() - self.last_backup_time).total_seconds() >= self.backup_interval:
+                if (ist_now.replace(tzinfo=None) - self.last_backup_time).total_seconds() >= self.backup_interval:
                     snapshot = self.backup_manager.create_position_snapshot()
                     if snapshot:
                         self.backup_manager.save_snapshot(snapshot)
                         self.backup_manager.cleanup_old_snapshots(keep_last_n=100)
-                    self.last_backup_time = datetime.now()
+                    self.last_backup_time = ist_now.replace(tzinfo=None)
                 
                 # Detect and process trade completions (profit protection)
                 completed_trades = self.profit_protection.detect_and_process_trade_completions()
@@ -203,6 +212,35 @@ class RiskMonitor:
                 else:
                     # Loss limit hit, update stats accordingly
                     self._update_daily_stats(protected_profit, loss_status, None)
+                
+                # Hourly P&L update - update every hour on the hour (IST)
+                ist_now = get_current_ist_time()
+                current_hour_ist = ist_now.replace(minute=0, second=0, microsecond=0)
+                if current_hour_ist > last_hourly_update:
+                    try:
+                        from src.utils.daily_pnl_updater import update_daily_pnl_hourly
+                        pnl_result = update_daily_pnl_hourly()
+                        logger.info(
+                            f"⏰ Hourly P&L Update (IST {ist_now.strftime('%H:%M')}): Total=Rs.{pnl_result['total_pnl']:,.2f} "
+                            f"(Protected: Rs.{pnl_result['protected_profit']:,.2f}, "
+                            f"Unrealized: Rs.{pnl_result['unrealized_pnl']:,.2f}, "
+                            f"Open Positions: {pnl_result['open_positions']})"
+                        )
+                        last_hourly_update = current_hour_ist
+                    except Exception as e:
+                        logger.error(f"Error in hourly P&L update: {e}", exc_info=True)
+                
+                # Pre-market close P&L update (at 15:00, 15:10, 15:15 IST)
+                current_time_ist = ist_now.time()
+                if current_time_ist.hour == 15 and current_time_ist.minute in [0, 10, 15]:
+                    update_key = f"{current_time_ist.hour}:{current_time_ist.minute}"
+                    if last_preclose_update != update_key:
+                        try:
+                            from src.utils.daily_pnl_updater import update_daily_pnl_before_market_close
+                            update_daily_pnl_before_market_close()
+                            last_preclose_update = update_key
+                        except Exception as e:
+                            logger.error(f"Error in pre-close P&L update: {e}", exc_info=True)
                 
                 # Sleep for monitoring interval
                 time.sleep(self.monitoring_interval)

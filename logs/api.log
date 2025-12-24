@@ -25532,3 +25532,33 @@
 2025-12-23 15:29:59 - api - INFO - Fetched 0 non-equity positions from 3 total positions
 2025-12-23 15:30:00 - api - INFO - Fetched 0 non-equity positions from 3 total positions
 2025-12-23 15:30:00 - api - INFO - Fetched 0 non-equity positions from 3 total positions
+2025-12-24 16:14:37 - api - ERROR - Kite client not authenticated. Cannot connect WebSocket.
+2025-12-24 16:14:51 - api - INFO - Access token set successfully
+2025-12-24 16:14:54 - api - INFO - Fetched 0 non-equity positions from 4 total positions
+2025-12-24 16:15:40 - api - INFO - Fetched 0 non-equity positions from 4 total positions
+2025-12-24 16:15:41 - api - INFO - Fetched 0 non-equity positions from 4 total positions
+2025-12-24 16:17:55 - api - INFO - Fetched 0 non-equity positions from 4 total positions
+2025-12-24 16:17:55 - api - INFO - Fetched 0 non-equity positions from 4 total positions
+2025-12-24 16:18:01 - api - INFO - Fetched 0 non-equity positions from 4 total positions
+2025-12-24 16:18:01 - api - INFO - Fetched 0 non-equity positions from 4 total positions
+2025-12-24 16:18:04 - api - INFO - Fetched 0 non-equity positions from 4 total positions
+2025-12-24 16:18:05 - api - INFO - Fetched 0 non-equity positions from 4 total positions
+2025-12-24 16:22:01 - api - ERROR - Kite client not authenticated. Cannot connect WebSocket.
+2025-12-24 16:24:56 - api - INFO - Access token set successfully
+2025-12-24 16:24:58 - api - INFO - Fetched 0 non-equity positions from 4 total positions
+2025-12-24 16:28:08 - api - ERROR - Kite client not authenticated. Cannot connect WebSocket.
+2025-12-24 16:28:17 - api - INFO - Access token set successfully
+2025-12-24 16:28:20 - api - INFO - Fetched 0 non-equity positions from 4 total positions
+2025-12-24 16:31:27 - api - INFO - Access token set successfully
+2025-12-24 17:01:07 - api - INFO - No target date specified, using today's date: 2025-12-24
+2025-12-24 17:01:07 - api - INFO - Fetched 12 orders from Zerodha, filtering for date: 2025-12-24
+2025-12-24 17:01:07 - api - WARNING - Error parsing order timestamp 2025-12-24 14:38:03: strptime() argument 1 must be str, not datetime.datetime
+2025-12-24 17:01:07 - api - WARNING - Error parsing order timestamp 2025-12-24 14:40:55: strptime() argument 1 must be str, not datetime.datetime
+2025-12-24 17:01:07 - api - WARNING - Error parsing order timestamp 2025-12-24 14:41:18: strptime() argument 1 must be str, not datetime.datetime
+2025-12-24 17:01:07 - api - WARNING - Error parsing order timestamp 2025-12-24 14:53:05: strptime() argument 1 must be str, not datetime.datetime
+2025-12-24 17:01:07 - api - WARNING - Error parsing order timestamp 2025-12-24 15:23:20: strptime() argument 1 must be str, not datetime.datetime
+2025-12-24 17:01:07 - api - WARNING - Error parsing order timestamp 2025-12-24 15:23:20: strptime() argument 1 must be str, not datetime.datetime
+2025-12-24 17:01:07 - api - WARNING - Error parsing order timestamp 2025-12-24 15:23:20: strptime() argument 1 must be str, not datetime.datetime
+2025-12-24 17:01:07 - api - WARNING - Error parsing order timestamp 2025-12-24 15:23:20: strptime() argument 1 must be str, not datetime.datetime
+2025-12-24 17:01:07 - api - INFO - Found 0 completed non-equity orders for 2025-12-24 (skipped 12 orders)
+2025-12-24 17:01:07 - api - INFO - Created 0 trade records from orders
