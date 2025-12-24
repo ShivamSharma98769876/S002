@@ -1224,11 +1224,104 @@ class LiveSegmentAgent(threading.Thread):
                                     f"Trying next lookback period..."
                                 )
                         
-                        # If we exhausted all lookback attempts without finding a candle
+                        # If we exhausted all lookback attempts without finding a candle,
+                        # try fetching the complete last trading day's candles
+                        if not found_candle:
+                            self.logger.warning(
+                                f" ⚠️ Could not find any usable candle after trying all lookback periods "
+                                f"(up to {interval_minutes * 60} minutes) for {original_signal_candle_time}. "
+                                f"Trying to fetch complete last trading day's candles..."
+                            )
+                            
+                            from src.api.live_data import fetch_last_trading_day_candles
+                            
+                            fetched_last_day = fetch_last_trading_day_candles(
+                                self.kite_client,
+                                self.params.segment,
+                                self.params.time_interval
+                            )
+                            
+                            if fetched_last_day is not None and not fetched_last_day.empty:
+                                # Normalize timezone: convert fetched index to timezone-naive if needed
+                                fetched_last_day_index = fetched_last_day.index
+                                if getattr(fetched_last_day_index, "tz", None) is not None:
+                                    # Convert to IST then remove timezone
+                                    fetched_last_day.index = fetched_last_day_index.tz_convert("Asia/Kolkata").tz_localize(None)
+                                
+                                # Find usable candles: not synthetic (all candles from last trading day are already completed)
+                                usable_candles = []
+                                for ts, row_data in fetched_last_day.iterrows():
+                                    # Check if it's not synthetic
+                                    is_syn = (row_data['open'] == row_data['high'] == row_data['low'] == row_data['close'])
+                                    if not is_syn:
+                                        usable_candles.append((ts, row_data))
+                                
+                                if usable_candles:
+                                    # Use the most recent usable candle from last trading day (last candle of the day)
+                                    found_ts, row = max(usable_candles, key=lambda x: x[0])
+                                    
+                                    # Update signal_candle_time to use the found candle
+                                    signal_candle_time = found_ts
+                                    
+                                    self.logger.info(
+                                        f" ✅ Found usable candle from last trading day: {found_ts} "
+                                        f"(requested: {original_signal_candle_time})"
+                                    )
+                                    
+                                    candle = {
+                                        "open": float(row['open']),
+                                        "high": float(row['high']),
+                                        "low": float(row['low']),
+                                        "close": float(row['close']),
+                                        "volume": float(row.get('volume', 0.0))
+                                    }
+                                    
+                                    # Check if this is a real candle (OHLC not all same)
+                                    is_real_candle = not (candle['open'] == candle['high'] == candle['low'] == candle['close'])
+                                    
+                                    if not is_real_candle:
+                                        self.logger.warning(
+                                            f" ⚠️ WARNING: Last trading day candle has all OHLC same for interval {signal_candle_time}! "
+                                            f"This might indicate low volatility or data quality issue."
+                                        )
+                                    
+                                    self.candle_repo.save_candle(
+                                        segment=self.params.segment,
+                                        timestamp=signal_candle_time,
+                                        interval=self.params.time_interval,
+                                        open=candle['open'],
+                                        high=candle['high'],
+                                        low=candle['low'],
+                                        close=candle['close'],
+                                        volume=candle['volume'],
+                                        is_synthetic=not is_real_candle
+                                    )
+                                    
+                                    if is_real_candle:
+                                        self.logger.info(
+                                            f" ✅ Fetched and saved REAL candle from last trading day for {signal_candle_time}: "
+                                            f"O:{candle['open']:.2f} H:{candle['high']:.2f} L:{candle['low']:.2f} C:{candle['close']:.2f}"
+                                        )
+                                    else:
+                                        self.logger.warning(
+                                            f" ⚠️ Fetched candle from last trading day but all OHLC are same (synthetic-like): {signal_candle_time}"
+                                        )
+                                    
+                                    found_candle = True
+                                else:
+                                    self.logger.error(
+                                        f" ❌ No usable candles found in last trading day data for {original_signal_candle_time}!"
+                                    )
+                            else:
+                                self.logger.error(
+                                    f" ❌ Failed to fetch last trading day candles for {original_signal_candle_time}!"
+                                )
+                        
+                        # Final check: if still no candle found, we must skip this tick
                         if not found_candle:
                             self.logger.error(
                                 f" ❌ CRITICAL: Could not find any usable candle after trying all lookback periods "
-                                f"(up to {interval_minutes * 60} minutes) for {original_signal_candle_time}! "
+                                f"and last trading day for {original_signal_candle_time}! "
                                 f"Cannot generate signals without real candle data. Skipping this tick."
                             )
                             return  # Skip this tick - we can't proceed without real candle data

@@ -167,3 +167,96 @@ def fetch_recent_index_candles(
         return pd.DataFrame()
 
 
+def fetch_last_trading_day_candles(
+    kite_client: KiteClient,
+    segment: str,
+    interval: str = "5minute",
+) -> pd.DataFrame:
+    """
+    Fetch complete candle data for the last trading day.
+    
+    This is useful when recent candles are not available (e.g., market just opened,
+    API issues, etc.) and we need historical data to proceed with trading.
+    
+    Args:
+        kite_client: Authenticated KiteClient instance
+        segment: 'NIFTY', 'BANKNIFTY', or 'SENSEX'
+        interval: Kite interval string (e.g. '3minute', '5minute', '15minute')
+    
+    Returns:
+        pandas DataFrame with columns: open, high, low, close, volume indexed by timestamp.
+        Returns empty DataFrame if fetch fails.
+    """
+    if not kite_client.is_authenticated():
+        from src.utils.exceptions import AuthenticationError
+        raise AuthenticationError("Not authenticated. Please authenticate first.")
+
+    from src.utils.date_utils import get_current_ist_time, get_market_hours
+    from datetime import timedelta
+    
+    seg = segment.upper()
+    instrument_token = INDEX_INSTRUMENT_TOKENS.get(seg)
+    if instrument_token is None:
+        logger.error(f"Unsupported segment for historical data: {segment}")
+        return pd.DataFrame()
+
+    # Get last trading day
+    ist_time = get_current_ist_time()
+    market_open, market_close = get_market_hours()
+    
+    # Calculate last trading day (yesterday, or skip weekends)
+    last_trading_day = ist_time.date() - timedelta(days=1)
+    while last_trading_day.weekday() >= 5:  # Skip weekends
+        last_trading_day -= timedelta(days=1)
+    
+    # Create date range for last trading day (market hours)
+    from_date = datetime.combine(last_trading_day, market_open)
+    to_date = datetime.combine(last_trading_day, market_close)
+    
+    # Convert interval to Kite API format
+    kite_interval = convert_interval_to_kite_format(interval)
+    
+    try:
+        logger.info(
+            f"📅 Fetching complete last trading day ({last_trading_day}) candles for {segment} "
+            f"from {from_date} to {to_date} ({interval})..."
+        )
+        
+        candles = kite_client.kite.historical_data(
+            instrument_token,
+            from_date,
+            to_date,
+            kite_interval,
+            continuous=False,
+            oi=False,
+        )
+        
+        if not candles:
+            logger.warning(f"No historical candles returned for last trading day {last_trading_day} ({segment}, {interval})")
+            return pd.DataFrame()
+
+        df = pd.DataFrame(candles)
+        if "date" not in df.columns:
+            logger.warning(f"Historical candles missing 'date' column for {segment}")
+            return pd.DataFrame()
+
+        df["date"] = pd.to_datetime(df["date"])
+        df.set_index("date", inplace=True)
+        
+        # Filter to last trading day only (in case API returns extra data)
+        df = df[df.index.date == last_trading_day]
+        
+        logger.info(
+            f"✅ Fetched {len(df)} candles for last trading day {last_trading_day} ({segment}) "
+            f"covering {df.index[0]} to {df.index[-1]} ({interval})"
+        )
+        
+        return df[["open", "high", "low", "close", "volume"]]
+    except Exception as e:
+        logger.error(
+            f"Error fetching last trading day candles for {segment} ({last_trading_day}): {e}",
+            exc_info=True
+        )
+        return pd.DataFrame()
+
+
