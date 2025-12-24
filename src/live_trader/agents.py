@@ -683,8 +683,11 @@ class LiveSegmentAgent(threading.Thread):
             
             # Fetch live price from Kite
             price = fetch_live_index_ltp(self.kite_client, self.params.segment)
-            now = datetime.now().replace(second=0, microsecond=0)
-            self.logger.info(f"Fetched LTP from Kite: ₹{price:.2f} at {now.strftime('%H:%M:%S')}")
+            # Use IST time for all calculations (critical for Azure which runs in GMT)
+            from src.utils.date_utils import get_current_ist_time
+            ist_now = get_current_ist_time()
+            now = ist_now.replace(second=0, microsecond=0).replace(tzinfo=None)  # Convert to naive for compatibility
+            self.logger.info(f"Fetched LTP from Kite: ₹{price:.2f} at {now.strftime('%H:%M:%S')} IST")
 
             with self._lock:
                 # HYBRID APPROACH: 
@@ -1340,13 +1343,18 @@ class LiveSegmentAgent(threading.Thread):
                                     # Use the most recent usable candle from last trading day (last candle of the day)
                                     found_ts, row = max(usable_candles, key=lambda x: x[0])
                                     
-                                    # Update signal_candle_time to use the found candle
-                                    signal_candle_time = found_ts
+                                    # CRITICAL FIX: Do NOT update signal_candle_time to yesterday's timestamp!
+                                    # We only use yesterday's candle DATA, but keep signal_candle_time as TODAY's time
+                                    # This ensures signal generation uses today's timestamp, not yesterday's
+                                    # The candle data will be used for calculations, but timestamp remains today
                                     
-                                    self.logger.info(
-                                        f" ✅ Found usable candle from last trading day: {found_ts} "
-                                        f"(requested: {original_signal_candle_time})"
+                                    self.logger.warning(
+                                        f" ⚠️ Using last trading day candle DATA (from {found_ts}) for TODAY's signal candle time ({original_signal_candle_time}). "
+                                        f"This is a fallback - signal timestamp remains {original_signal_candle_time} (today)."
                                     )
+                                    
+                                    # Keep signal_candle_time as original (today), don't change it to yesterday
+                                    # signal_candle_time remains as original_signal_candle_time
                                     
                                     candle = {
                                         "open": float(row['open']),
@@ -1361,13 +1369,15 @@ class LiveSegmentAgent(threading.Thread):
                                     
                                     if not is_real_candle:
                                         self.logger.warning(
-                                            f" ⚠️ WARNING: Last trading day candle has all OHLC same for interval {signal_candle_time}! "
+                                            f" ⚠️ WARNING: Last trading day candle has all OHLC same for interval {found_ts}! "
                                             f"This might indicate low volatility or data quality issue."
                                         )
                                     
+                                    # Save the candle with TODAY's timestamp (not yesterday's)
+                                    # This ensures the DataFrame uses today's timestamp for signal generation
                                     self.candle_repo.save_candle(
                                         segment=self.params.segment,
-                                        timestamp=signal_candle_time,
+                                        timestamp=original_signal_candle_time,  # Use TODAY's timestamp, not yesterday's
                                         interval=self.params.time_interval,
                                         open=candle['open'],
                                         high=candle['high'],
@@ -1379,7 +1389,7 @@ class LiveSegmentAgent(threading.Thread):
                                     
                                     if is_real_candle:
                                         self.logger.info(
-                                            f" ✅ Fetched and saved REAL candle from last trading day for {signal_candle_time}: "
+                                            f" ✅ Using last trading day candle DATA (from {found_ts}) for TODAY's signal candle ({original_signal_candle_time}): "
                                             f"O:{candle['open']:.2f} H:{candle['high']:.2f} L:{candle['low']:.2f} C:{candle['close']:.2f}"
                                         )
                                     else:
