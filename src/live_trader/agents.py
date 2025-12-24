@@ -2751,16 +2751,23 @@ class LiveSegmentAgent(threading.Thread):
             # Extract filter information from eval_details if available
             filter_info = eval_details.get("filters", {})
             
-            self._save_ps_vs_data(
-                price_strength, 
-                volume_strength, 
-                candle_timestamp, 
-                current_price, 
-                rsi_val,
-                crossover_timestamp=crossover_timestamp,
-                crossover_type=crossover_type,
-                filter_info=filter_info
-            )
+            # Only save if we have a valid timestamp
+            if candle_timestamp is not None:
+                self._save_ps_vs_data(
+                    price_strength, 
+                    volume_strength, 
+                    candle_timestamp, 
+                    current_price, 
+                    rsi_val,
+                    crossover_timestamp=crossover_timestamp,
+                    crossover_type=crossover_type,
+                    filter_info=filter_info
+                )
+            else:
+                self.logger.warning(
+                    f"⚠️ Cannot save PS/VS data: candle_timestamp is None. "
+                    f"PS={price_strength:.2f}, VS={volume_strength:.2f}"
+                )
         
         # Format candle display with OHLC details
         if candle_timestamp:
@@ -3032,9 +3039,19 @@ class LiveSegmentAgent(threading.Thread):
             with open(file_path, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
             
+            # Log successful save (at debug level to avoid spam, but can be enabled for troubleshooting)
+            self.logger.debug(
+                f"✅ Saved PS/VS data to {file_path.name}: PS={price_strength:.2f}, VS={volume_strength:.2f}, "
+                f"timestamp={timestamp}, total_points={len(data)}"
+            )
+            
         except Exception as e:
-            # Don't fail the main process if PS/VS saving fails
-            self.logger.debug(f"Failed to save PS/VS data: {e}")
+            # Don't fail the main process if PS/VS saving fails, but log at INFO level for visibility
+            self.logger.warning(
+                f"⚠️ Failed to save PS/VS data for timestamp {timestamp}: {e}. "
+                f"This may prevent the PS/VS chart from displaying data.",
+                exc_info=True
+            )
 
     def _recover_positions_from_kite(self) -> None:
         """

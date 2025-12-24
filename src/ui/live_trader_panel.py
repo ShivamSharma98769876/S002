@@ -674,8 +674,10 @@ def get_ps_vs_data():
         
         # Get PS/VS data file path
         from src.live_trader.execution import LOG_DIR
+        from src.utils.date_utils import get_current_ist_time
         ps_vs_dir = LOG_DIR / "ps_vs_data"
-        today = datetime.now().strftime("%Y-%m-%d")
+        # Use IST time to match the timestamp format used when saving files
+        today = get_current_ist_time().strftime("%Y-%m-%d")
         file_path = ps_vs_dir / f"ps_vs_{segment}_{today}.json"
         
         # If today's file doesn't exist, try to find the most recent one
@@ -696,12 +698,25 @@ def get_ps_vs_data():
             with open(file_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
             
-            # Filter to last N hours
-            cutoff_time = datetime.now() - timedelta(hours=num_hours)
-            filtered_data = [
-                d for d in data 
-                if datetime.fromisoformat(d["timestamp"]) >= cutoff_time
-            ]
+            # Filter to last N hours (use IST to match timestamp format)
+            from src.utils.date_utils import get_current_ist_time
+            cutoff_time = get_current_ist_time() - timedelta(hours=num_hours)
+            # Make cutoff_time timezone-naive for comparison if timestamps are naive
+            if cutoff_time.tzinfo is not None:
+                cutoff_time = cutoff_time.replace(tzinfo=None)
+            
+            filtered_data = []
+            for d in data:
+                try:
+                    d_timestamp = datetime.fromisoformat(d["timestamp"])
+                    # Make timezone-naive if needed for comparison
+                    if d_timestamp.tzinfo is not None:
+                        d_timestamp = d_timestamp.replace(tzinfo=None)
+                    if d_timestamp >= cutoff_time:
+                        filtered_data.append(d)
+                except (ValueError, KeyError) as e:
+                    logger.warning(f"Skipping invalid data point in PS/VS file: {e}")
+                    continue
             
             return jsonify({
                 "success": True,
