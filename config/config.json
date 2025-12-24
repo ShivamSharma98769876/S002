@@ -100,7 +100,7 @@
   },
   "market_hours": {
     "open_time": "09:30",
-    "close_time": "15:30"
+    "close_time": "15:15"
   },
   "pyramiding_config": {
     "NIFTY": {

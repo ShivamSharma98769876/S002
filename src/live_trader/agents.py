@@ -665,11 +665,11 @@ class LiveSegmentAgent(threading.Thread):
             # Check if market is open (from config.json)
             from src.utils.date_utils import is_market_open, get_current_ist_time, get_market_hours
             
+            ist_time = get_current_ist_time()
+            current_time = ist_time.time()
+            _, market_close = get_market_hours()
+            
             if not is_market_open():
-                ist_time = get_current_ist_time()
-                current_time = ist_time.time()
-                _, market_close = get_market_hours()
-                
                 # If market is closed, log and skip this tick
                 if current_time > market_close:
                     market_close_str = market_close.strftime("%H:%M")
@@ -683,6 +683,46 @@ class LiveSegmentAgent(threading.Thread):
             
             # Fetch live price from Kite
             price = fetch_live_index_ltp(self.kite_client, self.params.segment)
+            
+            # Check if we need to square off positions before market close
+            # Square off at 15:15 (3:15 PM) - 15 minutes before market close at 15:30
+            if current_time.hour == 15 and current_time.minute == 15:
+                if self.current_position is not None:
+                    self.logger.warning(
+                        f"🕐 Market close approaching (15:15 IST). Squaring off all open positions..."
+                    )
+                    try:
+                        # Square off current position
+                        if isinstance(self.execution, LiveExecutionClient) and self._position_key:
+                            square_off_result = self.execution.square_off_position(
+                                position_key=self._position_key,
+                                reason="Market close - Auto square off at 15:15 IST",
+                                trade_regime=self.trade_regime
+                            )
+                            self.logger.info(
+                                f"✅ Position squared off at market close: Exit price = ₹{square_off_result.get('exit_price', 0):.2f}, "
+                                f"P&L = ₹{square_off_result.get('pnl_value', 0):.2f}"
+                            )
+                        else:
+                            # Paper mode or no position key - use logical exit
+                            if self.current_position:
+                                self._handle_exit(
+                                    price=price,
+                                    timestamp=ist_time.replace(tzinfo=None),
+                                    option_type=self.current_position
+                                )
+                                self.logger.info(f"✅ Position logically exited at market close (Paper mode)")
+                    except Exception as e:
+                        self.logger.error(f"❌ Failed to square off position at market close: {e}", exc_info=True)
+                        # Try emergency square off via Kite API directly
+                        try:
+                            if isinstance(self.execution, LiveExecutionClient):
+                                order_ids = self.execution.kite_client.square_off_all_positions()
+                                self.logger.info(f"✅ Emergency square off executed: {order_ids}")
+                        except Exception as e2:
+                            self.logger.critical(f"❌ CRITICAL: Emergency square off also failed: {e2}")
+                    # After square off, continue with normal tick processing (but won't enter new positions)
+                    return
             # Use IST time for all calculations (critical for Azure which runs in GMT)
             from src.utils.date_utils import get_current_ist_time
             ist_now = get_current_ist_time()
