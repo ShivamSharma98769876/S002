@@ -684,6 +684,11 @@ class LiveSegmentAgent(threading.Thread):
             # Fetch live price from Kite
             price = fetch_live_index_ltp(self.kite_client, self.params.segment)
             
+            # Validate price is not None before using it
+            if price is None:
+                self.logger.warning(f" Failed to fetch LTP for {self.params.segment}, skipping this tick")
+                return
+            
             # Check if we need to square off positions before market close
             # Square off at 15:15 (3:15 PM) - 15 minutes before market close at 15:30
             if current_time.hour == 15 and current_time.minute == 15:

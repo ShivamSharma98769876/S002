@@ -658,6 +658,20 @@
             border: 1px solid var(--danger-color, #ef4444);
         }
 
+        /* Rotating icon animation for running engine */
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .status-badge.running i.fa-cog {
+            animation: rotate 2s linear infinite;
+            display: inline-block;
+        }
+
         .status-badge.connected {
             background: rgba(16, 185, 129, 0.1);
             color: var(--success-color, #10b981);
@@ -2227,7 +2241,7 @@
             const badge = document.getElementById('statusBadge');
             if (running) {
                 badge.className = 'status-badge running';
-                badge.innerHTML = '<i class="fas fa-circle"></i> Running';
+                badge.innerHTML = '<i class="fas fa-cog"></i> Running';
             } else {
                 badge.className = 'status-badge stopped';
                 badge.innerHTML = '<i class="fas fa-circle"></i> Stopped';
