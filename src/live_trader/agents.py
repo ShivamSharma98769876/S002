@@ -3087,7 +3087,8 @@ class LiveSegmentAgent(threading.Thread):
     ) -> None:
         """
         Save PS/VS data to JSON file for time series chart visualization.
-        Stores data per segment per day, keeping last 10 hours of data.
+        Stores data per segment per day, preserving ALL historical data across restarts.
+        Data is appended to existing files, never deleted.
         
         Args:
             price_strength: Current PS value
@@ -3110,14 +3111,20 @@ class LiveSegmentAgent(threading.Thread):
             date_str = timestamp.strftime("%Y-%m-%d")
             file_path = ps_vs_dir / f"ps_vs_{self.params.segment}_{date_str}.json"
             
-            # Load existing data or create new
+            # Load existing data or create new (preserves all historical data)
             data = []
+            existing_timestamps = set()  # Track existing timestamps to avoid duplicates
             if file_path.exists():
                 try:
                     with open(file_path, 'r', encoding='utf-8') as f:
                         data = json.load(f)
-                except (json.JSONDecodeError, IOError):
+                        # Build set of existing timestamps to avoid duplicates
+                        existing_timestamps = {d.get("timestamp") for d in data if d.get("timestamp")}
+                        self.logger.debug(f" Loaded {len(data)} existing PS/VS data points from {file_path.name}")
+                except (json.JSONDecodeError, IOError) as e:
+                    self.logger.warning(f" Error loading existing PS/VS data: {e}, starting fresh")
                     data = []
+                    existing_timestamps = set()
             
             # If crossover was detected, save it with the crossover timestamp
             if crossover_timestamp is not None and crossover_type is not None:
@@ -3180,15 +3187,27 @@ class LiveSegmentAgent(threading.Thread):
                     elif prev_ps < prev_vs and price_strength > volume_strength:
                         data_point["crossover"] = "CE"
             
-            # Add new data point
-            data.append(data_point)
+            # Add new data point only if it doesn't already exist (avoid duplicates on restart)
+            timestamp_iso = timestamp.isoformat()
+            if timestamp_iso not in existing_timestamps:
+                data.append(data_point)
+            else:
+                # Update existing data point if it exists (in case of restart with same timestamp)
+                for i, d in enumerate(data):
+                    if d.get("timestamp") == timestamp_iso:
+                        # Update with latest values
+                        data[i] = data_point
+                        self.logger.debug(f" Updated existing PS/VS data point for {timestamp_iso}")
+                        break
             
-            # Keep only last 10 hours of data (approximately 120 data points for 5-minute candles)
-            # Filter to keep data from last 10 hours
-            cutoff_time = timestamp - timedelta(hours=10)
-            data = [d for d in data if datetime.fromisoformat(d["timestamp"]) >= cutoff_time]
+            # PRESERVE ALL DATA - Do not filter/delete old data
+            # Historical data is preserved across restarts for complete time series visualization
+            # The UI can filter by hours if needed, but we keep all data in the file
             
-            # Save to file
+            # Sort data by timestamp to maintain chronological order
+            data.sort(key=lambda x: datetime.fromisoformat(x["timestamp"]) if x.get("timestamp") else datetime.min)
+            
+            # Save to file (preserves all historical data)
             with open(file_path, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
             
