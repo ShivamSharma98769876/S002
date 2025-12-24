@@ -763,6 +763,7 @@ class LiveSegmentAgent(threading.Thread):
                 
                 # PRIORITY 2: If not in DataFrame, check database (candles saved earlier)
                 db_candle = None
+                most_recent_candle = None  # Initialize outside the if block to avoid UnboundLocalError
                 if candle is None:
                     latest_db_candles = self.candle_repo.get_latest_candles(
                         segment=self.params.segment,
@@ -776,7 +777,6 @@ class LiveSegmentAgent(threading.Thread):
                     max_age_seconds = interval_minutes * 60 * 2  # 2 intervals - max age before forcing API fetch
                     
                     # First, try to find the exact candle for signal_candle_time
-                    most_recent_candle = None
                     for latest_candle in reversed(latest_db_candles):
                         if latest_candle.timestamp == signal_candle_time:
                             time_since_candle = (now - latest_candle.timestamp).total_seconds()
@@ -947,12 +947,11 @@ class LiveSegmentAgent(threading.Thread):
                                             
                                             # First, check database for the exact expected candle
                                             db_has_expected = False
-                                            if most_recent_candle:
-                                                db_ts = most_recent_candle.timestamp
+                                            if db_candle:
+                                                db_ts = db_candle.timestamp
                                                 if db_ts == signal_candle_time:
                                                     # Database has the exact expected candle - use it!
                                                     signal_candle_time = db_ts
-                                                    db_candle = most_recent_candle
                                                     self.logger.info(
                                                         f" ✅ Using database candle (exact match): {db_ts} "
                                                         f"[Window {expected_window_str}]"
@@ -970,7 +969,6 @@ class LiveSegmentAgent(threading.Thread):
                                                     if db_window_str == expected_window_str:
                                                         # Database has the correct window candle - use it
                                                         signal_candle_time = db_ts
-                                                        db_candle = most_recent_candle
                                                         self.logger.info(
                                                             f" ✅ Using database candle (same window): {db_ts} "
                                                             f"[Window {expected_window_str}]"
@@ -1113,13 +1111,16 @@ class LiveSegmentAgent(threading.Thread):
                                     return
                         except Exception as e:
                             self.logger.warning(f" Error fetching fresh candles from API: {e}")
-                            # Fall back to using database candle
-                            db_candle = most_recent_candle
-                            signal_candle_time = most_recent_candle.timestamp
-                else:
+                            # Fall back to using database candle if available
+                            if db_candle:
+                                signal_candle_time = db_candle.timestamp
+                            else:
+                                # No candle available, skip this tick
+                                self.logger.warning(" No candle available from DataFrame, database, or API. Skipping this tick.")
+                                return
+                elif db_candle:
                     # Database candle is recent enough, use it
-                    db_candle = most_recent_candle
-                    signal_candle_time = most_recent_candle.timestamp
+                    signal_candle_time = db_candle.timestamp
                 
                 # Log the candle being used
                 if db_candle:
