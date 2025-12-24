@@ -1,6 +1,7 @@
 """
 Comprehensive Logging System
 Supports structured logging with different log levels, file rotation, and audit logging
+All timestamps are displayed in IST (Indian Standard Time) regardless of server timezone
 """
 
 import logging
@@ -10,6 +11,34 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional
 import colorlog
+from pytz import timezone
+
+# IST timezone for all logging
+IST = timezone('Asia/Kolkata')
+
+
+class ISTFormatter(logging.Formatter):
+    """Custom formatter that converts timestamps to IST"""
+    
+    def formatTime(self, record, datefmt=None):
+        """Convert record time to IST and format it"""
+        # Convert the record's time to IST
+        dt = datetime.fromtimestamp(record.created, tz=IST)
+        if datefmt:
+            return dt.strftime(datefmt)
+        return dt.strftime('%Y-%m-%d %H:%M:%S')
+
+
+class ISTColoredFormatter(colorlog.ColoredFormatter):
+    """Custom colored formatter that converts timestamps to IST"""
+    
+    def formatTime(self, record, datefmt=None):
+        """Convert record time to IST and format it"""
+        # Convert the record's time to IST
+        dt = datetime.fromtimestamp(record.created, tz=IST)
+        if datefmt:
+            return dt.strftime(datefmt)
+        return dt.strftime('%Y-%m-%d %H:%M:%S')
 
 
 class Logger:
@@ -91,7 +120,7 @@ class Logger:
             encoding='utf-8'
         )
         file_handler.setLevel(self.log_level)
-        file_formatter = logging.Formatter(
+        file_formatter = ISTFormatter(
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
             datefmt='%Y-%m-%d %H:%M:%S'
         )
@@ -103,7 +132,7 @@ class Logger:
         console_handler.setLevel(self.log_level)
         
         if use_color:
-            console_formatter = colorlog.ColoredFormatter(
+            console_formatter = ISTColoredFormatter(
                 '%(log_color)s%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                 datefmt='%Y-%m-%d %H:%M:%S',
                 log_colors={
@@ -115,7 +144,7 @@ class Logger:
                 }
             )
         else:
-            console_formatter = logging.Formatter(
+            console_formatter = ISTFormatter(
                 '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                 datefmt='%Y-%m-%d %H:%M:%S'
             )
@@ -127,7 +156,7 @@ class Logger:
     
     def log_audit(self, action: str, details: dict, user: Optional[str] = None):
         """Log audit trail for critical operations"""
-        timestamp = datetime.now().isoformat()
+        timestamp = datetime.now(IST).isoformat()
         audit_entry = {
             "timestamp": timestamp,
             "action": action,
@@ -184,7 +213,8 @@ def get_segment_logger(segment: str, mode: str, log_dir: Optional[Path] = None) 
     log_dir.mkdir(parents=True, exist_ok=True)
     
     # Format: Paper_Sensex_2025-11-28.log or Live_Banknifty_2025-11-28.log
-    today = datetime.now().strftime("%Y-%m-%d")
+    # Use IST for file naming to ensure correct date even on GMT servers
+    today = datetime.now(IST).strftime("%Y-%m-%d")
     segment_normalized = segment.upper()
     mode_normalized = mode.upper()
     log_file_name = f"{mode_normalized}_{segment_normalized}_{today}.log"
@@ -208,7 +238,7 @@ def get_segment_logger(segment: str, mode: str, log_dir: Optional[Path] = None) 
         encoding='utf-8'
     )
     file_handler.setLevel(logging.INFO)
-    file_formatter = logging.Formatter(
+    file_formatter = ISTFormatter(
         '%(asctime)s - %(levelname)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
@@ -221,7 +251,7 @@ def get_segment_logger(segment: str, mode: str, log_dir: Optional[Path] = None) 
     if not has_console:
         console_handler = logging.StreamHandler()
         console_handler.setLevel(logging.INFO)
-        console_formatter = colorlog.ColoredFormatter(
+        console_formatter = ISTColoredFormatter(
             '%(log_color)s[%(asctime)s] %(levelname)s - %(message)s',
             datefmt='%Y-%m-%d %H:%M:%S',
             log_colors={

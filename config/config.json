@@ -55,8 +55,8 @@
   },
   "dynamic_threshold": {
     "enabled": true,
-    "tight_range": [2.0, 20.0],
-    "wide_range": [3.0, 20.0]
+    "tight_range": [2.0, 40.0],
+    "wide_range": [3.0, 50.0]
   },
   "time_session_filter": {
     "enabled": true,

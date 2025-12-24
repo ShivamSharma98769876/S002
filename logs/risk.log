@@ -384,3 +384,17 @@ WHERE trades.exit_time >= ? AND trades.exit_time <= ?]
 2025-12-23 10:34:57 - risk - INFO - Risk monitoring started
 2025-12-23 10:49:52 - risk - INFO - Risk monitoring loop started
 2025-12-23 10:49:52 - risk - INFO - Risk monitoring started
+2025-12-23 14:18:30 - risk - INFO - Trade completed with loss: ₹-960.00 | Total protected P&L: ₹-97.50
+2025-12-23 14:18:30 - risk - INFO - Trade closed with loss: ₹-960.00 | Symbol: NIFTY25DEC26400CE | Protected P&L updated
+2025-12-23 14:18:30 - risk - INFO - Detected 1 completed trades
+2025-12-23 14:24:34 - risk - INFO - Trade completed with profit: ₹1545.00 | Total protected P&L: ₹1447.50
+2025-12-23 14:24:34 - risk - INFO - Trade closed with profit: ₹1545.00 | Symbol: NIFTY25DEC26000PE | Protected P&L updated
+2025-12-23 14:24:34 - risk - INFO - Detected 1 completed trades
+2025-12-23 14:45:09 - risk - INFO - Trade completed with loss: ₹-1132.50 | Total protected P&L: ₹315.00
+2025-12-23 14:45:10 - risk - INFO - Trade closed with loss: ₹-1132.50 | Symbol: NIFTY25DEC26050PE | Protected P&L updated
+2025-12-23 14:45:10 - risk - INFO - Detected 1 completed trades
+2025-12-23 14:58:49 - risk - INFO - Risk monitoring loop started
+2025-12-23 14:58:49 - risk - INFO - Risk monitoring started
+2025-12-23 15:22:56 - risk - INFO - Trade completed with profit: ₹2028.75 | Total protected P&L: ₹2343.75
+2025-12-23 15:22:56 - risk - INFO - Trade closed with profit: ₹2028.75 | Symbol: NIFTY25DEC26400CE | Protected P&L updated
+2025-12-23 15:22:56 - risk - INFO - Detected 1 completed trades
