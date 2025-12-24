@@ -739,53 +739,79 @@ class LiveSegmentAgent(threading.Thread):
                 # Initialize candle variable
                 candle = None
                 
-                # For signal generation, we need the MOST RECENT COMPLETED candle
-                # First, try to get the most recent completed, non-synthetic candle from database
+                # PRIORITY 1: Check DataFrame first (candles collected during the day)
+                # This should have all today's candles that were already fetched and processed
+                if hasattr(self, 'df') and not self.df.empty and signal_candle_time in self.df.index:
+                    df_row = self.df.loc[signal_candle_time]
+                    time_since_candle = (now - signal_candle_time).total_seconds()
+                    
+                    # Check if candle is old enough and not synthetic
+                    if time_since_candle >= 60:  # At least 1 minute old
+                        is_synthetic = (df_row['open'] == df_row['high'] == df_row['low'] == df_row['close'])
+                        if not is_synthetic:
+                            candle = {
+                                "open": float(df_row['open']),
+                                "high": float(df_row['high']),
+                                "low": float(df_row['low']),
+                                "close": float(df_row['close']),
+                                "volume": float(df_row.get('volume', 0.0))
+                            }
+                            self.logger.debug(
+                                f" ✅ Using candle from DataFrame (collected today): {signal_candle_time} "
+                                f"(O:{candle['open']:.2f} H:{candle['high']:.2f} L:{candle['low']:.2f} C:{candle['close']:.2f})"
+                            )
+                
+                # PRIORITY 2: If not in DataFrame, check database (candles saved earlier)
                 db_candle = None
-                latest_db_candles = self.candle_repo.get_latest_candles(
-                    segment=self.params.segment,
-                    interval=self.params.time_interval,
-                    limit=20  # Get last 20 candles to find the most recent completed one
-                )
+                if candle is None:
+                    latest_db_candles = self.candle_repo.get_latest_candles(
+                        segment=self.params.segment,
+                        interval=self.params.time_interval,
+                        limit=20  # Get last 20 candles to find the most recent completed one
+                    )
+                    
+                    # Require an exact candle for signal_candle_time (no older fallback)
+                    # A candle is usable if it's at least 1 minute old (to avoid using current forming candle)
+                    min_age_seconds = 60  # 1 minute minimum to ensure it's not the current forming candle
+                    max_age_seconds = interval_minutes * 60 * 2  # 2 intervals - max age before forcing API fetch
+                    
+                    # First, try to find the exact candle for signal_candle_time
+                    most_recent_candle = None
+                    for latest_candle in reversed(latest_db_candles):
+                        if latest_candle.timestamp == signal_candle_time:
+                            time_since_candle = (now - latest_candle.timestamp).total_seconds()
+                            if time_since_candle >= min_age_seconds:
+                                is_synthetic = latest_candle.is_synthetic or (latest_candle.open == latest_candle.high == latest_candle.low == latest_candle.close)
+                                if not is_synthetic:
+                                    most_recent_candle = latest_candle
+                                    self.logger.debug(f" Found exact match for signal_candle_time: {signal_candle_time}")
+                                    break  # Found exact match, use it
                 
-                # Require an exact candle for signal_candle_time (no older fallback)
-                # A candle is usable if it's at least 1 minute old (to avoid using current forming candle)
-                min_age_seconds = 60  # 1 minute minimum to ensure it's not the current forming candle
-                max_age_seconds = interval_minutes * 60 * 2  # 2 intervals - max age before forcing API fetch
-                
-                # First, try to find the exact candle for signal_candle_time
-                most_recent_candle = None
-                for latest_candle in reversed(latest_db_candles):
-                    if latest_candle.timestamp == signal_candle_time:
-                        time_since_candle = (now - latest_candle.timestamp).total_seconds()
-                        if time_since_candle >= min_age_seconds:
-                            is_synthetic = latest_candle.is_synthetic or (latest_candle.open == latest_candle.high == latest_candle.low == latest_candle.close)
-                            if not is_synthetic:
-                                most_recent_candle = latest_candle
-                                self.logger.debug(f" Found exact match for signal_candle_time: {signal_candle_time}")
-                                break  # Found exact match, use it
-                
-                # Now check if the most recent candle is too old or not the one we need
-                if most_recent_candle:
-                    # If we found a candle but it's not the exact one we need, fetch from API
-                    if most_recent_candle.timestamp < signal_candle_time:
-                        self.logger.info(
-                            f" Database has candle {most_recent_candle.timestamp}, but need {signal_candle_time}. "
-                            f"Fetching fresh data from API to get the latest completed candles..."
-                        )
-                        most_recent_candle = None  # Force API fetch
-                    else:
-                        # We have the exact candle we need, check if it's too old
-                        time_since_candle = (now - most_recent_candle.timestamp).total_seconds()
-                        if time_since_candle > max_age_seconds:
+                    # Now check if the most recent candle is too old or not the one we need
+                    if most_recent_candle:
+                        # If we found a candle but it's not the exact one we need, fetch from API
+                        if most_recent_candle.timestamp < signal_candle_time:
                             self.logger.info(
-                                f" ⚠️ Database candle is {time_since_candle/60:.1f} minutes old (max: {max_age_seconds/60:.1f} min). "
-                                f"Fetching fresh data from API to get newer completed candles..."
+                                f" Database has candle {most_recent_candle.timestamp}, but need {signal_candle_time}. "
+                                f"Fetching fresh data from API to get the latest completed candles..."
                             )
                             most_recent_candle = None  # Force API fetch
+                        else:
+                            # We have the exact candle we need, check if it's too old
+                            time_since_candle = (now - most_recent_candle.timestamp).total_seconds()
+                            if time_since_candle > max_age_seconds:
+                                self.logger.info(
+                                    f" ⚠️ Database candle is {time_since_candle/60:.1f} minutes old (max: {max_age_seconds/60:.1f} min). "
+                                    f"Fetching fresh data from API to get newer completed candles..."
+                                )
+                                most_recent_candle = None  # Force API fetch
+                    
+                    # If we found a good candle in database, use it
+                    if most_recent_candle:
+                        db_candle = most_recent_candle
                 
-                # If we don't have a good candle, fetch from API
-                if not most_recent_candle:
+                # PRIORITY 3: Only fetch from API if we don't have the candle in DataFrame or database
+                if candle is None and db_candle is None:
                     # Fetch fresh candles from API
                         try:
                             fetched = fetch_recent_index_candles(
