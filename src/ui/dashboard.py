@@ -744,7 +744,12 @@ class Dashboard:
                             else:
                                 total_trades_count += 1  # Single trade
                         
-                        win_rate = (profitable_trades / total_trades_count * 100) if total_trades_count > 0 else 0.0
+                        # Win Rate formula: (Total Profit - Total Loss) / Total Profit
+                        # If result is negative, show in red, otherwise green
+                        if total_profit > 0:
+                            win_rate = ((total_profit - total_loss) / total_profit * 100)
+                        else:
+                            win_rate = 0.0
                         
                         # Force position sync before getting active positions to detect manual exits
                         # This ensures positions manually closed in Kite are marked as inactive
@@ -845,7 +850,12 @@ class Dashboard:
                                 else:
                                     total_trades_count += 1  # Single trade
                         
-                        win_rate = (profitable_trades / total_trades_count * 100) if total_trades_count > 0 else 0.0
+                        # Win Rate formula: (Total Profit - Total Loss) / Total Profit
+                        # If result is negative, show in red, otherwise green
+                        if total_profit > 0:
+                            win_rate = ((total_profit - total_loss) / total_profit * 100)
+                        else:
+                            win_rate = 0.0
                         
                         summary = {
                             "total_profit": total_profit,
@@ -1328,6 +1338,131 @@ class Dashboard:
                 
                 # Calculate metrics (function is already optimized)
                 metrics = daily_stats_repo.get_cumulative_pnl_metrics()
+                
+                # Override Day P&L with Net P&L from Trade History (includes both closed and open trades for today)
+                # This ensures Day P&L matches the Trade History Net P&L
+                try:
+                    from src.utils.date_utils import get_current_ist_time
+                    today_ist = get_current_ist_time().date()
+                    date_str = today_ist.isoformat()
+                    
+                    # Get today's Net P&L by reusing the same logic as /api/trades endpoint
+                    if self.kite_client and self.kite_client.is_authenticated():
+                        # Get trades for today and calculate Net P&L
+                        # This matches the logic in /api/trades endpoint
+                        try:
+                            # Get all orders and process them for today
+                            all_orders = self.kite_client.get_orders()
+                            
+                            # Filter for non-equity COMPLETE orders
+                            non_equity_orders = [
+                                o for o in all_orders
+                                if not self._is_equity_trade(o.get('exchange', '').upper()) and
+                                   o.get('status', '').upper() == 'COMPLETE' and
+                                   o.get('filled_quantity', 0) > 0
+                            ]
+                            
+                            # Group by symbol
+                            orders_by_symbol = {}
+                            for order in non_equity_orders:
+                                symbol = order.get('tradingsymbol', '')
+                                if symbol not in orders_by_symbol:
+                                    orders_by_symbol[symbol] = []
+                                orders_by_symbol[symbol].append(order)
+                            
+                            # Calculate Net P&L for today using FIFO matching (same as /api/trades)
+                            today_pnl = 0.0
+                            for symbol, symbol_orders in orders_by_symbol.items():
+                                # Filter by today's date
+                                try:
+                                    trade_date = datetime.fromisoformat(date_str).date()
+                                    symbol_orders_today = [
+                                        o for o in symbol_orders
+                                        if self._parse_order_timestamp(o.get('order_timestamp', '')).date() == trade_date
+                                    ]
+                                except:
+                                    symbol_orders_today = []
+                                
+                                if not symbol_orders_today:
+                                    continue
+                                
+                                # Sort and match orders (FIFO)
+                                symbol_orders_today.sort(key=lambda x: self._parse_order_timestamp(x.get('order_timestamp', '')))
+                                pending_buys = []
+                                pending_sells = []
+                                
+                                for order in symbol_orders_today:
+                                    transaction_type = order.get('transaction_type', '').upper()
+                                    filled_qty = order.get('filled_quantity', 0)
+                                    avg_price = float(order.get('average_price', 0))
+                                    
+                                    if transaction_type == 'BUY':
+                                        remaining_qty = filled_qty
+                                        while remaining_qty > 0 and pending_sells:
+                                            sell_order, sell_remaining = pending_sells[0]
+                                            sell_price = float(sell_order.get('average_price', 0))
+                                            match_qty = min(remaining_qty, sell_remaining)
+                                            pnl = (sell_price - avg_price) * match_qty
+                                            today_pnl += pnl
+                                            remaining_qty -= match_qty
+                                            sell_remaining -= match_qty
+                                            if sell_remaining == 0:
+                                                pending_sells.pop(0)
+                                            else:
+                                                pending_sells[0] = (sell_order, sell_remaining)
+                                        if remaining_qty > 0:
+                                            pending_buys.append((order, remaining_qty))
+                                    elif transaction_type == 'SELL':
+                                        remaining_qty = filled_qty
+                                        while remaining_qty > 0 and pending_buys:
+                                            buy_order, buy_remaining = pending_buys[0]
+                                            buy_price = float(buy_order.get('average_price', 0))
+                                            match_qty = min(remaining_qty, buy_remaining)
+                                            pnl = (avg_price - buy_price) * match_qty
+                                            today_pnl += pnl
+                                            remaining_qty -= match_qty
+                                            buy_remaining -= match_qty
+                                            if buy_remaining == 0:
+                                                pending_buys.pop(0)
+                                            else:
+                                                pending_buys[0] = (buy_order, buy_remaining)
+                                        if remaining_qty > 0:
+                                            pending_sells.append((order, remaining_qty))
+                            
+                            # Add unrealized P&L from active positions entered today
+                            try:
+                                active_positions = self.position_repo.get_active_positions()
+                                for position in active_positions:
+                                    if self._is_equity_trade(position.exchange):
+                                        continue
+                                    entry_time = position.entry_time
+                                    if entry_time:
+                                        from src.utils.date_utils import IST
+                                        if isinstance(entry_time, datetime):
+                                            if entry_time.tzinfo:
+                                                entry_time = entry_time.astimezone(IST)
+                                            else:
+                                                entry_time = IST.localize(entry_time)
+                                        elif isinstance(entry_time, str):
+                                            entry_time = datetime.fromisoformat(entry_time)
+                                            if entry_time.tzinfo is None:
+                                                entry_time = IST.localize(entry_time)
+                                        
+                                        if entry_time.date() == today_ist:
+                                            unrealized_pnl = position.unrealized_pnl or 0.0
+                                            today_pnl += unrealized_pnl
+                            except Exception as pos_error:
+                                logger.debug(f"Error getting active positions for Day P&L: {pos_error}")
+                            
+                            # Override Day P&L with calculated value from Trade History
+                            metrics['day'] = today_pnl
+                            logger.debug(f"Day P&L updated from Trade History: ₹{today_pnl:.2f}")
+                        except Exception as calc_error:
+                            logger.warning(f"Error calculating Day P&L from Trade History: {calc_error}")
+                            # Fall back to original calculation
+                except Exception as trade_error:
+                    logger.warning(f"Error calculating Day P&L from Trade History: {trade_error}")
+                    # Fall back to original calculation
                 
                 if day_only:
                     # Return only Day for frequent updates (reduces response size)
@@ -1844,6 +1979,27 @@ class Dashboard:
                         "error": "Not authenticated"
                     }), 401
                 
+                # IMPORTANT: Sync positions FIRST to detect manually closed positions
+                # This ensures positions that were closed in Kite are marked as inactive
+                positions_closed = 0
+                if self.risk_monitor and self.risk_monitor.position_sync:
+                    try:
+                        logger.info("Syncing positions to detect closed positions...")
+                        synced_positions = self.risk_monitor.position_sync.sync_positions_from_api()
+                        
+                        # Count how many positions were marked as inactive
+                        active_before = len(self.position_repo.get_active_positions())
+                        # Re-check after sync
+                        active_after = len(self.position_repo.get_active_positions())
+                        positions_closed = active_before - active_after
+                        
+                        logger.info(
+                            f"Position sync completed: {len(synced_positions)} positions synced, "
+                            f"{positions_closed} positions closed"
+                        )
+                    except Exception as sync_error:
+                        logger.warning(f"Position sync error (non-critical): {sync_error}")
+                
                 # Get optional date parameter
                 data = request.get_json() or {}
                 date_str = data.get('date', None)
@@ -1864,10 +2020,15 @@ class Dashboard:
                 
                 logger.info(f"Order sync completed: {len(created_trades)} trades created")
                 
+                message = f"Synced orders and created {len(created_trades)} trade records"
+                if positions_closed > 0:
+                    message += f", {positions_closed} positions marked as closed"
+                
                 return jsonify({
                     "success": True,
-                    "message": f"Synced orders and created {len(created_trades)} trade records",
+                    "message": message,
                     "trades_created": len(created_trades),
+                    "positions_closed": positions_closed,
                     "trades": created_trades
                 })
                 
@@ -2045,7 +2206,13 @@ class Dashboard:
         
         profitable_trades = sum(1 for p in all_pnl if p > 0)
         loss_trades = sum(1 for p in all_pnl if p < 0)
-        win_rate = (profitable_trades / total_trades * 100) if total_trades > 0 else 0.0
+        # Win Rate formula: (Total Profit - Total Loss) / Total Profit
+        # If result is negative, show in red, otherwise green
+        # Note: total_profit and total_loss are already calculated above
+        if total_profit > 0:
+            win_rate = ((total_profit - total_loss) / total_profit * 100)
+        else:
+            win_rate = 0.0
         
         return {
             "total_profit": total_profit,

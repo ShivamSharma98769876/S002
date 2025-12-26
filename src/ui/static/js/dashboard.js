@@ -1266,13 +1266,18 @@ function updateTradeSummary(summary) {
     netPnlEl.textContent = formatCurrency(netPnl);
     netPnlEl.style.color = netPnl >= 0 ? '#10b981' : '#ef4444';
     
-    const winRate = summary.total_trades > 0 
-        ? ((summary.profitable_trades || 0) / summary.total_trades * 100).toFixed(1)
-        : 0;
+    // Win Rate formula: (Total Profit - Total Loss) / Total Profit
+    // If result is negative, show in red, otherwise green
+    const totalProfit = summary.total_profit || 0;
+    const totalLoss = summary.total_loss || 0;
+    let winRate = 0;
+    if (totalProfit > 0) {
+        winRate = ((totalProfit - totalLoss) / totalProfit * 100).toFixed(1);
+    }
     const winRateEl = document.getElementById('winRate');
     winRateEl.textContent = winRate + '%';
-    // Green if positive (>= 50%), red otherwise
-    winRateEl.style.color = parseFloat(winRate) >= 50 ? '#10b981' : '#ef4444';
+    // Green if result is positive (>= 0), red if negative
+    winRateEl.style.color = parseFloat(winRate) >= 0 ? '#10b981' : '#ef4444';
 }
 
 // Update daily stats

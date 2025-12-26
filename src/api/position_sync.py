@@ -160,30 +160,42 @@ class PositionSync:
                         except Exception as e:
                             logger.debug(f"Could not fetch exit order from orderbook: {e}")
                         
-                        existing_position.quantity = 0
-                        existing_position.is_active = False
-                        existing_position.current_price = exit_price  # Use exit price as current price
-                        existing_position.updated_at = exit_time
-                        
-                        # Store exit price and time if Position model supports it
-                        if hasattr(existing_position, 'exit_price'):
-                            existing_position.exit_price = exit_price
-                        if hasattr(existing_position, 'exit_time'):
-                            existing_position.exit_time = exit_time
-                        
-                        # Update P&L to final value using original quantity
-                        if existing_position.current_price:
-                            from src.utils.position_utils import calculate_position_pnl
-                            # Calculate P&L using original quantity (not 0)
-                            existing_position.unrealized_pnl = calculate_position_pnl(
-                                existing_position.entry_price,
-                                existing_position.current_price,
-                                original_quantity,  # Use original quantity for P&L calculation
-                                existing_position.lot_size
-                            )
+                        # IMPORTANT: Get a fresh session and merge the object to ensure changes are persisted
                         session = self.position_repo.db_manager.get_session()
                         try:
+                            # Merge the position object into this session
+                            position_to_update = session.merge(existing_position)
+                            
+                            # Update all fields
+                            position_to_update.quantity = 0
+                            position_to_update.is_active = False
+                            position_to_update.current_price = exit_price  # Use exit price as current price
+                            position_to_update.updated_at = exit_time
+                            
+                            # Store exit price and time if Position model supports it
+                            if hasattr(position_to_update, 'exit_price'):
+                                position_to_update.exit_price = exit_price
+                            if hasattr(position_to_update, 'exit_time'):
+                                position_to_update.exit_time = exit_time
+                            
+                            # Update P&L to final value using original quantity
+                            if position_to_update.current_price:
+                                from src.utils.position_utils import calculate_position_pnl
+                                # Calculate P&L using original quantity (not 0)
+                                position_to_update.unrealized_pnl = calculate_position_pnl(
+                                    position_to_update.entry_price,
+                                    position_to_update.current_price,
+                                    original_quantity,  # Use original quantity for P&L calculation
+                                    position_to_update.lot_size
+                                )
+                            
+                            # Commit the changes
                             session.commit()
+                            logger.debug(f"Successfully committed position {trading_symbol} as inactive (quantity=0)")
+                        except Exception as commit_error:
+                            session.rollback()
+                            logger.error(f"Error committing position update: {commit_error}", exc_info=True)
+                            raise
                         finally:
                             session.close()
                         logger.info(
@@ -240,8 +252,15 @@ class PositionSync:
             
             # After processing all API positions, check for positions that disappeared from API
             # These are positions that were in database but not in API response (manually closed)
+            logger.info(
+                f"Position sync: Found {len(db_active_positions)} active positions in DB, "
+                f"{len(api_instrument_tokens)} positions in API response"
+            )
+            
+            disappeared_count = 0
             for instrument_token, db_position in db_active_positions.items():
                 if instrument_token not in api_instrument_tokens:
+                    disappeared_count += 1
                     # Position exists in database but not in API - it was closed
                     logger.info(
                         f"Detected closed position (not in API): {db_position.trading_symbol} "
@@ -292,29 +311,40 @@ class PositionSync:
                         logger.debug(f"Could not fetch exit order from orderbook: {e}")
                     
                     # Update position to inactive
-                    db_position.quantity = 0
-                    db_position.is_active = False
-                    db_position.current_price = exit_price
-                    db_position.updated_at = exit_time
-                    
-                    if hasattr(db_position, 'exit_price'):
-                        db_position.exit_price = exit_price
-                    if hasattr(db_position, 'exit_time'):
-                        db_position.exit_time = exit_time
-                    
-                    # Update P&L
-                    if db_position.current_price:
-                        from src.utils.position_utils import calculate_position_pnl
-                        db_position.unrealized_pnl = calculate_position_pnl(
-                            db_position.entry_price,
-                            db_position.current_price,
-                            original_quantity,
-                            db_position.lot_size
-                        )
-                    
+                    # IMPORTANT: Get a fresh session and merge the object to ensure changes are persisted
                     session = self.position_repo.db_manager.get_session()
                     try:
+                        # Merge the position object into this session
+                        position_to_update = session.merge(db_position)
+                        
+                        # Update all fields
+                        position_to_update.quantity = 0
+                        position_to_update.is_active = False
+                        position_to_update.current_price = exit_price
+                        position_to_update.updated_at = exit_time
+                        
+                        if hasattr(position_to_update, 'exit_price'):
+                            position_to_update.exit_price = exit_price
+                        if hasattr(position_to_update, 'exit_time'):
+                            position_to_update.exit_time = exit_time
+                        
+                        # Update P&L
+                        if position_to_update.current_price:
+                            from src.utils.position_utils import calculate_position_pnl
+                            position_to_update.unrealized_pnl = calculate_position_pnl(
+                                position_to_update.entry_price,
+                                position_to_update.current_price,
+                                original_quantity,
+                                position_to_update.lot_size
+                            )
+                        
+                        # Commit the changes
                         session.commit()
+                        logger.debug(f"Successfully committed position {db_position.trading_symbol} as inactive")
+                    except Exception as commit_error:
+                        session.rollback()
+                        logger.error(f"Error committing position update: {commit_error}", exc_info=True)
+                        raise
                     finally:
                         session.close()
                     
@@ -322,6 +352,12 @@ class PositionSync:
                         f"Position {db_position.trading_symbol} marked as inactive "
                         f"(disappeared from API, exit price=₹{exit_price:.2f})"
                     )
+            
+            if disappeared_count > 0:
+                logger.info(
+                    f"Position sync: Detected {disappeared_count} closed positions "
+                    f"(not in API response, marked as inactive)"
+                )
             
             logger.debug(f"Synced {len(synced_positions)} positions from API")
             return synced_positions

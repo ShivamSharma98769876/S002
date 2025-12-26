@@ -18541,3 +18541,657 @@
 2025-12-26 17:33:35 - api - INFO - Fetched 0 non-equity positions from 6 total positions
 2025-12-26 17:34:36 - api - INFO - Fetched 0 non-equity positions from 6 total positions
 2025-12-26 17:35:36 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:36:36 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:37:35 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:38:35 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:39:36 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:40:35 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:41:36 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:42:36 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:43:36 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:44:35 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:45:36 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:46:36 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:47:14 - api - ERROR - Kite client not authenticated. Cannot connect WebSocket.
+2025-12-26 17:47:19 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:47:24 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:47:33 - api - INFO - No target date specified, using today's date: 2025-12-26
+2025-12-26 17:47:33 - api - INFO - Fetched 15 orders from Zerodha, filtering for date: 2025-12-26
+2025-12-26 17:47:33 - api - WARNING - Error parsing order timestamp 2025-12-26 10:47:19: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:47:33 - api - WARNING - Error parsing order timestamp 2025-12-26 10:49:16: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:47:33 - api - WARNING - Error parsing order timestamp 2025-12-26 11:00:28: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:47:33 - api - WARNING - Error parsing order timestamp 2025-12-26 11:23:21: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:47:33 - api - WARNING - Error parsing order timestamp 2025-12-26 12:32:03: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:47:33 - api - WARNING - Error parsing order timestamp 2025-12-26 13:25:57: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:47:33 - api - WARNING - Error parsing order timestamp 2025-12-26 14:44:42: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:47:33 - api - WARNING - Error parsing order timestamp 2025-12-26 14:54:45: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:47:33 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:24: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:47:33 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:24: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:47:33 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:24: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:47:33 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:25: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:47:33 - api - INFO - Found 0 completed non-equity orders for 2025-12-26 (skipped 15 orders)
+2025-12-26 17:47:33 - api - INFO - Created 0 trade records from orders
+2025-12-26 17:47:34 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:47:52 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:47:58 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:48:00 - api - INFO - No target date specified, using today's date: 2025-12-26
+2025-12-26 17:48:00 - api - INFO - Fetched 15 orders from Zerodha, filtering for date: 2025-12-26
+2025-12-26 17:48:00 - api - WARNING - Error parsing order timestamp 2025-12-26 10:47:19: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:00 - api - WARNING - Error parsing order timestamp 2025-12-26 10:49:16: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:00 - api - WARNING - Error parsing order timestamp 2025-12-26 11:00:28: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:00 - api - WARNING - Error parsing order timestamp 2025-12-26 11:23:21: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:00 - api - WARNING - Error parsing order timestamp 2025-12-26 12:32:03: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:00 - api - WARNING - Error parsing order timestamp 2025-12-26 13:25:57: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:00 - api - WARNING - Error parsing order timestamp 2025-12-26 14:44:42: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:00 - api - WARNING - Error parsing order timestamp 2025-12-26 14:54:45: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:00 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:24: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:00 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:24: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:00 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:24: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:00 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:25: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:00 - api - INFO - Found 0 completed non-equity orders for 2025-12-26 (skipped 15 orders)
+2025-12-26 17:48:00 - api - INFO - Created 0 trade records from orders
+2025-12-26 17:48:12 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:48:22 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:48:27 - api - INFO - No target date specified, using today's date: 2025-12-26
+2025-12-26 17:48:27 - api - INFO - Fetched 15 orders from Zerodha, filtering for date: 2025-12-26
+2025-12-26 17:48:27 - api - WARNING - Error parsing order timestamp 2025-12-26 10:47:19: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:27 - api - WARNING - Error parsing order timestamp 2025-12-26 10:49:16: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:27 - api - WARNING - Error parsing order timestamp 2025-12-26 11:00:28: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:27 - api - WARNING - Error parsing order timestamp 2025-12-26 11:23:21: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:27 - api - WARNING - Error parsing order timestamp 2025-12-26 12:32:03: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:27 - api - WARNING - Error parsing order timestamp 2025-12-26 13:25:57: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:27 - api - WARNING - Error parsing order timestamp 2025-12-26 14:44:42: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:27 - api - WARNING - Error parsing order timestamp 2025-12-26 14:54:45: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:27 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:24: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:27 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:24: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:27 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:24: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:27 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:25: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:48:27 - api - INFO - Found 0 completed non-equity orders for 2025-12-26 (skipped 15 orders)
+2025-12-26 17:48:27 - api - INFO - Created 0 trade records from orders
+2025-12-26 17:48:28 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:48:42 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:48:52 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:49:02 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:49:13 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:49:23 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:49:33 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:49:44 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:49:52 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:50:02 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:50:12 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:50:23 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:50:33 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:50:43 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:50:53 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:51:03 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:51:13 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:51:24 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:51:30 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:51:37 - api - INFO - No target date specified, using today's date: 2025-12-26
+2025-12-26 17:51:37 - api - INFO - Fetched 15 orders from Zerodha, filtering for date: 2025-12-26
+2025-12-26 17:51:37 - api - WARNING - Error parsing order timestamp 2025-12-26 10:47:19: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:51:37 - api - WARNING - Error parsing order timestamp 2025-12-26 10:49:16: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:51:37 - api - WARNING - Error parsing order timestamp 2025-12-26 11:00:28: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:51:37 - api - WARNING - Error parsing order timestamp 2025-12-26 11:23:21: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:51:37 - api - WARNING - Error parsing order timestamp 2025-12-26 12:32:03: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:51:37 - api - WARNING - Error parsing order timestamp 2025-12-26 13:25:57: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:51:37 - api - WARNING - Error parsing order timestamp 2025-12-26 14:44:42: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:51:37 - api - WARNING - Error parsing order timestamp 2025-12-26 14:54:45: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:51:37 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:24: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:51:37 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:24: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:51:37 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:24: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:51:37 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:25: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:51:37 - api - INFO - Found 0 completed non-equity orders for 2025-12-26 (skipped 15 orders)
+2025-12-26 17:51:37 - api - INFO - Created 0 trade records from orders
+2025-12-26 17:51:38 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:51:53 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:52:09 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:52:19 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:52:29 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:52:39 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:52:47 - api - INFO - WebSocket disconnected
+2025-12-26 17:52:47 - api - WARNING - WebSocket closed: code=None, reason=None
+2025-12-26 17:52:47 - api - INFO - Attempting WebSocket reconnection 1/20 in 1.0 seconds...
+2025-12-26 17:52:48 - api - INFO - WebSocket connection initiated
+2025-12-26 17:52:48 - api - INFO - WebSocket reconnection successful
+2025-12-26 17:52:48 - api - INFO - WebSocket connected successfully
+2025-12-26 17:52:48 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:52:48 - api - INFO - No active positions to subscribe to
+2025-12-26 17:53:24 - api - ERROR - Kite client not authenticated. Cannot connect WebSocket.
+2025-12-26 17:53:36 - api - INFO - Access token set successfully
+2025-12-26 17:53:43 - api - INFO - Access token set successfully
+2025-12-26 17:53:44 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:53:44 - api - INFO - Position sync: Found 4 active positions in DB, 0 positions in API response
+2025-12-26 17:53:44 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC59400CE (Token: 13173762)
+2025-12-26 17:53:44 - api - INFO - Found exit order for BANKNIFTY25DEC59400CE: Exit price=₹57.00, Exit time=2025-12-26 09:53:25
+2025-12-26 17:53:44 - api - INFO - Position BANKNIFTY25DEC59400CE marked as inactive (disappeared from API, exit price=₹57.00)
+2025-12-26 17:53:44 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC58800PE (Token: 13157890)
+2025-12-26 17:53:44 - api - INFO - Found exit order for BANKNIFTY25DEC58800PE: Exit price=₹77.95, Exit time=2025-12-26 09:53:24
+2025-12-26 17:53:44 - api - INFO - Position BANKNIFTY25DEC58800PE marked as inactive (disappeared from API, exit price=₹77.95)
+2025-12-26 17:53:44 - api - INFO - Detected closed position (not in API): SENSEX2610185500CE (Token: 296596741)
+2025-12-26 17:53:44 - api - INFO - Found exit order for SENSEX2610185500CE: Exit price=₹175.00, Exit time=2025-12-26 09:53:24
+2025-12-26 17:53:44 - api - INFO - Position SENSEX2610185500CE marked as inactive (disappeared from API, exit price=₹175.00)
+2025-12-26 17:53:44 - api - INFO - Detected closed position (not in API): SENSEX2610184500PE (Token: 296526853)
+2025-12-26 17:53:44 - api - INFO - Found exit order for SENSEX2610184500PE: Exit price=₹92.65, Exit time=2025-12-26 09:53:24
+2025-12-26 17:53:44 - api - INFO - Position SENSEX2610184500PE marked as inactive (disappeared from API, exit price=₹92.65)
+2025-12-26 17:53:44 - api - INFO - Position sync: Detected 4 closed positions (not in API response, marked as inactive)
+2025-12-26 17:53:51 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:53:51 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 17:53:51 - api - INFO - No target date specified, using today's date: 2025-12-26
+2025-12-26 17:53:51 - api - INFO - Fetched 15 orders from Zerodha, filtering for date: 2025-12-26
+2025-12-26 17:53:51 - api - WARNING - Error parsing order timestamp 2025-12-26 10:47:19: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:53:51 - api - WARNING - Error parsing order timestamp 2025-12-26 10:49:16: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:53:51 - api - WARNING - Error parsing order timestamp 2025-12-26 11:00:28: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:53:51 - api - WARNING - Error parsing order timestamp 2025-12-26 11:23:21: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:53:51 - api - WARNING - Error parsing order timestamp 2025-12-26 12:32:03: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:53:51 - api - WARNING - Error parsing order timestamp 2025-12-26 13:25:57: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:53:51 - api - WARNING - Error parsing order timestamp 2025-12-26 14:44:42: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:53:51 - api - WARNING - Error parsing order timestamp 2025-12-26 14:54:45: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:53:51 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:24: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:53:51 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:24: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:53:52 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:24: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:53:52 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:25: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:53:52 - api - INFO - Found 0 completed non-equity orders for 2025-12-26 (skipped 15 orders)
+2025-12-26 17:53:52 - api - INFO - Created 0 trade records from orders
+2025-12-26 17:53:53 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:53:53 - api - INFO - Position sync: Found 4 active positions in DB, 0 positions in API response
+2025-12-26 17:53:53 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC59400CE (Token: 13173762)
+2025-12-26 17:53:53 - api - INFO - Found exit order for BANKNIFTY25DEC59400CE: Exit price=₹57.00, Exit time=2025-12-26 09:53:25
+2025-12-26 17:53:53 - api - INFO - Position BANKNIFTY25DEC59400CE marked as inactive (disappeared from API, exit price=₹57.00)
+2025-12-26 17:53:53 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC58800PE (Token: 13157890)
+2025-12-26 17:53:53 - api - INFO - Found exit order for BANKNIFTY25DEC58800PE: Exit price=₹77.95, Exit time=2025-12-26 09:53:24
+2025-12-26 17:53:53 - api - INFO - Position BANKNIFTY25DEC58800PE marked as inactive (disappeared from API, exit price=₹77.95)
+2025-12-26 17:53:53 - api - INFO - Detected closed position (not in API): SENSEX2610185500CE (Token: 296596741)
+2025-12-26 17:53:53 - api - INFO - Found exit order for SENSEX2610185500CE: Exit price=₹175.00, Exit time=2025-12-26 09:53:24
+2025-12-26 17:53:53 - api - INFO - Position SENSEX2610185500CE marked as inactive (disappeared from API, exit price=₹175.00)
+2025-12-26 17:53:53 - api - INFO - Detected closed position (not in API): SENSEX2610184500PE (Token: 296526853)
+2025-12-26 17:53:53 - api - INFO - Found exit order for SENSEX2610184500PE: Exit price=₹92.65, Exit time=2025-12-26 09:53:24
+2025-12-26 17:53:53 - api - INFO - Position SENSEX2610184500PE marked as inactive (disappeared from API, exit price=₹92.65)
+2025-12-26 17:53:53 - api - INFO - Position sync: Detected 4 closed positions (not in API response, marked as inactive)
+2025-12-26 17:54:03 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:54:03 - api - INFO - Position sync: Found 4 active positions in DB, 0 positions in API response
+2025-12-26 17:54:03 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC59400CE (Token: 13173762)
+2025-12-26 17:54:04 - api - INFO - Found exit order for BANKNIFTY25DEC59400CE: Exit price=₹57.00, Exit time=2025-12-26 09:53:25
+2025-12-26 17:54:04 - api - INFO - Position BANKNIFTY25DEC59400CE marked as inactive (disappeared from API, exit price=₹57.00)
+2025-12-26 17:54:04 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC58800PE (Token: 13157890)
+2025-12-26 17:54:04 - api - INFO - Found exit order for BANKNIFTY25DEC58800PE: Exit price=₹77.95, Exit time=2025-12-26 09:53:24
+2025-12-26 17:54:04 - api - INFO - Position BANKNIFTY25DEC58800PE marked as inactive (disappeared from API, exit price=₹77.95)
+2025-12-26 17:54:04 - api - INFO - Detected closed position (not in API): SENSEX2610185500CE (Token: 296596741)
+2025-12-26 17:54:04 - api - INFO - Found exit order for SENSEX2610185500CE: Exit price=₹175.00, Exit time=2025-12-26 09:53:24
+2025-12-26 17:54:04 - api - INFO - Position SENSEX2610185500CE marked as inactive (disappeared from API, exit price=₹175.00)
+2025-12-26 17:54:04 - api - INFO - Detected closed position (not in API): SENSEX2610184500PE (Token: 296526853)
+2025-12-26 17:54:04 - api - INFO - Found exit order for SENSEX2610184500PE: Exit price=₹92.65, Exit time=2025-12-26 09:53:24
+2025-12-26 17:54:04 - api - INFO - Position SENSEX2610184500PE marked as inactive (disappeared from API, exit price=₹92.65)
+2025-12-26 17:54:04 - api - INFO - Position sync: Detected 4 closed positions (not in API response, marked as inactive)
+2025-12-26 17:54:13 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:54:13 - api - INFO - Position sync: Found 4 active positions in DB, 0 positions in API response
+2025-12-26 17:54:13 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC59400CE (Token: 13173762)
+2025-12-26 17:54:13 - api - INFO - Found exit order for BANKNIFTY25DEC59400CE: Exit price=₹57.00, Exit time=2025-12-26 09:53:25
+2025-12-26 17:54:14 - api - INFO - Position BANKNIFTY25DEC59400CE marked as inactive (disappeared from API, exit price=₹57.00)
+2025-12-26 17:54:14 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC58800PE (Token: 13157890)
+2025-12-26 17:54:14 - api - INFO - Found exit order for BANKNIFTY25DEC58800PE: Exit price=₹77.95, Exit time=2025-12-26 09:53:24
+2025-12-26 17:54:14 - api - INFO - Position BANKNIFTY25DEC58800PE marked as inactive (disappeared from API, exit price=₹77.95)
+2025-12-26 17:54:14 - api - INFO - Detected closed position (not in API): SENSEX2610185500CE (Token: 296596741)
+2025-12-26 17:54:14 - api - INFO - Found exit order for SENSEX2610185500CE: Exit price=₹175.00, Exit time=2025-12-26 09:53:24
+2025-12-26 17:54:14 - api - INFO - Position SENSEX2610185500CE marked as inactive (disappeared from API, exit price=₹175.00)
+2025-12-26 17:54:14 - api - INFO - Detected closed position (not in API): SENSEX2610184500PE (Token: 296526853)
+2025-12-26 17:54:14 - api - INFO - Found exit order for SENSEX2610184500PE: Exit price=₹92.65, Exit time=2025-12-26 09:53:24
+2025-12-26 17:54:14 - api - INFO - Position SENSEX2610184500PE marked as inactive (disappeared from API, exit price=₹92.65)
+2025-12-26 17:54:14 - api - INFO - Position sync: Detected 4 closed positions (not in API response, marked as inactive)
+2025-12-26 17:54:15 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:54:15 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 17:54:15 - api - INFO - No target date specified, using today's date: 2025-12-26
+2025-12-26 17:54:15 - api - INFO - Fetched 15 orders from Zerodha, filtering for date: 2025-12-26
+2025-12-26 17:54:15 - api - WARNING - Error parsing order timestamp 2025-12-26 10:47:19: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:15 - api - WARNING - Error parsing order timestamp 2025-12-26 10:49:16: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:15 - api - WARNING - Error parsing order timestamp 2025-12-26 11:00:28: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:15 - api - WARNING - Error parsing order timestamp 2025-12-26 11:23:21: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:15 - api - WARNING - Error parsing order timestamp 2025-12-26 12:32:03: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:15 - api - WARNING - Error parsing order timestamp 2025-12-26 13:25:57: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:15 - api - WARNING - Error parsing order timestamp 2025-12-26 14:44:42: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:15 - api - WARNING - Error parsing order timestamp 2025-12-26 14:54:45: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:15 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:24: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:15 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:24: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:15 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:24: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:15 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:25: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:15 - api - INFO - Found 0 completed non-equity orders for 2025-12-26 (skipped 15 orders)
+2025-12-26 17:54:15 - api - INFO - Created 0 trade records from orders
+2025-12-26 17:54:23 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:54:23 - api - INFO - Position sync: Found 4 active positions in DB, 0 positions in API response
+2025-12-26 17:54:23 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC59400CE (Token: 13173762)
+2025-12-26 17:54:24 - api - INFO - Found exit order for BANKNIFTY25DEC59400CE: Exit price=₹57.00, Exit time=2025-12-26 09:53:25
+2025-12-26 17:54:24 - api - INFO - Position BANKNIFTY25DEC59400CE marked as inactive (disappeared from API, exit price=₹57.00)
+2025-12-26 17:54:24 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC58800PE (Token: 13157890)
+2025-12-26 17:54:24 - api - INFO - Found exit order for BANKNIFTY25DEC58800PE: Exit price=₹77.95, Exit time=2025-12-26 09:53:24
+2025-12-26 17:54:24 - api - INFO - Position BANKNIFTY25DEC58800PE marked as inactive (disappeared from API, exit price=₹77.95)
+2025-12-26 17:54:24 - api - INFO - Detected closed position (not in API): SENSEX2610185500CE (Token: 296596741)
+2025-12-26 17:54:24 - api - INFO - Found exit order for SENSEX2610185500CE: Exit price=₹175.00, Exit time=2025-12-26 09:53:24
+2025-12-26 17:54:24 - api - INFO - Position SENSEX2610185500CE marked as inactive (disappeared from API, exit price=₹175.00)
+2025-12-26 17:54:24 - api - INFO - Detected closed position (not in API): SENSEX2610184500PE (Token: 296526853)
+2025-12-26 17:54:24 - api - INFO - Found exit order for SENSEX2610184500PE: Exit price=₹92.65, Exit time=2025-12-26 09:53:24
+2025-12-26 17:54:24 - api - INFO - Position SENSEX2610184500PE marked as inactive (disappeared from API, exit price=₹92.65)
+2025-12-26 17:54:24 - api - INFO - Position sync: Detected 4 closed positions (not in API response, marked as inactive)
+2025-12-26 17:54:25 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:54:25 - api - INFO - Position sync: Found 4 active positions in DB, 0 positions in API response
+2025-12-26 17:54:25 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC59400CE (Token: 13173762)
+2025-12-26 17:54:25 - api - INFO - Found exit order for BANKNIFTY25DEC59400CE: Exit price=₹57.00, Exit time=2025-12-26 09:53:25
+2025-12-26 17:54:25 - api - INFO - Position BANKNIFTY25DEC59400CE marked as inactive (disappeared from API, exit price=₹57.00)
+2025-12-26 17:54:25 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC58800PE (Token: 13157890)
+2025-12-26 17:54:25 - api - INFO - Found exit order for BANKNIFTY25DEC58800PE: Exit price=₹77.95, Exit time=2025-12-26 09:53:24
+2025-12-26 17:54:25 - api - INFO - Position BANKNIFTY25DEC58800PE marked as inactive (disappeared from API, exit price=₹77.95)
+2025-12-26 17:54:25 - api - INFO - Detected closed position (not in API): SENSEX2610185500CE (Token: 296596741)
+2025-12-26 17:54:25 - api - INFO - Found exit order for SENSEX2610185500CE: Exit price=₹175.00, Exit time=2025-12-26 09:53:24
+2025-12-26 17:54:25 - api - INFO - Position SENSEX2610185500CE marked as inactive (disappeared from API, exit price=₹175.00)
+2025-12-26 17:54:25 - api - INFO - Detected closed position (not in API): SENSEX2610184500PE (Token: 296526853)
+2025-12-26 17:54:25 - api - INFO - Found exit order for SENSEX2610184500PE: Exit price=₹92.65, Exit time=2025-12-26 09:53:24
+2025-12-26 17:54:25 - api - INFO - Position SENSEX2610184500PE marked as inactive (disappeared from API, exit price=₹92.65)
+2025-12-26 17:54:25 - api - INFO - Position sync: Detected 4 closed positions (not in API response, marked as inactive)
+2025-12-26 17:54:30 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:54:30 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 17:54:30 - api - INFO - No target date specified, using today's date: 2025-12-26
+2025-12-26 17:54:30 - api - INFO - Fetched 15 orders from Zerodha, filtering for date: 2025-12-26
+2025-12-26 17:54:30 - api - WARNING - Error parsing order timestamp 2025-12-26 10:47:19: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:30 - api - WARNING - Error parsing order timestamp 2025-12-26 10:49:16: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:30 - api - WARNING - Error parsing order timestamp 2025-12-26 11:00:28: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:30 - api - WARNING - Error parsing order timestamp 2025-12-26 11:23:21: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:30 - api - WARNING - Error parsing order timestamp 2025-12-26 12:32:03: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:30 - api - WARNING - Error parsing order timestamp 2025-12-26 13:25:57: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:30 - api - WARNING - Error parsing order timestamp 2025-12-26 14:44:42: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:30 - api - WARNING - Error parsing order timestamp 2025-12-26 14:54:45: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:30 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:24: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:30 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:24: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:30 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:24: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:30 - api - WARNING - Error parsing order timestamp 2025-12-26 15:23:25: strptime() argument 1 must be str, not datetime.datetime
+2025-12-26 17:54:30 - api - INFO - Found 0 completed non-equity orders for 2025-12-26 (skipped 15 orders)
+2025-12-26 17:54:30 - api - INFO - Created 0 trade records from orders
+2025-12-26 17:54:31 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:54:31 - api - INFO - Position sync: Found 4 active positions in DB, 0 positions in API response
+2025-12-26 17:54:31 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC59400CE (Token: 13173762)
+2025-12-26 17:54:31 - api - INFO - Found exit order for BANKNIFTY25DEC59400CE: Exit price=₹57.00, Exit time=2025-12-26 09:53:25
+2025-12-26 17:54:31 - api - INFO - Position BANKNIFTY25DEC59400CE marked as inactive (disappeared from API, exit price=₹57.00)
+2025-12-26 17:54:31 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC58800PE (Token: 13157890)
+2025-12-26 17:54:31 - api - INFO - Found exit order for BANKNIFTY25DEC58800PE: Exit price=₹77.95, Exit time=2025-12-26 09:53:24
+2025-12-26 17:54:31 - api - INFO - Position BANKNIFTY25DEC58800PE marked as inactive (disappeared from API, exit price=₹77.95)
+2025-12-26 17:54:31 - api - INFO - Detected closed position (not in API): SENSEX2610185500CE (Token: 296596741)
+2025-12-26 17:54:31 - api - INFO - Found exit order for SENSEX2610185500CE: Exit price=₹175.00, Exit time=2025-12-26 09:53:24
+2025-12-26 17:54:32 - api - INFO - Position SENSEX2610185500CE marked as inactive (disappeared from API, exit price=₹175.00)
+2025-12-26 17:54:32 - api - INFO - Detected closed position (not in API): SENSEX2610184500PE (Token: 296526853)
+2025-12-26 17:54:32 - api - INFO - Found exit order for SENSEX2610184500PE: Exit price=₹92.65, Exit time=2025-12-26 09:53:24
+2025-12-26 17:54:32 - api - INFO - Position SENSEX2610184500PE marked as inactive (disappeared from API, exit price=₹92.65)
+2025-12-26 17:54:32 - api - INFO - Position sync: Detected 4 closed positions (not in API response, marked as inactive)
+2025-12-26 17:54:43 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:54:43 - api - INFO - Position sync: Found 4 active positions in DB, 0 positions in API response
+2025-12-26 17:54:43 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC59400CE (Token: 13173762)
+2025-12-26 17:54:43 - api - INFO - Found exit order for BANKNIFTY25DEC59400CE: Exit price=₹57.00, Exit time=2025-12-26 09:53:25
+2025-12-26 17:54:43 - api - INFO - Position BANKNIFTY25DEC59400CE marked as inactive (disappeared from API, exit price=₹57.00)
+2025-12-26 17:54:43 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC58800PE (Token: 13157890)
+2025-12-26 17:54:44 - api - INFO - Found exit order for BANKNIFTY25DEC58800PE: Exit price=₹77.95, Exit time=2025-12-26 09:53:24
+2025-12-26 17:54:44 - api - INFO - Position BANKNIFTY25DEC58800PE marked as inactive (disappeared from API, exit price=₹77.95)
+2025-12-26 17:54:44 - api - INFO - Detected closed position (not in API): SENSEX2610185500CE (Token: 296596741)
+2025-12-26 17:54:44 - api - INFO - Found exit order for SENSEX2610185500CE: Exit price=₹175.00, Exit time=2025-12-26 09:53:24
+2025-12-26 17:54:44 - api - INFO - Position SENSEX2610185500CE marked as inactive (disappeared from API, exit price=₹175.00)
+2025-12-26 17:54:44 - api - INFO - Detected closed position (not in API): SENSEX2610184500PE (Token: 296526853)
+2025-12-26 17:54:44 - api - INFO - Found exit order for SENSEX2610184500PE: Exit price=₹92.65, Exit time=2025-12-26 09:53:24
+2025-12-26 17:54:44 - api - INFO - Position SENSEX2610184500PE marked as inactive (disappeared from API, exit price=₹92.65)
+2025-12-26 17:54:44 - api - INFO - Position sync: Detected 4 closed positions (not in API response, marked as inactive)
+2025-12-26 17:54:54 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:54:54 - api - INFO - Position sync: Found 4 active positions in DB, 0 positions in API response
+2025-12-26 17:54:54 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC59400CE (Token: 13173762)
+2025-12-26 17:54:54 - api - INFO - Found exit order for BANKNIFTY25DEC59400CE: Exit price=₹57.00, Exit time=2025-12-26 09:53:25
+2025-12-26 17:54:54 - api - INFO - Position BANKNIFTY25DEC59400CE marked as inactive (disappeared from API, exit price=₹57.00)
+2025-12-26 17:54:54 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC58800PE (Token: 13157890)
+2025-12-26 17:54:54 - api - INFO - Found exit order for BANKNIFTY25DEC58800PE: Exit price=₹77.95, Exit time=2025-12-26 09:53:24
+2025-12-26 17:54:54 - api - INFO - Position BANKNIFTY25DEC58800PE marked as inactive (disappeared from API, exit price=₹77.95)
+2025-12-26 17:54:54 - api - INFO - Detected closed position (not in API): SENSEX2610185500CE (Token: 296596741)
+2025-12-26 17:54:54 - api - INFO - Found exit order for SENSEX2610185500CE: Exit price=₹175.00, Exit time=2025-12-26 09:53:24
+2025-12-26 17:54:54 - api - INFO - Position SENSEX2610185500CE marked as inactive (disappeared from API, exit price=₹175.00)
+2025-12-26 17:54:54 - api - INFO - Detected closed position (not in API): SENSEX2610184500PE (Token: 296526853)
+2025-12-26 17:54:54 - api - INFO - Found exit order for SENSEX2610184500PE: Exit price=₹92.65, Exit time=2025-12-26 09:53:24
+2025-12-26 17:54:54 - api - INFO - Position SENSEX2610184500PE marked as inactive (disappeared from API, exit price=₹92.65)
+2025-12-26 17:54:54 - api - INFO - Position sync: Detected 4 closed positions (not in API response, marked as inactive)
+2025-12-26 17:55:09 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:55:09 - api - INFO - Position sync: Found 4 active positions in DB, 0 positions in API response
+2025-12-26 17:55:09 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC59400CE (Token: 13173762)
+2025-12-26 17:55:09 - api - INFO - Found exit order for BANKNIFTY25DEC59400CE: Exit price=₹57.00, Exit time=2025-12-26 09:53:25
+2025-12-26 17:55:09 - api - INFO - Position BANKNIFTY25DEC59400CE marked as inactive (disappeared from API, exit price=₹57.00)
+2025-12-26 17:55:09 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC58800PE (Token: 13157890)
+2025-12-26 17:55:09 - api - INFO - Found exit order for BANKNIFTY25DEC58800PE: Exit price=₹77.95, Exit time=2025-12-26 09:53:24
+2025-12-26 17:55:09 - api - INFO - Position BANKNIFTY25DEC58800PE marked as inactive (disappeared from API, exit price=₹77.95)
+2025-12-26 17:55:09 - api - INFO - Detected closed position (not in API): SENSEX2610185500CE (Token: 296596741)
+2025-12-26 17:55:09 - api - INFO - Found exit order for SENSEX2610185500CE: Exit price=₹175.00, Exit time=2025-12-26 09:53:24
+2025-12-26 17:55:09 - api - INFO - Position SENSEX2610185500CE marked as inactive (disappeared from API, exit price=₹175.00)
+2025-12-26 17:55:09 - api - INFO - Detected closed position (not in API): SENSEX2610184500PE (Token: 296526853)
+2025-12-26 17:55:09 - api - INFO - Found exit order for SENSEX2610184500PE: Exit price=₹92.65, Exit time=2025-12-26 09:53:24
+2025-12-26 17:55:09 - api - INFO - Position SENSEX2610184500PE marked as inactive (disappeared from API, exit price=₹92.65)
+2025-12-26 17:55:09 - api - INFO - Position sync: Detected 4 closed positions (not in API response, marked as inactive)
+2025-12-26 17:55:23 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:55:23 - api - INFO - Position sync: Found 4 active positions in DB, 0 positions in API response
+2025-12-26 17:55:23 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC59400CE (Token: 13173762)
+2025-12-26 17:55:24 - api - INFO - Found exit order for BANKNIFTY25DEC59400CE: Exit price=₹57.00, Exit time=2025-12-26 09:53:25
+2025-12-26 17:55:24 - api - INFO - Position BANKNIFTY25DEC59400CE marked as inactive (disappeared from API, exit price=₹57.00)
+2025-12-26 17:55:24 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC58800PE (Token: 13157890)
+2025-12-26 17:55:24 - api - INFO - Found exit order for BANKNIFTY25DEC58800PE: Exit price=₹77.95, Exit time=2025-12-26 09:53:24
+2025-12-26 17:55:24 - api - INFO - Position BANKNIFTY25DEC58800PE marked as inactive (disappeared from API, exit price=₹77.95)
+2025-12-26 17:55:24 - api - INFO - Detected closed position (not in API): SENSEX2610185500CE (Token: 296596741)
+2025-12-26 17:55:24 - api - INFO - Found exit order for SENSEX2610185500CE: Exit price=₹175.00, Exit time=2025-12-26 09:53:24
+2025-12-26 17:55:24 - api - INFO - Position SENSEX2610185500CE marked as inactive (disappeared from API, exit price=₹175.00)
+2025-12-26 17:55:24 - api - INFO - Detected closed position (not in API): SENSEX2610184500PE (Token: 296526853)
+2025-12-26 17:55:24 - api - INFO - Found exit order for SENSEX2610184500PE: Exit price=₹92.65, Exit time=2025-12-26 09:53:24
+2025-12-26 17:55:24 - api - INFO - Position SENSEX2610184500PE marked as inactive (disappeared from API, exit price=₹92.65)
+2025-12-26 17:55:24 - api - INFO - Position sync: Detected 4 closed positions (not in API response, marked as inactive)
+2025-12-26 17:55:33 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:55:33 - api - INFO - Position sync: Found 4 active positions in DB, 0 positions in API response
+2025-12-26 17:55:33 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC59400CE (Token: 13173762)
+2025-12-26 17:55:33 - api - INFO - Found exit order for BANKNIFTY25DEC59400CE: Exit price=₹57.00, Exit time=2025-12-26 09:53:25
+2025-12-26 17:55:33 - api - INFO - Position BANKNIFTY25DEC59400CE marked as inactive (disappeared from API, exit price=₹57.00)
+2025-12-26 17:55:33 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC58800PE (Token: 13157890)
+2025-12-26 17:55:33 - api - INFO - Found exit order for BANKNIFTY25DEC58800PE: Exit price=₹77.95, Exit time=2025-12-26 09:53:24
+2025-12-26 17:55:33 - api - INFO - Position BANKNIFTY25DEC58800PE marked as inactive (disappeared from API, exit price=₹77.95)
+2025-12-26 17:55:33 - api - INFO - Detected closed position (not in API): SENSEX2610185500CE (Token: 296596741)
+2025-12-26 17:55:34 - api - INFO - Found exit order for SENSEX2610185500CE: Exit price=₹175.00, Exit time=2025-12-26 09:53:24
+2025-12-26 17:55:34 - api - INFO - Position SENSEX2610185500CE marked as inactive (disappeared from API, exit price=₹175.00)
+2025-12-26 17:55:34 - api - INFO - Detected closed position (not in API): SENSEX2610184500PE (Token: 296526853)
+2025-12-26 17:55:34 - api - INFO - Found exit order for SENSEX2610184500PE: Exit price=₹92.65, Exit time=2025-12-26 09:53:24
+2025-12-26 17:55:34 - api - INFO - Position SENSEX2610184500PE marked as inactive (disappeared from API, exit price=₹92.65)
+2025-12-26 17:55:34 - api - INFO - Position sync: Detected 4 closed positions (not in API response, marked as inactive)
+2025-12-26 17:55:44 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:55:44 - api - INFO - Position sync: Found 4 active positions in DB, 0 positions in API response
+2025-12-26 17:55:44 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC59400CE (Token: 13173762)
+2025-12-26 17:55:44 - api - INFO - Found exit order for BANKNIFTY25DEC59400CE: Exit price=₹57.00, Exit time=2025-12-26 09:53:25
+2025-12-26 17:55:44 - api - INFO - Position BANKNIFTY25DEC59400CE marked as inactive (disappeared from API, exit price=₹57.00)
+2025-12-26 17:55:44 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC58800PE (Token: 13157890)
+2025-12-26 17:55:44 - api - INFO - Found exit order for BANKNIFTY25DEC58800PE: Exit price=₹77.95, Exit time=2025-12-26 09:53:24
+2025-12-26 17:55:44 - api - INFO - Position BANKNIFTY25DEC58800PE marked as inactive (disappeared from API, exit price=₹77.95)
+2025-12-26 17:55:44 - api - INFO - Detected closed position (not in API): SENSEX2610185500CE (Token: 296596741)
+2025-12-26 17:55:44 - api - INFO - Found exit order for SENSEX2610185500CE: Exit price=₹175.00, Exit time=2025-12-26 09:53:24
+2025-12-26 17:55:44 - api - INFO - Position SENSEX2610185500CE marked as inactive (disappeared from API, exit price=₹175.00)
+2025-12-26 17:55:44 - api - INFO - Detected closed position (not in API): SENSEX2610184500PE (Token: 296526853)
+2025-12-26 17:55:44 - api - INFO - Found exit order for SENSEX2610184500PE: Exit price=₹92.65, Exit time=2025-12-26 09:53:24
+2025-12-26 17:55:44 - api - INFO - Position SENSEX2610184500PE marked as inactive (disappeared from API, exit price=₹92.65)
+2025-12-26 17:55:44 - api - INFO - Position sync: Detected 4 closed positions (not in API response, marked as inactive)
+2025-12-26 17:55:55 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:55:55 - api - INFO - Position sync: Found 4 active positions in DB, 0 positions in API response
+2025-12-26 17:55:55 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC59400CE (Token: 13173762)
+2025-12-26 17:55:55 - api - INFO - Found exit order for BANKNIFTY25DEC59400CE: Exit price=₹57.00, Exit time=2025-12-26 09:53:25
+2025-12-26 17:55:55 - api - INFO - Position BANKNIFTY25DEC59400CE marked as inactive (disappeared from API, exit price=₹57.00)
+2025-12-26 17:55:55 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC58800PE (Token: 13157890)
+2025-12-26 17:55:55 - api - INFO - Found exit order for BANKNIFTY25DEC58800PE: Exit price=₹77.95, Exit time=2025-12-26 09:53:24
+2025-12-26 17:55:55 - api - INFO - Position BANKNIFTY25DEC58800PE marked as inactive (disappeared from API, exit price=₹77.95)
+2025-12-26 17:55:55 - api - INFO - Detected closed position (not in API): SENSEX2610185500CE (Token: 296596741)
+2025-12-26 17:55:56 - api - INFO - Found exit order for SENSEX2610185500CE: Exit price=₹175.00, Exit time=2025-12-26 09:53:24
+2025-12-26 17:55:56 - api - INFO - Position SENSEX2610185500CE marked as inactive (disappeared from API, exit price=₹175.00)
+2025-12-26 17:55:56 - api - INFO - Detected closed position (not in API): SENSEX2610184500PE (Token: 296526853)
+2025-12-26 17:55:56 - api - INFO - Found exit order for SENSEX2610184500PE: Exit price=₹92.65, Exit time=2025-12-26 09:53:24
+2025-12-26 17:55:56 - api - INFO - Position SENSEX2610184500PE marked as inactive (disappeared from API, exit price=₹92.65)
+2025-12-26 17:55:56 - api - INFO - Position sync: Detected 4 closed positions (not in API response, marked as inactive)
+2025-12-26 17:56:04 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:56:04 - api - INFO - Position sync: Found 4 active positions in DB, 0 positions in API response
+2025-12-26 17:56:04 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC59400CE (Token: 13173762)
+2025-12-26 17:56:04 - api - INFO - Found exit order for BANKNIFTY25DEC59400CE: Exit price=₹57.00, Exit time=2025-12-26 09:53:25
+2025-12-26 17:56:04 - api - INFO - Position BANKNIFTY25DEC59400CE marked as inactive (disappeared from API, exit price=₹57.00)
+2025-12-26 17:56:04 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC58800PE (Token: 13157890)
+2025-12-26 17:56:04 - api - INFO - Found exit order for BANKNIFTY25DEC58800PE: Exit price=₹77.95, Exit time=2025-12-26 09:53:24
+2025-12-26 17:56:04 - api - INFO - Position BANKNIFTY25DEC58800PE marked as inactive (disappeared from API, exit price=₹77.95)
+2025-12-26 17:56:04 - api - INFO - Detected closed position (not in API): SENSEX2610185500CE (Token: 296596741)
+2025-12-26 17:56:04 - api - INFO - Found exit order for SENSEX2610185500CE: Exit price=₹175.00, Exit time=2025-12-26 09:53:24
+2025-12-26 17:56:04 - api - INFO - Position SENSEX2610185500CE marked as inactive (disappeared from API, exit price=₹175.00)
+2025-12-26 17:56:04 - api - INFO - Detected closed position (not in API): SENSEX2610184500PE (Token: 296526853)
+2025-12-26 17:56:04 - api - INFO - Found exit order for SENSEX2610184500PE: Exit price=₹92.65, Exit time=2025-12-26 09:53:24
+2025-12-26 17:56:04 - api - INFO - Position SENSEX2610184500PE marked as inactive (disappeared from API, exit price=₹92.65)
+2025-12-26 17:56:04 - api - INFO - Position sync: Detected 4 closed positions (not in API response, marked as inactive)
+2025-12-26 17:56:14 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:56:14 - api - INFO - Position sync: Found 4 active positions in DB, 0 positions in API response
+2025-12-26 17:56:14 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC59400CE (Token: 13173762)
+2025-12-26 17:56:14 - api - INFO - Found exit order for BANKNIFTY25DEC59400CE: Exit price=₹57.00, Exit time=2025-12-26 09:53:25
+2025-12-26 17:56:14 - api - INFO - Position BANKNIFTY25DEC59400CE marked as inactive (disappeared from API, exit price=₹57.00)
+2025-12-26 17:56:14 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC58800PE (Token: 13157890)
+2025-12-26 17:56:14 - api - INFO - Found exit order for BANKNIFTY25DEC58800PE: Exit price=₹77.95, Exit time=2025-12-26 09:53:24
+2025-12-26 17:56:14 - api - INFO - Position BANKNIFTY25DEC58800PE marked as inactive (disappeared from API, exit price=₹77.95)
+2025-12-26 17:56:14 - api - INFO - Detected closed position (not in API): SENSEX2610185500CE (Token: 296596741)
+2025-12-26 17:56:14 - api - INFO - Found exit order for SENSEX2610185500CE: Exit price=₹175.00, Exit time=2025-12-26 09:53:24
+2025-12-26 17:56:14 - api - INFO - Position SENSEX2610185500CE marked as inactive (disappeared from API, exit price=₹175.00)
+2025-12-26 17:56:14 - api - INFO - Detected closed position (not in API): SENSEX2610184500PE (Token: 296526853)
+2025-12-26 17:56:14 - api - INFO - Found exit order for SENSEX2610184500PE: Exit price=₹92.65, Exit time=2025-12-26 09:53:24
+2025-12-26 17:56:14 - api - INFO - Position SENSEX2610184500PE marked as inactive (disappeared from API, exit price=₹92.65)
+2025-12-26 17:56:14 - api - INFO - Position sync: Detected 4 closed positions (not in API response, marked as inactive)
+2025-12-26 17:56:27 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:56:27 - api - INFO - Position sync: Found 4 active positions in DB, 0 positions in API response
+2025-12-26 17:56:27 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC59400CE (Token: 13173762)
+2025-12-26 17:56:27 - api - INFO - Found exit order for BANKNIFTY25DEC59400CE: Exit price=₹57.00, Exit time=2025-12-26 09:53:25
+2025-12-26 17:56:27 - api - INFO - Position BANKNIFTY25DEC59400CE marked as inactive (disappeared from API, exit price=₹57.00)
+2025-12-26 17:56:27 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC58800PE (Token: 13157890)
+2025-12-26 17:56:28 - api - INFO - Found exit order for BANKNIFTY25DEC58800PE: Exit price=₹77.95, Exit time=2025-12-26 09:53:24
+2025-12-26 17:56:28 - api - INFO - Position BANKNIFTY25DEC58800PE marked as inactive (disappeared from API, exit price=₹77.95)
+2025-12-26 17:56:28 - api - INFO - Detected closed position (not in API): SENSEX2610185500CE (Token: 296596741)
+2025-12-26 17:56:28 - api - INFO - Found exit order for SENSEX2610185500CE: Exit price=₹175.00, Exit time=2025-12-26 09:53:24
+2025-12-26 17:56:28 - api - INFO - Position SENSEX2610185500CE marked as inactive (disappeared from API, exit price=₹175.00)
+2025-12-26 17:56:28 - api - INFO - Detected closed position (not in API): SENSEX2610184500PE (Token: 296526853)
+2025-12-26 17:56:28 - api - INFO - Found exit order for SENSEX2610184500PE: Exit price=₹92.65, Exit time=2025-12-26 09:53:24
+2025-12-26 17:56:28 - api - INFO - Position SENSEX2610184500PE marked as inactive (disappeared from API, exit price=₹92.65)
+2025-12-26 17:56:28 - api - INFO - Position sync: Detected 4 closed positions (not in API response, marked as inactive)
+2025-12-26 17:58:44 - api - INFO - WebSocket connection initiated
+2025-12-26 17:58:44 - api - INFO - WebSocket connected successfully
+2025-12-26 17:58:44 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:58:44 - api - INFO - No active positions to subscribe to
+2025-12-26 17:58:53 - api - INFO - WebSocket disconnected
+2025-12-26 17:58:53 - api - WARNING - WebSocket closed: code=None, reason=None
+2025-12-26 17:58:53 - api - INFO - Attempting WebSocket reconnection 1/20 in 1.0 seconds...
+2025-12-26 17:58:54 - api - INFO - WebSocket connection initiated
+2025-12-26 17:58:54 - api - INFO - WebSocket reconnection successful
+2025-12-26 17:58:55 - api - INFO - WebSocket connected successfully
+2025-12-26 17:58:55 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:58:55 - api - INFO - No active positions to subscribe to
+2025-12-26 17:59:15 - api - ERROR - Kite client not authenticated. Cannot connect WebSocket.
+2025-12-26 17:59:33 - api - INFO - Access token set successfully
+2025-12-26 17:59:34 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:59:34 - api - INFO - Position sync: Found 4 active positions in DB, 0 positions in API response
+2025-12-26 17:59:34 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC59400CE (Token: 13173762)
+2025-12-26 17:59:34 - api - INFO - Found exit order for BANKNIFTY25DEC59400CE: Exit price=₹57.00, Exit time=2025-12-26 09:53:25
+2025-12-26 17:59:34 - api - INFO - Position BANKNIFTY25DEC59400CE marked as inactive (disappeared from API, exit price=₹57.00)
+2025-12-26 17:59:34 - api - INFO - Detected closed position (not in API): BANKNIFTY25DEC58800PE (Token: 13157890)
+2025-12-26 17:59:34 - api - INFO - Found exit order for BANKNIFTY25DEC58800PE: Exit price=₹77.95, Exit time=2025-12-26 09:53:24
+2025-12-26 17:59:34 - api - INFO - Position BANKNIFTY25DEC58800PE marked as inactive (disappeared from API, exit price=₹77.95)
+2025-12-26 17:59:34 - api - INFO - Detected closed position (not in API): SENSEX2610185500CE (Token: 296596741)
+2025-12-26 17:59:35 - api - INFO - Found exit order for SENSEX2610185500CE: Exit price=₹175.00, Exit time=2025-12-26 09:53:24
+2025-12-26 17:59:35 - api - INFO - Position SENSEX2610185500CE marked as inactive (disappeared from API, exit price=₹175.00)
+2025-12-26 17:59:35 - api - INFO - Detected closed position (not in API): SENSEX2610184500PE (Token: 296526853)
+2025-12-26 17:59:35 - api - INFO - Found exit order for SENSEX2610184500PE: Exit price=₹92.65, Exit time=2025-12-26 09:53:24
+2025-12-26 17:59:35 - api - INFO - Position SENSEX2610184500PE marked as inactive (disappeared from API, exit price=₹92.65)
+2025-12-26 17:59:35 - api - INFO - Position sync: Detected 4 closed positions (not in API response, marked as inactive)
+2025-12-26 17:59:44 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:59:44 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 17:59:54 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 17:59:54 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:00:04 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:00:04 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:00:14 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:00:14 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:00:24 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:00:24 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:00:34 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:00:34 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:00:45 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:00:45 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:00:54 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:00:54 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:01:04 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:01:04 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:01:15 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:01:15 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:01:24 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:01:24 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:01:35 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:01:35 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:01:44 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:01:44 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:01:55 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:01:55 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:02:05 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:02:05 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:02:15 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:02:15 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:02:25 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:02:25 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:02:34 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:02:34 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:02:44 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:02:44 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:02:54 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:02:54 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:03:04 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:03:04 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:03:14 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:03:14 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:03:24 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:03:24 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:03:34 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:03:34 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:03:44 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:03:44 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:03:54 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:03:54 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:04:04 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:04:04 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:04:14 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:04:14 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:04:24 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:04:24 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:04:34 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:04:34 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:04:35 - api - INFO - WebSocket connection initiated
+2025-12-26 18:04:35 - api - INFO - WebSocket connected successfully
+2025-12-26 18:04:35 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:04:35 - api - INFO - No active positions to subscribe to
+2025-12-26 18:04:44 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:04:44 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:04:54 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:04:54 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:05:04 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:05:04 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:05:14 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:05:14 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:05:28 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:05:28 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:05:34 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:05:34 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:05:50 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:05:50 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:06:04 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:06:04 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:06:15 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:06:15 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:06:43 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:06:43 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:06:54 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:06:54 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:07:05 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:07:05 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:08:22 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:08:22 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:08:34 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:08:34 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:09:02 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:09:02 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:14:40 - api - INFO - WebSocket disconnected
+2025-12-26 18:14:40 - api - WARNING - WebSocket closed: code=None, reason=None
+2025-12-26 18:14:40 - api - INFO - Attempting WebSocket reconnection 1/20 in 1.0 seconds...
+2025-12-26 18:14:41 - api - INFO - WebSocket connection initiated
+2025-12-26 18:14:41 - api - INFO - WebSocket reconnection successful
+2025-12-26 18:14:41 - api - INFO - WebSocket connected successfully
+2025-12-26 18:14:41 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:14:41 - api - INFO - No active positions to subscribe to
+2025-12-26 18:14:52 - api - ERROR - Kite client not authenticated. Cannot connect WebSocket.
+2025-12-26 18:15:07 - api - INFO - Access token set successfully
+2025-12-26 18:15:19 - api - INFO - Access token set successfully
+2025-12-26 18:15:20 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:15:20 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:15:30 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:15:30 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:15:40 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:15:40 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:15:50 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:15:50 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:16:00 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:16:00 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:16:10 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:16:10 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:16:20 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:16:20 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:16:31 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:16:32 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:16:41 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:16:41 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:16:51 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:16:51 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:17:01 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:17:01 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:17:11 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:17:11 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:17:21 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:17:21 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:17:36 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:17:36 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:18:36 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:18:36 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:19:38 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:19:38 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:20:12 - api - INFO - WebSocket connection initiated
+2025-12-26 18:20:12 - api - INFO - WebSocket connected successfully
+2025-12-26 18:20:12 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:20:12 - api - INFO - No active positions to subscribe to
+2025-12-26 18:20:36 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:20:36 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:21:44 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:21:45 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:22:01 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:22:01 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:22:11 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:22:11 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:22:22 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:22:22 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:22:33 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:22:33 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:22:43 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:22:43 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:22:52 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:22:52 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:23:11 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:23:11 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:23:21 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:23:21 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:23:37 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:23:37 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:24:43 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:24:43 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:25:41 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:25:41 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:26:48 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:26:48 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:27:36 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:27:36 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:28:17 - api - INFO - WebSocket disconnected
+2025-12-26 18:28:18 - api - ERROR - WebSocket error: code=1006, reason=connection was closed uncleanly (WebSocket closing handshake timeout (peer did not finish the opening handshake in time))
+2025-12-26 18:28:18 - api - INFO - Attempting WebSocket reconnection 1/20 in 1.0 seconds...
+2025-12-26 18:28:19 - api - INFO - WebSocket connection initiated
+2025-12-26 18:28:19 - api - INFO - WebSocket reconnection successful
+2025-12-26 18:28:19 - api - WARNING - WebSocket closed: code=1006, reason=connection was closed uncleanly (WebSocket closing handshake timeout (peer did not finish the opening handshake in time))
+2025-12-26 18:28:19 - api - INFO - Attempting WebSocket reconnection 2/20 in 2.0 seconds...
+2025-12-26 18:28:21 - api - INFO - WebSocket connection initiated
+2025-12-26 18:28:21 - api - INFO - WebSocket reconnection successful
+2025-12-26 18:28:21 - api - INFO - WebSocket connected successfully
+2025-12-26 18:28:21 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:28:21 - api - INFO - No active positions to subscribe to
+2025-12-26 18:28:21 - api - INFO - WebSocket connected successfully
+2025-12-26 18:28:21 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:28:21 - api - INFO - No active positions to subscribe to
+2025-12-26 18:28:59 - api - ERROR - Kite client not authenticated. Cannot connect WebSocket.
+2025-12-26 18:29:16 - api - INFO - Access token set successfully
+2025-12-26 18:29:22 - api - INFO - Access token set successfully
+2025-12-26 18:29:22 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:29:22 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:29:32 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:29:32 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:29:42 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:29:42 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 18:29:53 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 18:29:53 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response

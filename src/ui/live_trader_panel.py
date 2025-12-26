@@ -571,11 +571,15 @@ def get_daily_pnl():
         if days < 1 or days > 365:
             days = 7
         
-        # Calculate date range
-        end_date = datetime.now()
-        start_date = end_date - timedelta(days=days)
+        # Calculate date range - use IST timezone for accurate date calculation
+        from src.utils.date_utils import get_current_ist_time
+        ist_now = get_current_ist_time()
+        end_date = ist_now
+        start_date = end_date - timedelta(days=days - 1)  # Include today
         start_date_only = start_date.date()
         end_date_only = end_date.date()
+        
+        logger.debug(f"Daily P&L query: Date range {start_date_only} to {end_date_only} (IST)")
         
         # Ensure BrokerID is set before querying
         if not _ensure_broker_id():
@@ -623,6 +627,7 @@ def get_daily_pnl():
             ).filter(
                 and_(
                     Trade.broker_id == broker_id,
+                    Trade.exit_time.isnot(None),  # Only closed trades
                     func.date(Trade.exit_time) >= start_date_only,
                     func.date(Trade.exit_time) <= end_date_only
                 )
@@ -643,6 +648,169 @@ def get_daily_pnl():
                     "paper_trades": 0,
                     "live_trades": int(trade_count) if trade_count else 0
                 }
+            
+            # For today's date, also include:
+            # 1. Trades from orderbook (may not be in database yet)
+            # 2. Unrealized P&L from active positions
+            # This ensures today's P&L includes both closed trades and open positions
+            today_str = end_date_only.strftime("%Y-%m-%d")
+            if today_str not in daily_data_dict:
+                daily_data_dict[today_str] = {
+                    "date": today_str,
+                    "paper_pnl": 0.0,
+                    "live_pnl": 0.0,
+                    "paper_trades": 0,
+                    "live_trades": 0
+                }
+            
+            # Get today's P&L from orderbook (in case trades aren't in database yet)
+            today_orderbook_pnl = 0.0
+            today_orderbook_trades = 0
+            try:
+                # Use the global dashboard instance to access kite_client and helper methods
+                if _dashboard_instance and _dashboard_instance.kite_client and _dashboard_instance.kite_client.is_authenticated():
+                    # Get all orders from Zerodha
+                    all_orders = _dashboard_instance.kite_client.get_orders()
+                    
+                    # Filter for non-equity COMPLETE orders
+                    non_equity_orders = [
+                        o for o in all_orders
+                        if not _dashboard_instance._is_equity_trade(o.get('exchange', '').upper()) and
+                           o.get('status', '').upper() == 'COMPLETE' and
+                           o.get('filled_quantity', 0) > 0
+                    ]
+                    
+                    # Group by symbol and calculate today's Net P&L from orderbook
+                    orders_by_symbol = {}
+                    for order in non_equity_orders:
+                        symbol = order.get('tradingsymbol', '')
+                        if symbol not in orders_by_symbol:
+                            orders_by_symbol[symbol] = []
+                        orders_by_symbol[symbol].append(order)
+                    
+                    # Calculate Net P&L for today using FIFO matching
+                    for symbol, symbol_orders in orders_by_symbol.items():
+                        # Filter by today's date
+                        try:
+                            symbol_orders_today = [
+                                o for o in symbol_orders
+                                if _dashboard_instance._parse_order_timestamp(o.get('order_timestamp', '')).date() == end_date_only
+                            ]
+                        except:
+                            symbol_orders_today = []
+                        
+                        if not symbol_orders_today:
+                            continue
+                        
+                        # Sort and match orders (FIFO)
+                        symbol_orders_today.sort(key=lambda x: _dashboard_instance._parse_order_timestamp(x.get('order_timestamp', '')))
+                        pending_buys = []
+                        pending_sells = []
+                        
+                        for order in symbol_orders_today:
+                            transaction_type = order.get('transaction_type', '').upper()
+                            filled_qty = order.get('filled_quantity', 0)
+                            avg_price = float(order.get('average_price', 0))
+                            
+                            if transaction_type == 'BUY':
+                                remaining_qty = filled_qty
+                                while remaining_qty > 0 and pending_sells:
+                                    sell_order, sell_remaining = pending_sells[0]
+                                    sell_price = float(sell_order.get('average_price', 0))
+                                    match_qty = min(remaining_qty, sell_remaining)
+                                    pnl = (sell_price - avg_price) * match_qty
+                                    today_orderbook_pnl += pnl
+                                    today_orderbook_trades += 1
+                                    remaining_qty -= match_qty
+                                    sell_remaining -= match_qty
+                                    if sell_remaining == 0:
+                                        pending_sells.pop(0)
+                                    else:
+                                        pending_sells[0] = (sell_order, sell_remaining)
+                                if remaining_qty > 0:
+                                    pending_buys.append((order, remaining_qty))
+                            elif transaction_type == 'SELL':
+                                remaining_qty = filled_qty
+                                while remaining_qty > 0 and pending_buys:
+                                    buy_order, buy_remaining = pending_buys[0]
+                                    buy_price = float(buy_order.get('average_price', 0))
+                                    match_qty = min(remaining_qty, buy_remaining)
+                                    pnl = (avg_price - buy_price) * match_qty
+                                    today_orderbook_pnl += pnl
+                                    today_orderbook_trades += 1
+                                    remaining_qty -= match_qty
+                                    buy_remaining -= match_qty
+                                    if buy_remaining == 0:
+                                        pending_buys.pop(0)
+                                    else:
+                                        pending_buys[0] = (buy_order, buy_remaining)
+                                if remaining_qty > 0:
+                                    pending_sells.append((order, remaining_qty))
+                    
+                    logger.debug(
+                        f"Today's orderbook P&L: ₹{today_orderbook_pnl:.2f} "
+                        f"({today_orderbook_trades} trades)"
+                    )
+            except Exception as orderbook_error:
+                logger.debug(f"Could not get today's P&L from orderbook: {orderbook_error}")
+            
+            # Get active positions for today's unrealized P&L
+            today_unrealized_pnl = 0.0
+            today_active_trades = 0
+            try:
+                from src.database.repository import PositionRepository
+                position_repo = PositionRepository(db_manager)
+                active_positions = position_repo.get_active_positions()
+                
+                for position in active_positions:
+                    # Check if position was entered today
+                    entry_time = position.entry_time
+                    if entry_time:
+                        # Convert to IST if needed
+                        from src.utils.date_utils import IST
+                        if isinstance(entry_time, datetime):
+                            if entry_time.tzinfo:
+                                entry_time = entry_time.astimezone(IST)
+                            else:
+                                entry_time = IST.localize(entry_time)
+                        elif isinstance(entry_time, str):
+                            entry_time = datetime.fromisoformat(entry_time)
+                            if entry_time.tzinfo is None:
+                                entry_time = IST.localize(entry_time)
+                        
+                        if entry_time.date() == end_date_only:
+                            unrealized = position.unrealized_pnl or 0.0
+                            today_unrealized_pnl += unrealized
+                            today_active_trades += 1
+            except Exception as pos_error:
+                logger.warning(f"Error getting active positions for today's P&L: {pos_error}")
+            
+            # Combine today's P&L: database trades + orderbook trades + unrealized
+            # Prefer orderbook data if available (more up-to-date), otherwise use database
+            if today_str in daily_data_dict:
+                db_pnl = daily_data_dict[today_str]["live_pnl"]
+                db_trades = daily_data_dict[today_str]["live_trades"]
+                
+                # If orderbook has data, use it (it's more current and includes all today's trades)
+                # Otherwise, use database data
+                if abs(today_orderbook_pnl) > 0.01 or today_orderbook_trades > 0:
+                    # Orderbook has data - use it and add unrealized
+                    daily_data_dict[today_str]["live_pnl"] = today_orderbook_pnl + today_unrealized_pnl
+                    daily_data_dict[today_str]["live_trades"] = today_orderbook_trades + today_active_trades
+                    logger.debug(
+                        f"Today's ({today_str}) P&L from orderbook: ₹{today_orderbook_pnl:.2f} "
+                        f"({today_orderbook_trades} trades) + unrealized: ₹{today_unrealized_pnl:.2f} "
+                        f"({today_active_trades} positions) = ₹{daily_data_dict[today_str]['live_pnl']:.2f}"
+                    )
+                else:
+                    # No orderbook data - use database data and add unrealized
+                    daily_data_dict[today_str]["live_pnl"] = db_pnl + today_unrealized_pnl
+                    daily_data_dict[today_str]["live_trades"] = db_trades + today_active_trades
+                    logger.debug(
+                        f"Today's ({today_str}) P&L from database: ₹{db_pnl:.2f} "
+                        f"({db_trades} trades) + unrealized: ₹{today_unrealized_pnl:.2f} "
+                        f"({today_active_trades} positions) = ₹{daily_data_dict[today_str]['live_pnl']:.2f}"
+                    )
             
             # Fill in missing dates with zero values
             daily_data = []
