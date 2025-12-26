@@ -888,23 +888,69 @@ def get_live_trader_logs():
             num_lines = 100
         
         # Get log file path - use segment-specific log file
+        # Always show the latest date's log (today or previous trading day)
+        from src.utils.date_utils import get_current_ist_time
         log_dir = Path(__file__).parent.parent.parent / "logs"
-        today = datetime.now().strftime("%Y-%m-%d")
-        log_file = log_dir / f"{mode}_{segment}_{today}.log"
+        ist_now = get_current_ist_time()
+        today = ist_now.strftime("%Y-%m-%d")
+        today_log_file = log_dir / f"{mode}_{segment}_{today}.log"
         
-        # If today's file doesn't exist, try to find the most recent one
-        if not log_file.exists():
-            # Find most recent log file for this segment and mode
-            pattern = f"{mode}_{segment}_*.log"
-            matching_files = sorted(log_dir.glob(pattern), key=lambda p: p.stat().st_mtime, reverse=True)
-            if matching_files:
-                log_file = matching_files[0]
-            else:
-                return jsonify({
-                    "success": True,
-                    "logs": [],
-                    "message": f"No log file found for {mode} {segment}"
-                })
+        log_file = None
+        log_date = None
+        
+        # Check if today's file exists and has data
+        if today_log_file.exists():
+            try:
+                # Check if file has content
+                with today_log_file.open("r", encoding="utf-8", errors="ignore") as f:
+                    if f.read(1):  # Check if file is not empty
+                        log_file = today_log_file
+                        log_date = today
+                        logger.debug(f"Using today's ({today}) log file for {mode} {segment}")
+            except Exception as e:
+                logger.warning(f"Today's log file exists but couldn't read it: {e}")
+        
+        # If today's log is not available, get previous trading day's log
+        if not log_file:
+            from datetime import timedelta
+            prev_date = ist_now.date() - timedelta(days=1)
+            while prev_date.weekday() >= 5:  # Skip weekends (Saturday=5, Sunday=6)
+                prev_date -= timedelta(days=1)
+            
+            prev_date_str = prev_date.strftime("%Y-%m-%d")
+            prev_log_file = log_dir / f"{mode}_{segment}_{prev_date_str}.log"
+            
+            if prev_log_file.exists():
+                try:
+                    # Check if file has content
+                    with prev_log_file.open("r", encoding="utf-8", errors="ignore") as f:
+                        if f.read(1):  # Check if file is not empty
+                            log_file = prev_log_file
+                            log_date = prev_date_str
+                            logger.debug(f"Using previous trading day's ({prev_date_str}) log file for {mode} {segment}")
+                except Exception as e:
+                    logger.warning(f"Previous day's log file exists but couldn't read it: {e}")
+            
+            # Fallback: find most recent log file
+            if not log_file:
+                pattern = f"{mode}_{segment}_*.log"
+                matching_files = sorted(log_dir.glob(pattern), key=lambda p: p.stat().st_mtime, reverse=True)
+                if matching_files:
+                    log_file = matching_files[0]
+                    # Extract date from filename
+                    try:
+                        log_date = log_file.stem.split('_')[-1]  # Extract date from filename
+                    except:
+                        pass
+                    logger.debug(f"Using most recent log file: {log_file.name}")
+        
+        if not log_file or not log_file.exists():
+            return jsonify({
+                "success": True,
+                "logs": [],
+                "message": f"No log file found for {mode} {segment}",
+                "date": None
+            })
         
         # Read last N lines from log file
         log_entries = []
@@ -929,10 +975,87 @@ def get_live_trader_logs():
             "logs": log_entries[-100:],  # Limit to 100 entries for UI
             "total_found": len(log_entries),
             "segment": segment,
-            "mode": mode
+            "mode": mode,
+            "date": log_date,
+            "file_path": str(log_file.name) if log_file else None
         })
     except Exception as e:
         logger.error(f"Error fetching logs: {e}", exc_info=True)
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@live_trader_bp.route("/logs/download", methods=["GET"])
+def download_log_file():
+    """
+    Download log file for a specific segment and mode.
+    
+    Query params:
+    - segment: Segment name (NIFTY, BANKNIFTY, SENSEX) - required
+    - mode: Mode type (PAPER or LIVE) - required
+    """
+    try:
+        segment = request.args.get("segment", "").upper()
+        mode = request.args.get("mode", "").upper()
+        
+        if not segment or segment not in ["NIFTY", "BANKNIFTY", "SENSEX"]:
+            return jsonify({
+                "success": False,
+                "error": "Invalid segment. Must be NIFTY, BANKNIFTY, or SENSEX"
+            }), 400
+        
+        if not mode or mode not in ["PAPER", "LIVE"]:
+            return jsonify({
+                "success": False,
+                "error": "Invalid mode. Must be PAPER or LIVE"
+            }), 400
+        
+        # Get log file path - use the same logic as get_live_trader_logs
+        from src.utils.date_utils import get_current_ist_time
+        log_dir = Path(__file__).parent.parent.parent / "logs"
+        ist_now = get_current_ist_time()
+        today = ist_now.strftime("%Y-%m-%d")
+        today_log_file = log_dir / f"{mode}_{segment}_{today}.log"
+        
+        log_file = None
+        
+        # Check if today's file exists
+        if today_log_file.exists():
+            log_file = today_log_file
+        else:
+            # Get previous trading day's log
+            from datetime import timedelta
+            prev_date = ist_now.date() - timedelta(days=1)
+            while prev_date.weekday() >= 5:  # Skip weekends
+                prev_date -= timedelta(days=1)
+            
+            prev_date_str = prev_date.strftime("%Y-%m-%d")
+            prev_log_file = log_dir / f"{mode}_{segment}_{prev_date_str}.log"
+            
+            if prev_log_file.exists():
+                log_file = prev_log_file
+            else:
+                # Fallback: find most recent log file
+                pattern = f"{mode}_{segment}_*.log"
+                matching_files = sorted(log_dir.glob(pattern), key=lambda p: p.stat().st_mtime, reverse=True)
+                if matching_files:
+                    log_file = matching_files[0]
+        
+        if not log_file or not log_file.exists():
+            return jsonify({
+                "success": False,
+                "error": f"No log file found for {mode} {segment}"
+            }), 404
+        
+        # Send file for download
+        from flask import send_file
+        return send_file(
+            str(log_file),
+            as_attachment=True,
+            download_name=log_file.name,
+            mimetype='text/plain'
+        )
+    except Exception as e:
+        logger.error(f"Error downloading log file: {e}", exc_info=True)
         return jsonify({"success": False, "error": str(e)}), 500
 
 
@@ -941,9 +1064,14 @@ def get_ps_vs_data():
     """
     Get PS/VS time series data for a specific segment.
     
+    Always shows the latest available data:
+    - If today's data is available, shows it (even after market hours)
+    - If today's data is not available, shows the previous trading day's data
+    
     Query params:
     - segment: Segment name (NIFTY, BANKNIFTY, SENSEX) - required
     - hours: Number of hours of data to fetch (default: 10, max: 24)
+              Note: This is only used for filtering today's data. Previous day's data is shown in full.
     """
     try:
         segment = request.args.get("segment", "").upper()
@@ -965,54 +1093,131 @@ def get_ps_vs_data():
         from src.live_trader.execution import LOG_DIR
         from src.utils.date_utils import get_current_ist_time
         ps_vs_dir = LOG_DIR / "ps_vs_data"
+        
         # Use IST time to match the timestamp format used when saving files
-        today = get_current_ist_time().strftime("%Y-%m-%d")
-        file_path = ps_vs_dir / f"ps_vs_{segment}_{today}.json"
+        ist_now = get_current_ist_time()
+        today = ist_now.strftime("%Y-%m-%d")
+        today_file_path = ps_vs_dir / f"ps_vs_{segment}_{today}.json"
         
-        # If today's file doesn't exist, try to find the most recent one
-        if not file_path.exists():
-            pattern = f"ps_vs_{segment}_*.json"
-            matching_files = sorted(ps_vs_dir.glob(pattern), key=lambda p: p.stat().st_mtime, reverse=True)
-            if matching_files:
-                file_path = matching_files[0]
+        # Check if today's file exists and has data
+        use_today = False
+        file_path = None
+        
+        if today_file_path.exists():
+            try:
+                with open(today_file_path, 'r', encoding='utf-8') as f:
+                    today_data = json.load(f)
+                if today_data and len(today_data) > 0:
+                    use_today = True
+                    file_path = today_file_path
+                    logger.debug(f"Using today's ({today}) PS/VS data for {segment}: {len(today_data)} points")
+            except (json.JSONDecodeError, IOError) as e:
+                logger.warning(f"Today's file exists but couldn't read it: {e}")
+        
+        # If today's data is not available, get previous trading day's data
+        data_date = None
+        if not use_today:
+            # Calculate previous trading day (skip weekends)
+            from datetime import timedelta
+            prev_date = ist_now.date() - timedelta(days=1)
+            while prev_date.weekday() >= 5:  # Skip weekends (Saturday=5, Sunday=6)
+                prev_date -= timedelta(days=1)
+            
+            prev_date_str = prev_date.strftime("%Y-%m-%d")
+            prev_file_path = ps_vs_dir / f"ps_vs_{segment}_{prev_date_str}.json"
+            
+            if prev_file_path.exists():
+                try:
+                    with open(prev_file_path, 'r', encoding='utf-8') as f:
+                        prev_data = json.load(f)
+                    if prev_data and len(prev_data) > 0:
+                        file_path = prev_file_path
+                        data_date = prev_date_str
+                        logger.debug(f"Using previous trading day's ({prev_date_str}) PS/VS data for {segment}: {len(prev_data)} points")
+                    else:
+                        # Try to find the most recent file as fallback
+                        pattern = f"ps_vs_{segment}_*.json"
+                        matching_files = sorted(ps_vs_dir.glob(pattern), key=lambda p: p.stat().st_mtime, reverse=True)
+                        if matching_files:
+                            file_path = matching_files[0]
+                            # Extract date from filename
+                            try:
+                                data_date = file_path.stem.split('_')[-1]  # Extract date from filename
+                            except:
+                                pass
+                            logger.debug(f"Using most recent file: {file_path.name}")
+                except (json.JSONDecodeError, IOError) as e:
+                    logger.warning(f"Previous day's file exists but couldn't read it: {e}")
+                    # Try to find the most recent file as fallback
+                    pattern = f"ps_vs_{segment}_*.json"
+                    matching_files = sorted(ps_vs_dir.glob(pattern), key=lambda p: p.stat().st_mtime, reverse=True)
+                    if matching_files:
+                        file_path = matching_files[0]
+                        # Extract date from filename
+                        try:
+                            data_date = file_path.stem.split('_')[-1]  # Extract date from filename
+                        except:
+                            pass
             else:
-                return jsonify({
-                    "success": True,
-                    "data": [],
-                    "message": f"No PS/VS data found for {segment}"
-                })
+                # Try to find the most recent file as fallback
+                pattern = f"ps_vs_{segment}_*.json"
+                matching_files = sorted(ps_vs_dir.glob(pattern), key=lambda p: p.stat().st_mtime, reverse=True)
+                if matching_files:
+                    file_path = matching_files[0]
+                    # Extract date from filename
+                    try:
+                        data_date = file_path.stem.split('_')[-1]  # Extract date from filename
+                    except:
+                        pass
+                    logger.debug(f"Using most recent file as fallback: {file_path.name}")
         
-        # Load and filter data
+        if not file_path or not file_path.exists():
+            return jsonify({
+                "success": True,
+                "data": [],
+                "message": f"No PS/VS data found for {segment}"
+            })
+        
+        # Load data
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
             
-            # Filter to last N hours (use IST to match timestamp format)
-            from src.utils.date_utils import get_current_ist_time
-            cutoff_time = get_current_ist_time() - timedelta(hours=num_hours)
-            # Make cutoff_time timezone-naive for comparison if timestamps are naive
-            if cutoff_time.tzinfo is not None:
-                cutoff_time = cutoff_time.replace(tzinfo=None)
-            
-            filtered_data = []
-            for d in data:
-                try:
-                    d_timestamp = datetime.fromisoformat(d["timestamp"])
-                    # Make timezone-naive if needed for comparison
-                    if d_timestamp.tzinfo is not None:
-                        d_timestamp = d_timestamp.replace(tzinfo=None)
-                    if d_timestamp >= cutoff_time:
-                        filtered_data.append(d)
-                except (ValueError, KeyError) as e:
-                    logger.warning(f"Skipping invalid data point in PS/VS file: {e}")
-                    continue
+            # If using today's data, filter by hours (user preference)
+            # If using previous day's data, show all data (full trading day)
+            if use_today:
+                # Filter to last N hours (use IST to match timestamp format)
+                cutoff_time = ist_now - timedelta(hours=num_hours)
+                # Make cutoff_time timezone-naive for comparison if timestamps are naive
+                if cutoff_time.tzinfo is not None:
+                    cutoff_time = cutoff_time.replace(tzinfo=None)
+                
+                filtered_data = []
+                for d in data:
+                    try:
+                        d_timestamp = datetime.fromisoformat(d["timestamp"])
+                        # Make timezone-naive if needed for comparison
+                        if d_timestamp.tzinfo is not None:
+                            d_timestamp = d_timestamp.replace(tzinfo=None)
+                        if d_timestamp >= cutoff_time:
+                            filtered_data.append(d)
+                    except (ValueError, KeyError) as e:
+                        logger.warning(f"Skipping invalid data point in PS/VS file: {e}")
+                        continue
+                
+                logger.debug(f"Filtered today's data to last {num_hours} hours: {len(filtered_data)} points")
+            else:
+                # For previous day's data, return all data (full trading day)
+                filtered_data = data
+                logger.debug(f"Returning full previous trading day data: {len(filtered_data)} points")
             
             return jsonify({
                 "success": True,
                 "data": filtered_data,
                 "segment": segment,
                 "total_points": len(filtered_data),
-                "hours": num_hours
+                "hours": num_hours if use_today else None,
+                "date": today if use_today else data_date
             })
         except (json.JSONDecodeError, IOError) as e:
             logger.error(f"Error reading PS/VS data file: {e}", exc_info=True)

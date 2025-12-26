@@ -1621,33 +1621,66 @@
                     <!-- Three horizontal sections for each segment -->
                     <div style="display: flex; flex-direction: row; gap: 20px; overflow-x: auto;">
                         <!-- NIFTY Logs -->
-                        <div style="display: flex; flex-direction: column; flex: 1; min-width: 0;">
-                            <h3 style="margin: 0 0 10px 0; color: var(--text-primary); font-size: 16px; font-weight: 600;">
-                                <i class="fas fa-chart-line"></i> NIFTY
-                            </h3>
-                            <div id="logsContainerNIFTY" style="background: #1e1e1e; color: #d4d4d4; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 11px; padding: 12px; border-radius: 8px; max-height: 500px; overflow-y: auto; line-height: 1.5; flex: 1; min-width: 0;">
+                        <div id="logSectionNIFTY" class="log-section" style="display: flex; flex-direction: column; flex: 1; min-width: 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <h3 style="margin: 0; color: var(--text-primary); font-size: 16px; font-weight: 600;">
+                                    <i class="fas fa-chart-line"></i> NIFTY
+                                    <span id="logDateNIFTY" style="font-size: 12px; color: var(--text-secondary); margin-left: 8px;"></span>
+                                </h3>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <button onclick="downloadLog('NIFTY')" title="Download Log" style="padding: 6px 10px; background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    <button onclick="toggleLogExpand('NIFTY')" title="Expand/Collapse" style="padding: 6px 10px; background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                        <i id="expandIconNIFTY" class="fas fa-expand"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="logsContainerNIFTY" class="log-container" style="background: #1e1e1e; color: #d4d4d4; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 11px; padding: 12px; border-radius: 8px; max-height: 500px; overflow-y: auto; line-height: 1.5; flex: 1; min-width: 0; transition: all 0.3s ease;">
                                 <div style="color: #888; font-style: italic;">Loading logs...</div>
                             </div>
                             <div id="logsErrorNIFTY" style="display: none; margin-top: 8px; padding: 8px; background: #fee; border: 1px solid #fcc; border-radius: 6px; color: #c33; font-size: 12px;"></div>
                         </div>
                         
                         <!-- BANKNIFTY Logs -->
-                        <div style="display: flex; flex-direction: column; flex: 1; min-width: 0;">
-                            <h3 style="margin: 0 0 10px 0; color: var(--text-primary); font-size: 16px; font-weight: 600;">
-                                <i class="fas fa-chart-line"></i> BANKNIFTY
-                            </h3>
-                            <div id="logsContainerBANKNIFTY" style="background: #1e1e1e; color: #d4d4d4; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 11px; padding: 12px; border-radius: 8px; max-height: 500px; overflow-y: auto; line-height: 1.5; flex: 1; min-width: 0;">
+                        <div id="logSectionBANKNIFTY" class="log-section" style="display: flex; flex-direction: column; flex: 1; min-width: 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <h3 style="margin: 0; color: var(--text-primary); font-size: 16px; font-weight: 600;">
+                                    <i class="fas fa-chart-line"></i> BANKNIFTY
+                                    <span id="logDateBANKNIFTY" style="font-size: 12px; color: var(--text-secondary); margin-left: 8px;"></span>
+                                </h3>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <button onclick="downloadLog('BANKNIFTY')" title="Download Log" style="padding: 6px 10px; background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    <button onclick="toggleLogExpand('BANKNIFTY')" title="Expand/Collapse" style="padding: 6px 10px; background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                        <i id="expandIconBANKNIFTY" class="fas fa-expand"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="logsContainerBANKNIFTY" class="log-container" style="background: #1e1e1e; color: #d4d4d4; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 11px; padding: 12px; border-radius: 8px; max-height: 500px; overflow-y: auto; line-height: 1.5; flex: 1; min-width: 0; transition: all 0.3s ease;">
                                 <div style="color: #888; font-style: italic;">Loading logs...</div>
                             </div>
                             <div id="logsErrorBANKNIFTY" style="display: none; margin-top: 8px; padding: 8px; background: #fee; border: 1px solid #fcc; border-radius: 6px; color: #c33; font-size: 12px;"></div>
                         </div>
                         
                         <!-- SENSEX Logs -->
-                        <div style="display: flex; flex-direction: column; flex: 1; min-width: 0;">
-                            <h3 style="margin: 0 0 10px 0; color: var(--text-primary); font-size: 16px; font-weight: 600;">
-                                <i class="fas fa-chart-line"></i> SENSEX
-                            </h3>
-                            <div id="logsContainerSENSEX" style="background: #1e1e1e; color: #d4d4d4; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 11px; padding: 12px; border-radius: 8px; max-height: 500px; overflow-y: auto; line-height: 1.5; flex: 1; min-width: 0;">
+                        <div id="logSectionSENSEX" class="log-section" style="display: flex; flex-direction: column; flex: 1; min-width: 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <h3 style="margin: 0; color: var(--text-primary); font-size: 16px; font-weight: 600;">
+                                    <i class="fas fa-chart-line"></i> SENSEX
+                                    <span id="logDateSENSEX" style="font-size: 12px; color: var(--text-secondary); margin-left: 8px;"></span>
+                                </h3>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <button onclick="downloadLog('SENSEX')" title="Download Log" style="padding: 6px 10px; background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    <button onclick="toggleLogExpand('SENSEX')" title="Expand/Collapse" style="padding: 6px 10px; background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                        <i id="expandIconSENSEX" class="fas fa-expand"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="logsContainerSENSEX" class="log-container" style="background: #1e1e1e; color: #d4d4d4; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 11px; padding: 12px; border-radius: 8px; max-height: 500px; overflow-y: auto; line-height: 1.5; flex: 1; min-width: 0; transition: all 0.3s ease;">
                                 <div style="color: #888; font-style: italic;">Loading logs...</div>
                             </div>
                             <div id="logsErrorSENSEX" style="display: none; margin-top: 8px; padding: 8px; background: #fee; border: 1px solid #fcc; border-radius: 6px; color: #c33; font-size: 12px;"></div>
@@ -3094,6 +3127,22 @@
                 
                 const logsContainer = document.getElementById(`logsContainer${segment}`);
                 const logsError = document.getElementById(`logsError${segment}`);
+                const logDateEl = document.getElementById(`logDate${segment}`);
+                
+                // Update date display
+                if (data.date) {
+                    const dateStr = data.date;
+                    const today = new Date().toISOString().split('T')[0];
+                    if (dateStr === today) {
+                        logDateEl.textContent = '(Today)';
+                        logDateEl.style.color = '#4ec9b0';
+                    } else {
+                        logDateEl.textContent = `(${dateStr})`;
+                        logDateEl.style.color = '#dcdcaa';
+                    }
+                } else {
+                    logDateEl.textContent = '';
+                }
                 
                 if (data.logs && data.logs.length > 0) {
                     logsContainer.innerHTML = data.logs.map(log => {
@@ -3137,6 +3186,59 @@
                 logsError.style.display = 'block';
                 logsContainer.innerHTML = '<div style="color: #888; font-style: italic;">Error loading logs.</div>';
             }
+        }
+        
+        // Expand/Collapse log container
+        const logExpandStates = {
+            'NIFTY': false,
+            'BANKNIFTY': false,
+            'SENSEX': false
+        };
+        
+        function toggleLogExpand(segment) {
+            const logSection = document.getElementById(`logSection${segment}`);
+            const logsContainer = document.getElementById(`logsContainer${segment}`);
+            const expandIcon = document.getElementById(`expandIcon${segment}`);
+            const isExpanded = logExpandStates[segment];
+            
+            if (!isExpanded) {
+                // Expand: Make it full screen overlay
+                logSection.style.position = 'fixed';
+                logSection.style.top = '0';
+                logSection.style.left = '0';
+                logSection.style.right = '0';
+                logSection.style.bottom = '0';
+                logSection.style.zIndex = '9999';
+                logSection.style.background = 'rgba(0, 0, 0, 0.95)';
+                logSection.style.padding = '20px';
+                logSection.style.maxWidth = '100%';
+                logsContainer.style.maxHeight = 'calc(100vh - 120px)';
+                logsContainer.style.fontSize = '13px';
+                expandIcon.className = 'fas fa-compress';
+                logExpandStates[segment] = true;
+            } else {
+                // Collapse: Return to original position
+                logSection.style.position = '';
+                logSection.style.top = '';
+                logSection.style.left = '';
+                logSection.style.right = '';
+                logSection.style.bottom = '';
+                logSection.style.zIndex = '';
+                logSection.style.background = '';
+                logSection.style.padding = '';
+                logSection.style.maxWidth = '';
+                logsContainer.style.maxHeight = '500px';
+                logsContainer.style.fontSize = '11px';
+                expandIcon.className = 'fas fa-expand';
+                logExpandStates[segment] = false;
+            }
+        }
+        
+        // Download log file
+        function downloadLog(segment) {
+            const mode = document.getElementById('logMode')?.value || 'LIVE';
+            const url = `/live/logs/download?segment=${segment}&mode=${mode}`;
+            window.location.href = url;
         }
 
         function clearLogs() {
