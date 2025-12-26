@@ -17,6 +17,7 @@ class Position(Base):
     __tablename__ = 'positions'
     
     id = Column(Integer, primary_key=True)
+    broker_id = Column(String, nullable=False, index=True)  # User ID from Kite API
     instrument_token = Column(String, nullable=False, index=True)
     trading_symbol = Column(String, nullable=False)
     exchange = Column(String, nullable=False)
@@ -34,7 +35,8 @@ class Position(Base):
     trades = relationship("Trade", back_populates="position")
     
     __table_args__ = (
-        Index('idx_instrument_active', 'instrument_token', 'is_active'),
+        Index('idx_broker_instrument_active', 'broker_id', 'instrument_token', 'is_active'),
+        Index('idx_broker_active', 'broker_id', 'is_active'),
     )
 
 
@@ -43,6 +45,7 @@ class Trade(Base):
     __tablename__ = 'trades'
     
     id = Column(Integer, primary_key=True)
+    broker_id = Column(String, nullable=False, index=True)  # User ID from Kite API
     position_id = Column(Integer, ForeignKey('positions.id'), nullable=True)
     instrument_token = Column(String, nullable=False, index=True)
     trading_symbol = Column(String, nullable=False)
@@ -62,8 +65,8 @@ class Trade(Base):
     position = relationship("Position", back_populates="trades")
     
     __table_args__ = (
-        Index('idx_trade_date', 'exit_time'),
-        Index('idx_trade_symbol', 'trading_symbol'),
+        Index('idx_broker_trade_date', 'broker_id', 'exit_time'),
+        Index('idx_broker_trade_symbol', 'broker_id', 'trading_symbol'),
     )
 
 
@@ -72,7 +75,8 @@ class DailyStats(Base):
     __tablename__ = 'daily_stats'
     
     id = Column(Integer, primary_key=True)
-    date = Column(DateTime, nullable=False, unique=True, index=True)
+    broker_id = Column(String, nullable=False, index=True)  # User ID from Kite API
+    date = Column(DateTime, nullable=False, index=True)
     total_realized_pnl = Column(Float, default=0.0)
     total_unrealized_pnl = Column(Float, default=0.0)
     protected_profit = Column(Float, default=0.0)
@@ -85,6 +89,10 @@ class DailyStats(Base):
     trailing_sl_level = Column(Float, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('idx_broker_date', 'broker_id', 'date', unique=True),
+    )
 
 
 class AuditLog(Base):
@@ -109,12 +117,13 @@ class DailyPurgeFlag(Base):
     __tablename__ = 'daily_purge_flags'
     
     id = Column(Integer, primary_key=True)
-    purge_date = Column(DateTime, nullable=False, unique=True, index=True)  # Date when purge was done
+    broker_id = Column(String, nullable=False, index=True)  # User ID from Kite API
+    purge_date = Column(DateTime, nullable=False, index=True)  # Date when purge was done
     purge_timestamp = Column(DateTime, nullable=False, default=datetime.utcnow)  # Exact time of purge
     trades_deleted = Column(Integer, default=0)  # Number of trades deleted
     
     __table_args__ = (
-        Index('idx_purge_date', 'purge_date'),
+        Index('idx_broker_purge_date', 'broker_id', 'purge_date', unique=True),
     )
 
 
@@ -155,6 +164,7 @@ class DatabaseManager:
         Base.metadata.create_all(self.engine)
         # Run migrations to add new columns if they don't exist
         self._migrate_transaction_type()
+        self._migrate_broker_id()
     
     def _migrate_transaction_type(self):
         """Migrate trades table to add transaction_type column if needed"""
@@ -189,6 +199,60 @@ class DatabaseManager:
                 session.commit()
                 logger = get_logger("database")
                 logger.info("Migration: Added transaction_type column to trades table")
+        except Exception as e:
+            session.rollback()
+            logger.error(f"Migration error: {e}")
+        finally:
+            session.close()
+    
+    def _migrate_broker_id(self):
+        """Migrate tables to add broker_id column if needed"""
+        from sqlalchemy import text
+        logger = get_logger("database")
+        session = self.get_session()
+        try:
+            tables_to_migrate = ['positions', 'trades', 'daily_stats', 'daily_purge_flags']
+            
+            for table_name in tables_to_migrate:
+                # Check if column already exists
+                result = session.execute(text(f"""
+                    SELECT COUNT(*) as count 
+                    FROM pragma_table_info('{table_name}') 
+                    WHERE name='broker_id'
+                """))
+                
+                column_exists = result.fetchone()[0] > 0
+                
+                if not column_exists:
+                    # Add broker_id column with default value 'DEFAULT' for existing records
+                    session.execute(text(f"""
+                        ALTER TABLE {table_name} 
+                        ADD COLUMN broker_id VARCHAR(50) DEFAULT 'DEFAULT'
+                    """))
+                    
+                    # Create index
+                    try:
+                        if table_name == 'daily_stats':
+                            # For daily_stats, create unique index on broker_id + date
+                            session.execute(text(f"""
+                                CREATE UNIQUE INDEX IF NOT EXISTS idx_broker_date 
+                                ON {table_name}(broker_id, date)
+                            """))
+                        elif table_name == 'daily_purge_flags':
+                            session.execute(text(f"""
+                                CREATE UNIQUE INDEX IF NOT EXISTS idx_broker_purge_date 
+                                ON {table_name}(broker_id, purge_date)
+                            """))
+                        else:
+                            session.execute(text(f"""
+                                CREATE INDEX IF NOT EXISTS idx_{table_name}_broker_id 
+                                ON {table_name}(broker_id)
+                            """))
+                    except Exception as idx_error:
+                        logger.warning(f"Index creation warning for {table_name}: {idx_error}")
+                    
+                    session.commit()
+                    logger.info(f"Migration: Added broker_id column to {table_name} table")
         except Exception as e:
             session.rollback()
             logger.error(f"Migration error: {e}")

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Risk Management Dashboard</title>
+    <title>S002</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -105,8 +105,8 @@
     <div class="container">
         <!-- Header -->
         <header class="header">
-            <h1>📊 Risk Management Dashboard</h1>
-            <div style="display: flex; align-items: center; gap: 20px;">
+            <h1>S002</h1>
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: nowrap;">
                 <!-- Theme Toggle Button -->
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span style="font-size: 12px; color: var(--text-secondary); font-weight: 500;">
@@ -123,89 +123,147 @@
                 </div>
                 <div class="status-indicator" id="statusIndicator">
                     <span class="heart-icon" id="heartIcon">❤️</span>
-                    <span id="statusText">Connecting...</span>
+                    <span id="statusText">Not Connected</span>
                 </div>
-                <div id="authStatus" style="padding: 8px 16px; background: #dc3545; color: white; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;" onclick="showAuthModal()">
+                <div id="userInfo" class="user-info" style="display: none;">
+                    <i class="fas fa-user icon"></i>
+                    <span class="user-name" id="userName">Loading...</span>
+                    <span style="margin: 0 8px;">|</span>
+                    <span class="user-id" id="userId">-</span>
+                </div>
+                <div id="authStatus" style="padding: 8px 16px; background: #dc3545; color: white; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; display: block;" onclick="showAuthModal()">
                     🔒 Not Authenticated
                 </div>
-                <a href="/admin/panel" style="padding: 8px 16px; background: var(--primary-color); color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600;">
+                <a href="/live/" style="padding: 8px 16px; background: #0ea5e9; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600; white-space: nowrap;">
+                    🤖 Live Trader
+                </a>
+                <a href="/admin/panel" style="padding: 8px 16px; background: var(--primary-color); color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600; white-space: nowrap;">
                     🔐 Admin Panel
                 </a>
-                <a href="/backtest/" style="padding: 8px 16px; background: #764ba2; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600;">
+                <a href="/backtest/" style="padding: 8px 16px; background: #764ba2; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600; white-space: nowrap;">
                     📊 Backtesting
-                </a>
-                <a href="/live/" style="padding: 8px 16px; background: #0ea5e9; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600;">
-                    🤖 Live Trader
                 </a>
             </div>
         </header>
+        
+        <!-- Auth Details Widget -->
+        <div class="auth-details-widget" id="authDetailsWidget">
+            <div class="auth-details-header" onclick="toggleAuthDetails()">
+                <i class="fas fa-key"></i>
+                <span>Authentication Details</span>
+                <i class="fas fa-chevron-down" id="authDetailsChevron"></i>
+            </div>
+            <div class="auth-details-content" id="authDetailsContent" style="display: none;">
+                <div class="auth-details-grid">
+                    <div class="auth-detail-item">
+                        <span class="auth-detail-label">API Key:</span>
+                        <span class="auth-detail-value" id="authApiKey">-</span>
+                    </div>
+                    <div class="auth-detail-item">
+                        <span class="auth-detail-label">API Secret:</span>
+                        <span class="auth-detail-value" id="authApiSecret">-</span>
+                    </div>
+                    <div class="auth-detail-item">
+                        <span class="auth-detail-label">Access Token:</span>
+                        <span class="auth-detail-value" id="authAccessToken">-</span>
+                    </div>
+                    <div class="auth-detail-item">
+                        <span class="auth-detail-label">Request Token:</span>
+                        <span class="auth-detail-value" id="authRequestToken">-</span>
+                    </div>
+                    <div class="auth-detail-item">
+                        <span class="auth-detail-label">Email:</span>
+                        <span class="auth-detail-value" id="authEmail">-</span>
+                    </div>
+                    <div class="auth-detail-item">
+                        <span class="auth-detail-label">Broker:</span>
+                        <span class="auth-detail-value" id="authBroker">-</span>
+                    </div>
+                    <div class="auth-detail-item">
+                        <span class="auth-detail-label">User ID:</span>
+                        <span class="auth-detail-value" id="authUserId">-</span>
+                    </div>
+                    <div class="auth-detail-item">
+                        <span class="auth-detail-label">Account Name:</span>
+                        <span class="auth-detail-value" id="authAccountName">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Authentication Modal -->
-        <div id="authModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
-            <div style="background: white; padding: 30px; border-radius: 12px; max-width: 600px; width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
-                <h2 style="margin-top: 0;">🔐 Zerodha Authentication</h2>
+        <div id="authModal" class="auth-modal">
+            <div class="auth-modal-content">
+                <h2 class="auth-modal-title">🔐 Zerodha Authentication</h2>
                 
                 <!-- Tabs for authentication methods -->
-                <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee;">
-                    <button id="tabAccessToken" onclick="switchAuthTab('accessToken')" 
-                            style="flex: 1; padding: 12px; background: var(--primary-color); color: white; border: none; border-radius: 6px 6px 0 0; font-size: 14px; font-weight: 600; cursor: pointer;">
+                <div class="auth-tabs">
+                    <button id="tabAccessToken" onclick="switchAuthTab('accessToken')" class="auth-tab auth-tab-active">
                         Access Token (Direct)
                     </button>
-                    <button id="tabRequestToken" onclick="switchAuthTab('requestToken')" 
-                            style="flex: 1; padding: 12px; background: #e9ecef; color: #666; border: none; border-radius: 6px 6px 0 0; font-size: 14px; font-weight: 600; cursor: pointer;">
+                    <button id="tabRequestToken" onclick="switchAuthTab('requestToken')" class="auth-tab">
                         Request Token (OAuth)
                     </button>
                 </div>
                 
                 <!-- Access Token Form -->
-                <div id="accessTokenForm" style="display: block;">
-                    <p style="color: #666; margin-bottom: 20px;">If you already have an access token, enter it directly to connect.</p>
+                <div id="accessTokenForm" class="auth-form" style="display: block;">
+                    <p class="auth-form-description">Enter your API credentials and access token to connect.</p>
                     <form id="authFormAccessToken" onsubmit="authenticateWithAccessToken(event)">
-                        <div style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Access Token</label>
-                            <input type="text" id="accessToken" placeholder="Enter your access token" required 
-                                   style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; font-family: monospace;">
-                            <small style="color: #666; margin-top: 5px; display: block;">
+                        <div class="auth-form-group">
+                            <label class="auth-form-label">API Key</label>
+                            <input type="text" id="accessTokenApiKey" class="auth-form-input" placeholder="Enter your API key" required>
+                        </div>
+                        <div class="auth-form-group">
+                            <label class="auth-form-label">API Secret</label>
+                            <input type="password" id="accessTokenApiSecret" class="auth-form-input" placeholder="Enter your API secret" required>
+                        </div>
+                        <div class="auth-form-group">
+                            <label class="auth-form-label">Access Token</label>
+                            <input type="text" id="accessToken" class="auth-form-input" placeholder="Enter your access token" required>
+                            <small class="auth-form-help">
                                 Use this if you already have a saved access token from a previous session.
                             </small>
                         </div>
-                        <div id="authError" style="color: #dc3545; margin-bottom: 15px; display: none;"></div>
-                        <div style="display: flex; gap: 10px;">
-                            <button type="submit" style="flex: 1; padding: 12px; background: var(--primary-color); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;">
-                                Connect
-                            </button>
-                            <button type="button" onclick="hideAuthModal()" style="padding: 12px 20px; background: #6c757d; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;">
-                                Cancel
-                            </button>
+                        <div id="authError" class="auth-error" style="display: none;"></div>
+                        <div class="auth-form-actions">
+                            <button type="submit" class="auth-btn auth-btn-primary">Connect</button>
+                            <button type="button" onclick="hideAuthModal()" class="auth-btn auth-btn-secondary">Cancel</button>
                         </div>
                     </form>
                 </div>
                 
                 <!-- Request Token Form -->
-                <div id="requestTokenForm" style="display: none;">
-                    <p style="color: #666; margin-bottom: 20px;">Enter your request token from Zerodha to generate a new access token.</p>
+                <div id="requestTokenForm" class="auth-form" style="display: none;">
+                    <p class="auth-form-description">Enter your API credentials and request token to generate an access token.</p>
                     <form id="authFormRequestToken" onsubmit="authenticateWithRequestToken(event)">
-                        <div style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Request Token</label>
-                            <input type="text" id="requestToken" placeholder="Enter request token" required 
-                                   style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; font-family: monospace;">
-                            <small style="color: #666; margin-top: 5px; display: block;">
+                        <div class="auth-form-group">
+                            <label class="auth-form-label">API Key</label>
+                            <input type="text" id="apiKey" class="auth-form-input" placeholder="Enter your API key" required>
+                        </div>
+                        <div class="auth-form-group">
+                            <label class="auth-form-label">API Secret</label>
+                            <input type="password" id="apiSecret" class="auth-form-input" placeholder="Enter your API secret" required>
+                        </div>
+                        <div class="auth-form-group">
+                            <label class="auth-form-label">Request Token</label>
+                            <input type="text" id="requestToken" class="auth-form-input" placeholder="Enter request token" required>
+                            <small class="auth-form-help">
                                 Get your request token from: 
-                                {% if api_key %}
-                                <a href="https://kite.trade/connect/login?api_key={{ api_key }}" target="_blank">Zerodha Kite Connect</a>
-                                {% else %}
-                                <a href="https://kite.trade/connect/login" target="_blank">Zerodha Kite Connect</a> (use your API key in URL)
-                                {% endif %}
+                                <a href="https://kite.trade/connect/login" target="_blank" id="kiteConnectLink" class="auth-form-link">Zerodha Kite Connect</a>
                             </small>
                         </div>
-                        <div id="authErrorRequest" style="color: #dc3545; margin-bottom: 15px; display: none;"></div>
-                        <div style="display: flex; gap: 10px;">
-                            <button type="submit" style="flex: 1; padding: 12px; background: var(--primary-color); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;">
-                                Authenticate
-                            </button>
-                            <button type="button" onclick="hideAuthModal()" style="padding: 12px 20px; background: #6c757d; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;">
-                                Cancel
-                            </button>
+                        <div id="authErrorRequest" class="auth-error" style="display: none;"></div>
+                        <div id="accessTokenDisplay" class="auth-access-token-display" style="display: none;">
+                            <label class="auth-form-label auth-form-label-success">Generated Access Token</label>
+                            <input type="text" id="generatedAccessToken" class="auth-form-input auth-form-input-readonly" readonly>
+                            <small class="auth-form-help auth-form-help-success">
+                                ✅ Access token generated successfully! This will be saved for future use.
+                            </small>
+                        </div>
+                        <div class="auth-form-actions">
+                            <button type="submit" id="authSubmitBtn" class="auth-btn auth-btn-primary">Generate & Connect</button>
+                            <button type="button" onclick="hideAuthModal()" class="auth-btn auth-btn-secondary">Cancel</button>
                         </div>
                     </form>
                 </div>
@@ -214,63 +272,6 @@
 
         <!-- Daily Summary Cards -->
         <section class="summary-section">
-            <div class="card profit-card">
-                <div class="card-header">
-                    <h3>Protected Profit</h3>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span class="card-icon">💰</span>
-                        <button class="help-icon" onclick="showHelp('protected-profit')" title="Help">❓</button>
-                    </div>
-                </div>
-                <div class="card-value" id="protectedProfit">₹0.00</div>
-            </div>
-
-            <div class="card pnl-card">
-                <div class="card-header">
-                    <h3>Current Positions P&L</h3>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span class="card-icon">📈</span>
-                        <button class="help-icon" onclick="showHelp('current-pnl')" title="Help">❓</button>
-                    </div>
-                </div>
-                <div class="card-value" id="currentPnl">₹0.00</div>
-            </div>
-
-            <div class="card total-card">
-                <div class="card-header">
-                    <h3>Total Day P&L</h3>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span class="card-icon">💵</span>
-                        <button class="help-icon" onclick="showHelp('total-pnl')" title="Help">❓</button>
-                    </div>
-                </div>
-                <div class="card-value" id="totalPnl">₹0.00</div>
-            </div>
-
-            <div class="card booked-card">
-                <div class="card-header">
-                    <h3>Booked Profit</h3>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span class="card-icon">📊</span>
-                        <button class="help-icon" onclick="showHelp('booked-profit')" title="Help">❓</button>
-                    </div>
-                </div>
-                <div class="card-value" id="bookedProfit">₹0.00</div>
-                <div class="card-subvalue">From completed trades</div>
-            </div>
-
-            <div class="card net-card">
-                <div class="card-header">
-                    <h3>Net Position P&L</h3>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span class="card-icon">📉</span>
-                        <button class="help-icon" onclick="showHelp('net-position-pnl')" title="Help">❓</button>
-                    </div>
-                </div>
-                <div class="card-value" id="netPositionPnl">₹0.00</div>
-                <div class="card-subvalue">All live positions combined</div>
-            </div>
-
             <div class="card loss-card">
                 <div class="card-header">
                     <h3>Daily Loss Used</h3>
@@ -287,28 +288,50 @@
                     <span id="lossUsed">₹0</span> / <span id="lossLimit">₹5,000</span>
                 </div>
             </div>
+        </section>
 
-            <div class="card trailing-card">
-                <div class="card-header">
-                    <h3>Trailing Stop Loss</h3>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span class="card-icon">🎯</span>
-                        <button class="help-icon" onclick="showHelp('trailing-sl')" title="Help">❓</button>
+        <!-- Cumulative P&L Widget -->
+        <section class="cumulative-pnl-section">
+            <div class="panel">
+                <div class="panel-header">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <h2>Cumulative Profit & Loss</h2>
+                        <button class="help-icon-panel" onclick="showHelp('cumulative-pnl')" title="Help">❓</button>
                     </div>
                 </div>
-                <div class="card-value" id="trailingSlStatus">Inactive</div>
-                <div class="card-subvalue" id="trailingSlLevel">-</div>
-            </div>
-
-            <div class="card trading-card">
-                <div class="card-header">
-                    <h3>Trading Status</h3>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span class="card-icon">🔒</span>
-                        <button class="help-icon" onclick="showHelp('trading-status')" title="Help">❓</button>
+                <div class="cumulative-pnl-container">
+                    <div id="cumulativePnlError" style="display: none; color: var(--danger-color); padding: 10px; background: #fee; border-radius: 6px; margin-bottom: 10px;"></div>
+                    <div class="pnl-metrics-list">
+                        <div class="pnl-metric-item" id="metric-all-time">
+                            <div class="metric-label">Cumulative Profit</div>
+                            <div class="metric-value" id="value-all-time">₹0.00</div>
+                            <div class="metric-percentage" id="percentage-all-time"></div>
+                        </div>
+                        <div class="pnl-metric-item" id="metric-year">
+                            <div class="metric-label" id="label-year">Year (2025)</div>
+                            <div class="metric-value" id="value-year">₹0.00</div>
+                            <div class="metric-percentage" id="percentage-year">(100.00%)</div>
+                        </div>
+                        <div class="pnl-metric-item" id="metric-month">
+                            <div class="metric-label" id="label-month">Month (Dec)</div>
+                            <div class="metric-value" id="value-month">₹0.00</div>
+                            <div class="metric-percentage" id="percentage-month"></div>
+                        </div>
+                        <div class="pnl-metric-item" id="metric-week">
+                            <div class="metric-label">Week</div>
+                            <div class="metric-value" id="value-week">₹0.00</div>
+                            <div class="metric-percentage" id="percentage-week"></div>
+                        </div>
+                        <div class="pnl-metric-item" id="metric-day">
+                            <div class="metric-label">Day</div>
+                            <div class="metric-value" id="value-day">₹0.00</div>
+                            <div class="metric-percentage" id="percentage-day"></div>
+                        </div>
+                    </div>
+                    <div class="radial-chart-container">
+                        <canvas id="cumulativePnlChart"></canvas>
                     </div>
                 </div>
-                <div class="card-value" id="tradingStatus">Active</div>
             </div>
         </section>
 
@@ -591,6 +614,14 @@
         </div>
     </div>
 
+    <script>
+        // Define showAuthModal immediately so it's available for inline onclick
+        // This will be overridden by the full definition in dashboard.js
+        window.showAuthModal = function() {
+            console.log('[Auth] showAuthModal called (temporary definition)');
+            // This will be replaced when dashboard.js loads
+        };
+    </script>
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
     <script>
         // ========== GLOBAL THEME MANAGEMENT ==========

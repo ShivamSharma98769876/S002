@@ -42,9 +42,20 @@ class ProfitProtection:
     def _load_previous_positions(self):
         """Load current active positions to track changes"""
         try:
-            active_positions = self.position_repo.get_active_positions()
-            for pos in active_positions:
-                self.previous_positions[f"{pos.exchange}:{pos.trading_symbol}"] = pos
+            # Only load positions if BrokerID is set (user is authenticated)
+            from src.utils.broker_context import BrokerContext
+            if BrokerContext.get_broker_id():
+                active_positions = self.position_repo.get_active_positions()
+                for pos in active_positions:
+                    self.previous_positions[f"{pos.exchange}:{pos.trading_symbol}"] = pos
+            else:
+                # No BrokerID set - skip loading positions (will be loaded after authentication)
+                logger.debug("Skipping position loading - BrokerID not set (not authenticated)")
+        except ValueError as e:
+            if "BrokerID not set" in str(e):
+                logger.debug("Skipping position loading - BrokerID not set (not authenticated)")
+            else:
+                logger.error(f"Error loading previous positions: {e}")
         except Exception as e:
             logger.error(f"Error loading previous positions: {e}")
     

@@ -18,6 +18,7 @@ from src.api.websocket_client import WebSocketClient
 from src.api.position_sync import PositionSync
 from src.utils.backup_manager import BackupManager
 from src.risk_management.quantity_manager import QuantityManager
+from src.utils.broker_context import BrokerContext
 
 logger = get_logger("risk")
 
@@ -45,6 +46,11 @@ class RiskMonitor:
         self.daily_stats_repo = daily_stats_repo
         self.websocket_client = websocket_client
         self.position_sync = position_sync
+        
+        # Store kite_client reference for BrokerID access
+        self.kite_client = None
+        if position_sync and hasattr(position_sync, 'kite_client'):
+            self.kite_client = position_sync.kite_client
         
         self.monitoring_interval = monitoring_interval
         self.monitoring_active = False
@@ -127,6 +133,28 @@ class RiskMonitor:
         # Connect
         self.websocket_client.connect()
     
+    def _check_connection_health(self):
+        """Check and maintain connection health for Kite API and WebSocket"""
+        try:
+            # Check WebSocket health
+            if self.websocket_client:
+                if not self.websocket_client.check_connection_health():
+                    logger.warning("WebSocket connection health check failed. Attempting recovery...")
+                    # Try to reconnect if not already reconnecting
+                    if not self.websocket_client._reconnecting:
+                        try:
+                            if self.websocket_client.kite_client.is_authenticated():
+                                self.websocket_client.connect()
+                        except Exception as e:
+                            logger.error(f"Failed to recover WebSocket connection: {e}")
+            
+            # Check Kite API connection health
+            # This is done implicitly through is_authenticated() which validates the token
+            # The retry logic in KiteClient will handle transient failures
+            logger.debug("Connection health check completed")
+        except Exception as e:
+            logger.error(f"Error during connection health check: {e}")
+    
     def stop_monitoring(self):
         """Stop the risk monitoring loop"""
         self.monitoring_active = False
@@ -143,14 +171,30 @@ class RiskMonitor:
         """Main monitoring loop that runs continuously"""
         logger.info("Risk monitoring loop started")
         
-        # Track last hourly P&L update (using IST)
+                # Track last hourly P&L update (using IST)
         ist_now = get_current_ist_time()
         last_hourly_update = ist_now.replace(minute=0, second=0, microsecond=0)
         # Track last pre-close update (at 15:00, 15:10, 15:15 IST)
         last_preclose_update = None
+        # Track last connection health check
+        last_health_check = time.time()
+        health_check_interval = 300  # Check connection health every 5 minutes
         
         while self.monitoring_active:
             try:
+                # Periodic connection health check
+                current_time = time.time()
+                if current_time - last_health_check >= health_check_interval:
+                    self._check_connection_health()
+                    last_health_check = current_time
+                
+                # Ensure BrokerID is set before database operations
+                # If BrokerID cannot be set (not authenticated), skip this iteration
+                if not self._ensure_broker_id():
+                    # Not authenticated - wait longer before retrying
+                    time.sleep(10)  # Wait 10 seconds before checking again
+                    continue
+                
                 # Check if market is open
                 if not is_market_open():
                     time.sleep(60)  # Check every minute when market is closed
@@ -168,50 +212,89 @@ class RiskMonitor:
                 ist_now = get_current_ist_time()
                 if (ist_now.replace(tzinfo=None) - self.last_sync_time).total_seconds() >= self.sync_interval:
                     if self.position_sync:
-                        self.position_sync.sync_positions_from_api()
+                        try:
+                            self.position_sync.sync_positions_from_api()
+                        except ValueError as e:
+                            if "BrokerID not set" in str(e):
+                                logger.debug("Skipping position sync - BrokerID not set")
+                                time.sleep(10)
+                                continue
+                            else:
+                                raise
                     
-                    # Detect and handle quantity changes
-                    quantity_changes = self.quantity_manager.detect_quantity_changes()
-                    if quantity_changes:
-                        logger.info(f"Detected {len(quantity_changes)} quantity changes")
-                        for change in quantity_changes:
-                            position = self.position_repo.get_position_by_id(change["position_id"])
-                            if position:
-                                self.quantity_manager.recalculate_risk_metrics(position)
+                    # Detect and handle quantity changes - only if authenticated
+                    try:
+                        quantity_changes = self.quantity_manager.detect_quantity_changes()
+                        if quantity_changes:
+                            logger.info(f"Detected {len(quantity_changes)} quantity changes")
+                            for change in quantity_changes:
+                                position = self.position_repo.get_position_by_id(change["position_id"])
+                                if position:
+                                    self.quantity_manager.recalculate_risk_metrics(position)
+                    except ValueError as e:
+                        if "BrokerID not set" in str(e):
+                            logger.debug("Skipping quantity change detection - BrokerID not set")
+                            time.sleep(10)
+                            continue
+                        else:
+                            raise
                     
                     self.last_sync_time = ist_now.replace(tzinfo=None)
                 
-                # Create position snapshot backup periodically
+                # Create position snapshot backup periodically - only if authenticated
                 if (ist_now.replace(tzinfo=None) - self.last_backup_time).total_seconds() >= self.backup_interval:
-                    snapshot = self.backup_manager.create_position_snapshot()
-                    if snapshot:
-                        self.backup_manager.save_snapshot(snapshot)
-                        self.backup_manager.cleanup_old_snapshots(keep_last_n=100)
-                    self.last_backup_time = ist_now.replace(tzinfo=None)
+                    try:
+                        snapshot = self.backup_manager.create_position_snapshot()
+                        if snapshot:
+                            self.backup_manager.save_snapshot(snapshot)
+                            self.backup_manager.cleanup_old_snapshots(keep_last_n=100)
+                        self.last_backup_time = ist_now.replace(tzinfo=None)
+                    except ValueError as e:
+                        if "BrokerID not set" in str(e):
+                            logger.debug("Skipping backup - BrokerID not set")
+                            # Don't update last_backup_time, will retry next interval
+                        else:
+                            raise
                 
-                # Detect and process trade completions (profit protection)
-                completed_trades = self.profit_protection.detect_and_process_trade_completions()
-                if completed_trades:
-                    logger.info(f"Detected {len(completed_trades)} completed trades")
-                    # Resubscribe to positions if WebSocket is active
-                    if self.websocket_client and self.websocket_client.is_connected:
-                        self.websocket_client.subscribe_to_positions()
+                # Detect and process trade completions (profit protection) - only if authenticated
+                try:
+                    completed_trades = self.profit_protection.detect_and_process_trade_completions()
+                    if completed_trades:
+                        logger.info(f"Detected {len(completed_trades)} completed trades")
+                        # Resubscribe to positions if WebSocket is active
+                        if self.websocket_client and self.websocket_client.is_connected:
+                            self.websocket_client.subscribe_to_positions()
+                except ValueError as e:
+                    if "BrokerID not set" in str(e):
+                        logger.debug("Skipping trade completion detection - BrokerID not set")
+                        time.sleep(10)
+                        continue
+                    else:
+                        raise
                 
-                # Get protected profit for loss calculation
-                protected_profit = self.profit_protection.get_protected_profit()
-                
-                # Check daily loss limit (applies only to current positions, not protected profit)
-                loss_status = self.loss_protection.check_loss_limit(protected_profit)
-                
-                # Check trailing stop loss (only if loss limit not hit)
-                if not loss_status.get("loss_limit_hit", False):
-                    trailing_sl_status = self.trailing_sl.check_and_update_trailing_sl()
+                # Get protected profit for loss calculation - only if authenticated
+                try:
+                    protected_profit = self.profit_protection.get_protected_profit()
                     
-                    # Update daily stats
-                    self._update_daily_stats(protected_profit, loss_status, trailing_sl_status)
-                else:
-                    # Loss limit hit, update stats accordingly
-                    self._update_daily_stats(protected_profit, loss_status, None)
+                    # Check daily loss limit (applies only to current positions, not protected profit)
+                    loss_status = self.loss_protection.check_loss_limit(protected_profit)
+                    
+                    # Check trailing stop loss (only if loss limit not hit)
+                    if not loss_status.get("loss_limit_hit", False):
+                        trailing_sl_status = self.trailing_sl.check_and_update_trailing_sl()
+                        
+                        # Update daily stats
+                        self._update_daily_stats(protected_profit, loss_status, trailing_sl_status)
+                    else:
+                        # Loss limit hit, update stats accordingly
+                        self._update_daily_stats(protected_profit, loss_status, None)
+                except ValueError as e:
+                    if "BrokerID not set" in str(e):
+                        logger.debug("Skipping P&L calculations - BrokerID not set (not authenticated)")
+                        time.sleep(10)  # Wait before retrying
+                        continue
+                    else:
+                        raise
                 
                 # Hourly P&L update - update every hour on the hour (IST)
                 ist_now = get_current_ist_time()
@@ -281,23 +364,124 @@ class RiskMonitor:
         except Exception as e:
             logger.error(f"Error updating daily stats: {e}")
     
+    def _ensure_broker_id(self):
+        """Ensure BrokerID is set from authenticated user's profile or cache"""
+        # First check if already set in this thread
+        if BrokerContext.get_broker_id():
+            return True  # Already set
+        
+        # Try to get from kite_client if available
+        if self.kite_client and self.kite_client.is_authenticated():
+            access_token = self.kite_client.access_token
+            
+            # Try to get from cache first (avoids API rate limits)
+            if access_token:
+                cached_broker_id = BrokerContext.get_broker_id_from_cache(access_token)
+                if cached_broker_id:
+                    BrokerContext.set_broker_id(cached_broker_id)
+                    logger.debug(f"BrokerID retrieved from cache in risk_monitor: {cached_broker_id}")
+                    return True
+            
+            # If not in cache, fetch from API
+            try:
+                profile = self.kite_client.get_profile()
+                broker_id = str(profile.get('user_id', ''))
+                if broker_id:
+                    # Set in thread-local and cache
+                    BrokerContext.set_broker_id(broker_id, access_token=access_token)
+                    logger.debug(f"BrokerID set from profile in risk_monitor: {broker_id}")
+                    return True
+            except Exception as e:
+                logger.debug(f"Could not fetch profile in risk_monitor: {e}")
+                # If API call fails, try cache one more time
+                if access_token:
+                    cached_broker_id = BrokerContext.get_broker_id_from_cache(access_token)
+                    if cached_broker_id:
+                        BrokerContext.set_broker_id(cached_broker_id)
+                        logger.debug(f"BrokerID retrieved from cache after API error: {cached_broker_id}")
+                        return True
+        
+        return False
+    
     def get_current_status(self) -> dict:
         """Get current risk monitoring status"""
-        protected_profit = self.profit_protection.get_protected_profit()
-        loss_status = self.loss_protection.check_loss_limit(protected_profit)
-        trailing_sl_status = self.trailing_sl.get_status()
-        profit_protection_status = self.profit_protection.get_status()
+        # Ensure BrokerID is set before database operations
+        if not self._ensure_broker_id():
+            # Not authenticated - return empty/default status
+            return {
+                "monitoring_active": self.monitoring_active,
+                "loss_protection": {"loss_limit_hit": False, "daily_loss": 0.0},
+                "trailing_sl": {"trailing_sl_active": False},
+                "profit_protection": {
+                    "protected_profit": 0.0,
+                    "current_positions_pnl": 0.0,
+                    "total_daily_pnl": 0.0
+                },
+                "trading_blocked": False,
+                "protected_profit": 0.0,
+                "current_pnl": 0.0,
+                "total_daily_pnl": 0.0,
+                "net_position_pnl": 0.0,
+                "booked_profit": 0.0
+            }
         
-        return {
-            "monitoring_active": self.monitoring_active,
-            "loss_protection": loss_status,
-            "trailing_sl": trailing_sl_status,
-            "profit_protection": profit_protection_status,
-            "trading_blocked": self.trading_block_manager.is_blocked(),
-            "protected_profit": protected_profit,
-            "current_pnl": profit_protection_status["current_positions_pnl"],
-            "total_daily_pnl": profit_protection_status["total_daily_pnl"],
-            "net_position_pnl": self.quantity_manager.get_net_position_pnl(),
-            "booked_profit": self.quantity_manager.get_booked_profit()
-        }
+        try:
+            protected_profit = self.profit_protection.get_protected_profit()
+            loss_status = self.loss_protection.check_loss_limit(protected_profit)
+            trailing_sl_status = self.trailing_sl.get_status()
+            profit_protection_status = self.profit_protection.get_status()
+            
+            # Get quantity manager metrics (may fail if BrokerID is lost)
+            try:
+                net_position_pnl = self.quantity_manager.get_net_position_pnl()
+                booked_profit = self.quantity_manager.get_booked_profit()
+            except (ValueError, Exception) as qm_error:
+                logger.debug(f"Error getting quantity manager metrics: {qm_error}")
+                net_position_pnl = 0.0
+                booked_profit = 0.0
+            
+            return {
+                "monitoring_active": self.monitoring_active,
+                "loss_protection": loss_status,
+                "trailing_sl": trailing_sl_status,
+                "profit_protection": profit_protection_status,
+                "trading_blocked": self.trading_block_manager.is_blocked(),
+                "protected_profit": protected_profit,
+                "current_pnl": profit_protection_status["current_positions_pnl"],
+                "total_daily_pnl": profit_protection_status["total_daily_pnl"],
+                "net_position_pnl": net_position_pnl,
+                "booked_profit": booked_profit
+            }
+        except ValueError as e:
+            if "BrokerID not set" in str(e):
+                # BrokerID was lost during execution - return default values
+                logger.debug("BrokerID lost during get_current_status, returning defaults")
+                return {
+                    "monitoring_active": self.monitoring_active,
+                    "loss_protection": {"loss_limit_hit": False, "daily_loss": 0.0},
+                    "trailing_sl": {"active": False},
+                    "profit_protection": {"current_positions_pnl": 0.0, "total_daily_pnl": 0.0},
+                    "trading_blocked": False,
+                    "protected_profit": 0.0,
+                    "current_pnl": 0.0,
+                    "total_daily_pnl": 0.0,
+                    "net_position_pnl": 0.0,
+                    "booked_profit": 0.0
+                }
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error in get_current_status: {e}", exc_info=True)
+            # Return minimal status on error
+            return {
+                "monitoring_active": self.monitoring_active,
+                "loss_protection": {"loss_limit_hit": False, "daily_loss": 0.0},
+                "trailing_sl": {"active": False},
+                "profit_protection": {"current_positions_pnl": 0.0, "total_daily_pnl": 0.0},
+                "trading_blocked": False,
+                "protected_profit": 0.0,
+                "current_pnl": 0.0,
+                "total_daily_pnl": 0.0,
+                "net_position_pnl": 0.0,
+                "booked_profit": 0.0
+            }
 

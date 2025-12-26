@@ -48,6 +48,59 @@ def get_kite_client() -> Optional[KiteClient]:
     return None
 
 
+def _ensure_broker_id() -> bool:
+    """Ensure BrokerID is set from authenticated user's profile or cache"""
+    from src.utils.broker_context import BrokerContext
+    
+    # First check if already set in this thread
+    if BrokerContext.get_broker_id():
+        return True  # Already set
+    
+    # Try to get from dashboard instance's _ensure_broker_id method
+    if _dashboard_instance and hasattr(_dashboard_instance, '_ensure_broker_id'):
+        try:
+            return _dashboard_instance._ensure_broker_id()
+        except Exception as e:
+            logger.debug(f"Could not ensure BrokerID via dashboard: {e}")
+    
+    # Fallback: try to get from kite client
+    kite_client = get_kite_client()
+    if kite_client and kite_client.is_authenticated():
+        access_token = kite_client.access_token
+        
+        # Try to get from cache first (avoids API rate limits)
+        if access_token:
+            cached_broker_id = BrokerContext.get_broker_id_from_cache(access_token)
+            if cached_broker_id:
+                BrokerContext.set_broker_id(cached_broker_id)
+                logger.debug(f"BrokerID retrieved from cache: {cached_broker_id}")
+                return True
+            
+            # Try to get from profile cache
+            cached_profile = BrokerContext.get_profile_from_cache(access_token)
+            if cached_profile:
+                broker_id = str(cached_profile.get('user_id', '') or cached_profile.get('userid', ''))
+                if broker_id:
+                    BrokerContext.set_broker_id(broker_id, access_token=access_token)
+                    logger.debug(f"BrokerID set from cached profile: {broker_id}")
+                    return True
+        
+        # Last resort: fetch from API (may hit rate limits)
+        try:
+            profile = kite_client.get_profile()
+            broker_id = str(profile.get('user_id', '') or profile.get('userid', ''))
+            if broker_id:
+                BrokerContext.set_broker_id(broker_id, access_token=access_token)
+                if access_token:
+                    BrokerContext.set_profile_cache(access_token, profile)
+                logger.debug(f"BrokerID set from API profile: {broker_id}")
+                return True
+        except Exception as e:
+            logger.debug(f"Could not fetch profile to set BrokerID: {e}")
+    
+    return False
+
+
 def set_kite_client(kite_client: Optional[KiteClient]) -> None:
     """Update the global kite client instance used by Live Trader."""
     global _kite_client
@@ -502,12 +555,18 @@ def download_live_trades():
 @live_trader_bp.route("/trades/daily-pnl", methods=["GET"])
 def get_daily_pnl():
     """
-    Get daily P&L aggregated by date and mode (PAPER vs LIVE).
+    Get daily P&L aggregated by date from Trades table.
     
     Query params:
     - days: Number of days to look back (default: 7)
     """
     try:
+        from src.database.models import DatabaseManager, Trade
+        from src.database.repository import TradeRepository
+        from src.utils.broker_context import BrokerContext
+        from sqlalchemy import func, and_
+        from datetime import date as date_type
+        
         days = int(request.args.get("days", 7))
         if days < 1 or days > 365:
             days = 7
@@ -515,69 +574,115 @@ def get_daily_pnl():
         # Calculate date range
         end_date = datetime.now()
         start_date = end_date - timedelta(days=days)
+        start_date_only = start_date.date()
+        end_date_only = end_date.date()
         
-        # Initialize data structure
-        daily_data = {}
-        current_date = start_date
-        while current_date <= end_date:
-            date_str = current_date.strftime("%Y-%m-%d")
-            daily_data[date_str] = {
-                "date": date_str,
-                "paper_pnl": 0.0,
-                "live_pnl": 0.0,
-                "paper_trades": 0,
-                "live_trades": 0
-            }
-            current_date += timedelta(days=1)
+        # Ensure BrokerID is set before querying
+        if not _ensure_broker_id():
+            logger.warning("BrokerID not set for daily P&L - user may not be authenticated")
+            return jsonify({
+                "success": True,
+                "data": [],
+                "summary": {
+                    "total_days": 0,
+                    "total_paper_pnl": 0.0,
+                    "total_live_pnl": 0.0,
+                    "total_paper_trades": 0,
+                    "total_live_trades": 0
+                }
+            })
         
-        # Scan all CSV files in the date range
-        for date_str in daily_data.keys():
-            file_path = LOG_DIR / f"live_trades_{date_str}.csv"
+        # Get broker_id from context (should be set now)
+        try:
+            broker_id = BrokerContext.require_broker_id()
+        except ValueError as e:
+            logger.warning(f"BrokerID still not set after ensure: {e}")
+            return jsonify({
+                "success": True,
+                "data": [],
+                "summary": {
+                    "total_days": 0,
+                    "total_paper_pnl": 0.0,
+                    "total_live_pnl": 0.0,
+                    "total_paper_trades": 0,
+                    "total_live_trades": 0
+                }
+            })
+        
+        # Initialize database connection
+        db_manager = DatabaseManager()
+        session = db_manager.get_session()
+        
+        try:
+            # Query trades grouped by date
+            # Get realized P&L and trade count per day
+            daily_trades = session.query(
+                func.date(Trade.exit_time).label('trade_date'),
+                func.sum(Trade.realized_pnl).label('total_pnl'),
+                func.count(Trade.id).label('trade_count')
+            ).filter(
+                and_(
+                    Trade.broker_id == broker_id,
+                    func.date(Trade.exit_time) >= start_date_only,
+                    func.date(Trade.exit_time) <= end_date_only
+                )
+            ).group_by(func.date(Trade.exit_time)).all()
             
-            # Try to restore from Azure Blob Storage if file doesn't exist
-            if not file_path.exists():
-                try:
-                    from src.utils.csv_backup import restore_csv_file
-                    restore_csv_file(file_path)
-                except Exception as e:
-                    logger.debug(f"Could not restore CSV from backup: {e}")
+            # Create a dictionary of date -> P&L data
+            daily_data_dict = {}
+            for trade_date, total_pnl, trade_count in daily_trades:
+                # Handle both string (SQLite) and date object (other DBs) cases
+                if isinstance(trade_date, str):
+                    date_str = trade_date
+                else:
+                    date_str = trade_date.strftime("%Y-%m-%d")
+                daily_data_dict[date_str] = {
+                    "date": date_str,
+                    "paper_pnl": 0.0,  # For now, we don't distinguish paper/live in trades table
+                    "live_pnl": total_pnl or 0.0,  # All trades are considered "live" from DB
+                    "paper_trades": 0,
+                    "live_trades": int(trade_count) if trade_count else 0
+                }
             
-            if not file_path.exists():
-                continue
+            # Fill in missing dates with zero values
+            daily_data = []
+            current_date = start_date_only
+            while current_date <= end_date_only:
+                date_str = current_date.strftime("%Y-%m-%d")
+                if date_str in daily_data_dict:
+                    daily_data.append(daily_data_dict[date_str])
+                else:
+                    daily_data.append({
+                        "date": date_str,
+                        "paper_pnl": 0.0,
+                        "live_pnl": 0.0,
+                        "paper_trades": 0,
+                        "live_trades": 0
+                    })
+                current_date += timedelta(days=1)
             
-            try:
-                with file_path.open("r", newline="", encoding="utf-8") as f:
-                    reader = csv.DictReader(f)
-                    for row in reader:
-                        mode = row.get("mode", "PAPER").upper()
-                        pnl_value = float(row.get("pnl_value", 0) or 0)
-                        
-                        if mode == "PAPER":
-                            daily_data[date_str]["paper_pnl"] += pnl_value
-                            daily_data[date_str]["paper_trades"] += 1
-                        elif mode == "LIVE":
-                            daily_data[date_str]["live_pnl"] += pnl_value
-                            daily_data[date_str]["live_trades"] += 1
-            except Exception as csv_error:
-                logger.warning(f"Error reading CSV for {date_str}: {csv_error}")
-                continue
-        
-        # Convert to sorted list
-        result = sorted(daily_data.values(), key=lambda x: x["date"])
-        
-        return jsonify({
-            "success": True,
-            "data": result,
-            "summary": {
-                "total_days": len(result),
-                "total_paper_pnl": sum(d["paper_pnl"] for d in result),
-                "total_live_pnl": sum(d["live_pnl"] for d in result),
-                "total_paper_trades": sum(d["paper_trades"] for d in result),
-                "total_live_trades": sum(d["live_trades"] for d in result)
-            }
-        })
+            # Calculate summary
+            total_paper_pnl = sum(d["paper_pnl"] for d in daily_data)
+            total_live_pnl = sum(d["live_pnl"] for d in daily_data)
+            total_paper_trades = sum(d["paper_trades"] for d in daily_data)
+            total_live_trades = sum(d["live_trades"] for d in daily_data)
+            
+            return jsonify({
+                "success": True,
+                "data": daily_data,
+                "summary": {
+                    "total_days": len(daily_data),
+                    "total_paper_pnl": total_paper_pnl,
+                    "total_live_pnl": total_live_pnl,
+                    "total_paper_trades": total_paper_trades,
+                    "total_live_trades": total_live_trades
+                }
+            })
+        finally:
+            session.close()
+            
     except Exception as e:
-        logger.error(f"Error fetching daily P&L: {e}", exc_info=True)
+        logger.error(f"Error fetching daily P&L from database: {e}", exc_info=True)
         return jsonify({"success": False, "error": str(e)}), 500
 
 

@@ -1,11 +1,11 @@
 {
-  "api_key": "14vxzgvarfrfxs5k",
-  "api_secret": "6wiefl80trb7t8psih5badkwlpijo1gd",
-  "access_token": "mwChW7jGcW9Fvs7G4ek2THc2pTFMMGat",
+  "api_key": "",
+  "api_secret": "",
+  "access_token": "",
   "environment": "dev",
   "log_level": "INFO",
-  "notification_email": "taufiqmirzabaig@gmail.com",
-  "notification_phone": "+918378878890",
+  "notification_email": "",
+  "notification_phone": "",
   "volume_indicator": {
     "source": "Kite",
     "use_nearest_expiry": true,

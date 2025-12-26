@@ -2,6 +2,11 @@
 
 let updateInterval;
 let positionsUpdateInterval; // Separate interval for positions and P&L
+let cumulativePnlInterval; // Interval for cumulative P&L
+let dailyFullUpdateInterval; // Interval for daily full update check
+let connectivityInterval; // Interval for connectivity checks
+let authStatusInterval; // Interval for auth status checks
+let userProfileInterval; // Interval for user profile updates
 let pnlCalendarData = {};
 let pnlFilters = {
     segment: 'all',
@@ -10,12 +15,283 @@ let pnlFilters = {
     dateRange: null
 };
 
+// Track authentication state
+let isAuthenticated = false;
+
+// Define showAuthModal early so it's available for inline onclick handlers
+// This must be defined before the HTML tries to use it
+window.showAuthModal = function showAuthModal() {
+    console.log('[Auth] Attempting to show auth modal');
+    const modal = document.getElementById('authModal');
+    if (!modal) {
+        console.error('[Auth] Auth modal element not found!');
+        alert('Authentication modal not found. Please refresh the page.');
+        return;
+    }
+    
+    console.log('[Auth] Modal element found, displaying...');
+    
+    // Remove any inline display:none that might be set
+    modal.removeAttribute('style');
+    
+    // Set all styles explicitly
+    modal.style.display = 'flex';
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100%';
+    modal.style.height = '100%';
+    modal.style.backgroundColor = 'rgba(0,0,0,0.5)';
+    modal.style.zIndex = '10000';
+    modal.style.justifyContent = 'center';
+    modal.style.alignItems = 'center';
+    modal.style.visibility = 'visible';
+    modal.style.opacity = '1';
+    
+    // Ensure modal content is visible and prevent clicks from closing modal
+    const modalContent = modal.querySelector('div');
+    if (modalContent) {
+        modalContent.style.display = 'block';
+        console.log('[Auth] Modal content displayed');
+        
+        // Prevent clicks inside modal content from closing the modal
+        modalContent.onclick = function(e) {
+            e.stopPropagation();
+        };
+    }
+    
+    // Add click handler to close modal when clicking backdrop (but not the modal content)
+    modal.onclick = function(e) {
+        if (e.target === modal) {
+            console.log('[Auth] Clicked backdrop, closing modal');
+            hideAuthModal();
+        }
+    };
+    
+    // Pre-populate form fields with stored values (from localStorage and server)
+    populateAuthFormFields();
+    
+    // Update Kite Connect link with API key if available
+    updateKiteConnectLink();
+    
+    console.log('[Auth] Auth modal should now be visible');
+    console.log('[Auth] Modal computed style:', window.getComputedStyle(modal).display);
+    
+    // Force a reflow to ensure display
+    void modal.offsetHeight;
+};
+
+// LocalStorage functions for credential storage
+function saveAuthCredentials(apiKey, apiSecret, accessToken, requestToken = null) {
+    try {
+        if (apiKey) localStorage.setItem('zerodha_api_key', apiKey);
+        if (apiSecret) localStorage.setItem('zerodha_api_secret', apiSecret);
+        if (accessToken) localStorage.setItem('zerodha_access_token', accessToken);
+        if (requestToken) localStorage.setItem('zerodha_request_token', requestToken);
+        console.log('[Auth] Credentials saved to localStorage');
+    } catch (error) {
+        console.error('[Auth] Error saving credentials:', error);
+    }
+}
+
+function getAuthCredentials() {
+    try {
+        return {
+            apiKey: localStorage.getItem('zerodha_api_key') || '',
+            apiSecret: localStorage.getItem('zerodha_api_secret') || '',
+            accessToken: localStorage.getItem('zerodha_access_token') || '',
+            requestToken: localStorage.getItem('zerodha_request_token') || ''
+        };
+    } catch (error) {
+        console.error('[Auth] Error reading credentials:', error);
+        return { apiKey: '', apiSecret: '', accessToken: '', requestToken: '' };
+    }
+}
+
+function clearAuthCredentials() {
+    try {
+        localStorage.removeItem('zerodha_api_key');
+        localStorage.removeItem('zerodha_api_secret');
+        localStorage.removeItem('zerodha_access_token');
+        localStorage.removeItem('zerodha_request_token');
+        console.log('[Auth] Credentials cleared from localStorage');
+    } catch (error) {
+        console.error('[Auth] Error clearing credentials:', error);
+    }
+}
+
+// Try to auto-connect if credentials are available
+async function tryAutoConnect() {
+    const credentials = getAuthCredentials();
+    
+    // If we have API key, secret, and access token, try to auto-connect
+    if (credentials.apiKey && credentials.apiSecret && credentials.accessToken) {
+        console.log('[Auth] Auto-connecting with stored credentials...');
+        
+        // Check if already authenticated
+        try {
+            const statusResponse = await fetch('/api/auth/status');
+            if (statusResponse.ok) {
+                const statusData = await statusResponse.json();
+                if (statusData.authenticated) {
+                    console.log('[Auth] Already authenticated, skipping auto-connect');
+                    return;
+                }
+            }
+        } catch (e) {
+            // Continue with auto-connect
+        }
+        
+        // Try to connect with stored credentials
+        try {
+            const response = await fetch('/api/auth/set-access-token', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    api_key: credentials.apiKey,
+                    api_secret: credentials.apiSecret,
+                    access_token: credentials.accessToken
+                })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    console.log('[Auth] Auto-connected successfully');
+                    hideAuthModal();
+                    await checkAuthStatus();
+                    if (typeof addNotification === 'function') {
+                        addNotification('Auto-connected with saved credentials', 'success');
+                    }
+                }
+            }
+        } catch (error) {
+            console.log('[Auth] Auto-connect failed, user will need to authenticate manually:', error);
+        }
+    }
+}
+
+// Pre-populate authentication form fields with stored values
+async function populateAuthFormFields() {
+    // First, try to get from localStorage (fastest)
+    const localCredentials = getAuthCredentials();
+    
+    // Then try to get from server (may have more recent values)
+    let serverDetails = {};
+    try {
+        const response = await fetch('/api/auth/details');
+        if (response.ok) {
+            const data = await safeJsonResponse(response);
+            if (data.success && data.details) {
+                serverDetails = data.details;
+            }
+        }
+    } catch (error) {
+        console.error('Error fetching auth details from server:', error);
+    }
+    
+    // Use server values if available, otherwise fall back to localStorage
+    const apiKey = serverDetails.api_key || localCredentials.apiKey;
+    const apiSecret = serverDetails.api_secret || localCredentials.apiSecret;
+    const accessToken = serverDetails.access_token || localCredentials.accessToken;
+    const requestToken = serverDetails.request_token && serverDetails.request_token !== 'Not stored after authentication' 
+        ? serverDetails.request_token 
+        : localCredentials.requestToken;
+    
+    // Populate API Key field (for Request Token form)
+    const apiKeyField = document.getElementById('apiKey');
+    if (apiKeyField && apiKey) {
+        apiKeyField.value = apiKey;
+    }
+    
+    // Populate API Secret field (for Request Token form)
+    const apiSecretField = document.getElementById('apiSecret');
+    if (apiSecretField && apiSecret) {
+        apiSecretField.value = apiSecret;
+    }
+    
+    // Populate Request Token field
+    const requestTokenField = document.getElementById('requestToken');
+    if (requestTokenField && requestToken) {
+        requestTokenField.value = requestToken;
+    }
+    
+    // Populate Access Token form fields (for direct access token method)
+    const accessTokenApiKeyField = document.getElementById('accessTokenApiKey');
+    if (accessTokenApiKeyField && apiKey) {
+        accessTokenApiKeyField.value = apiKey;
+    }
+    
+    const accessTokenApiSecretField = document.getElementById('accessTokenApiSecret');
+    if (accessTokenApiSecretField && apiSecret) {
+        accessTokenApiSecretField.value = apiSecret;
+    }
+    
+    const accessTokenField = document.getElementById('accessToken');
+    if (accessTokenField && accessToken) {
+        accessTokenField.value = accessToken;
+    }
+}
+
+// Update Kite Connect link with API key
+function updateKiteConnectLink() {
+    const apiKeyField = document.getElementById('apiKey');
+    const kiteConnectLink = document.getElementById('kiteConnectLink');
+    
+    if (apiKeyField && kiteConnectLink) {
+        // Set initial link if API key is already populated
+        if (apiKeyField.value.trim()) {
+            kiteConnectLink.href = `https://kite.trade/connect/login?api_key=${apiKeyField.value.trim()}`;
+        }
+        
+        // Update link when API key changes
+        apiKeyField.addEventListener('input', function() {
+            const apiKey = this.value.trim();
+            if (apiKey) {
+                kiteConnectLink.href = `https://kite.trade/connect/login?api_key=${apiKey}`;
+            } else {
+                kiteConnectLink.href = 'https://kite.trade/connect/login';
+            }
+        });
+    }
+}
+
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', function() {
     initializePnlCalendar();
-    checkAuthStatus();
-    startUpdates();
+    initializeCumulativePnlChart();
     setupEventListeners();
+    
+    // Check auth status first, then start updates only if authenticated
+    checkAuthStatus().then(() => {
+        if (isAuthenticated) {
+            startUpdates();
+        } else {
+            // Not authenticated - ensure auth button is visible and clickable
+            const authStatusEl = document.getElementById('authStatus');
+            if (authStatusEl) {
+                authStatusEl.style.display = 'block';
+                authStatusEl.onclick = showAuthModal;
+                authStatusEl.style.cursor = 'pointer';
+                console.log('[Auth] Auth button visible and ready');
+            }
+        }
+    }).catch(error => {
+        console.error('[Auth] Error checking auth status:', error);
+        // On error, ensure auth button is visible
+        const authStatusEl = document.getElementById('authStatus');
+        if (authStatusEl) {
+            authStatusEl.style.display = 'block';
+            authStatusEl.style.cursor = 'pointer';
+            authStatusEl.removeAttribute('onclick');
+            authStatusEl.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('[Auth] Auth button clicked (error case)');
+                showAuthModal();
+            }, { once: false });
+        }
+    });
 });
 
 // Setup event listeners
@@ -51,78 +327,173 @@ async function safeJsonResponse(response) {
     return await response.json();
 }
 
-// Start real-time updates
+// Request throttling - prevent too many simultaneous requests
+let pendingRequests = new Set();
+let lastRequestTime = {};
+
+async function throttledFetch(url, options = {}, minInterval = 500) {
+    // Check if request was made recently
+    const now = Date.now();
+    const lastTime = lastRequestTime[url] || 0;
+    if (now - lastTime < minInterval) {
+        console.log(`[Throttle] Skipping ${url} - too soon after last request`);
+        return null;
+    }
+    
+    // If request is already pending, skip
+    if (pendingRequests.has(url)) {
+        console.log(`[Throttle] Skipping ${url} - already pending`);
+        return null;
+    }
+    
+    pendingRequests.add(url);
+    lastRequestTime[url] = now;
+    
+    try {
+        const response = await fetch(url, options);
+        return response;
+    } finally {
+        // Remove from pending after response
+        setTimeout(() => {
+            pendingRequests.delete(url);
+        }, minInterval);
+    }
+}
+
+// Cache for cumulative P&L (only Day refreshes frequently)
+let cumulativePnlCache = {
+    data: null,
+    lastFullUpdate: null,
+    lastDayUpdate: null
+};
+
+// Start real-time updates (only called after authentication)
 function startUpdates() {
+    if (!isAuthenticated) {
+        console.log('[Updates] Cannot start updates: not authenticated');
+        return;
+    }
+    
+    console.log('[Updates] Starting updates - authenticated');
+    
+    // Clear any existing intervals first
+    stopUpdates();
+    
+    // Initial update
     updateAll();
-    updateInterval = setInterval(updateAll, 2000); // Update every 2 seconds
     
-    // Update positions and current P&L every 3 seconds
-    updatePositionsAndPnl();
-    positionsUpdateInterval = setInterval(updatePositionsAndPnl, 3000);
+    // Set up intervals - REDUCED FREQUENCY to prevent "Too many requests"
+    updateInterval = setInterval(() => {
+        if (isAuthenticated) {
+            updateAll();
+        } else {
+            console.log('[Updates] Stopping updates - no longer authenticated');
+            stopUpdates();
+        }
+    }, 10000); // Update every 10 seconds (was 2 seconds)
     
-    // Check connectivity status every 2 seconds
+    // Daily Loss Used is updated via updateStatus() which is called in updateAll()
+    
+    // Update cumulative P&L - Day every 5 minutes, others once per day
+    updateCumulativePnl(true); // Initial full update
+    cumulativePnlInterval = setInterval(() => {
+        if (isAuthenticated) {
+            updateCumulativePnl(false); // Day-only update
+        } else {
+            stopUpdates();
+        }
+    }, 5 * 60 * 1000); // Every 5 minutes for Day
+    
+    // Full update check once per day (check every hour)
+    dailyFullUpdateInterval = setInterval(() => {
+        if (isAuthenticated) {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            if (!cumulativePnlCache.lastFullUpdate || cumulativePnlCache.lastFullUpdate < today) {
+                console.log('[Cumulative P&L] Daily full update triggered');
+                updateCumulativePnl(true);
+            }
+        }
+    }, 60 * 60 * 1000); // Check every hour
+    
+    // Check connectivity status every 15 seconds (was 2 seconds)
     checkConnectivity();
-    setInterval(checkConnectivity, 2000);
-    // Check auth status every 10 seconds
-    setInterval(checkAuthStatus, 10000);
+    connectivityInterval = setInterval(() => {
+        if (isAuthenticated) {
+            checkConnectivity();
+        } else {
+            stopUpdates();
+        }
+    }, 15000);
+    
+    // Check auth status every 60 seconds (was 10 seconds)
+    authStatusInterval = setInterval(checkAuthStatus, 60000);
+    
+    // Update user profile every 5 minutes (was 30 seconds)
+    updateUserProfile();
+    userProfileInterval = setInterval(() => {
+        if (isAuthenticated) {
+            updateUserProfile();
+        } else {
+            stopUpdates();
+        }
+    }, 5 * 60 * 1000);
 }
 
-// Update positions and current P&L together (runs every 3 seconds)
-async function updatePositionsAndPnl() {
-    try {
-        // Update positions list
-        await updatePositions();
-        
-        // Update current P&L from status endpoint
-        await updateCurrentPnl();
-    } catch (error) {
-        console.error('Error updating positions and P&L:', error);
+// Stop all updates (when user logs out)
+function stopUpdates() {
+    console.log('[Updates] Stopping all updates');
+    
+    // Clear all intervals
+    if (cumulativePnlInterval) {
+        clearInterval(cumulativePnlInterval);
+        cumulativePnlInterval = null;
     }
+    if (dailyFullUpdateInterval) {
+        clearInterval(dailyFullUpdateInterval);
+        dailyFullUpdateInterval = null;
+    }
+    if (connectivityInterval) {
+        clearInterval(connectivityInterval);
+        connectivityInterval = null;
+    }
+    if (authStatusInterval) {
+        clearInterval(authStatusInterval);
+        authStatusInterval = null;
+    }
+    if (userProfileInterval) {
+        clearInterval(userProfileInterval);
+        userProfileInterval = null;
+    }
+    if (updateInterval) {
+        clearInterval(updateInterval);
+        updateInterval = null;
+    }
+    if (positionsUpdateInterval) {
+        clearInterval(positionsUpdateInterval);
+        positionsUpdateInterval = null;
+    }
+    // Clear any other intervals that might be running
+    // Note: We can't easily track all setInterval calls, but the main ones are cleared above
 }
 
-// Update only the current P&L value
-async function updateCurrentPnl() {
-    try {
-        const response = await fetch('/api/status');
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        const data = await safeJsonResponse(response);
-        
-        if (data.error) {
-            console.error('Status error:', data.error);
-            return;
-        }
-        
-        // Update current P&L
-        const currentPnl = data.profit_protection?.current_positions_pnl || 0;
-        const currentPnlEl = document.getElementById('currentPnl');
-        if (currentPnlEl) {
-            currentPnlEl.textContent = formatCurrency(currentPnl);
-            currentPnlEl.className = 'card-value ' + (currentPnl >= 0 ? 'positive' : 'negative');
-            currentPnlEl.title = `Current Positions P&L: ${formatCurrency(currentPnl)}`;
-        }
-        
-        // Calculate Total Day P&L = Protected Profit + Current Positions P&L
-        // Get protected profit from the same status response
-        const protectedProfit = data.profit_protection?.protected_profit || 0;
-        const finalTotalPnl = protectedProfit + currentPnl;
-        
-        const totalPnlEl = document.getElementById('totalPnl');
-        if (totalPnlEl) {
-            totalPnlEl.textContent = formatCurrency(finalTotalPnl);
-            totalPnlEl.className = 'card-value ' + (finalTotalPnl >= 0 ? 'positive' : 'negative');
-            totalPnlEl.title = `Total Daily P&L: ${formatCurrency(finalTotalPnl)} (Protected: ${formatCurrency(protectedProfit)} + Current: ${formatCurrency(currentPnl)})`;
-        }
-    } catch (error) {
-        console.error('Error updating current P&L:', error);
-    }
-}
+// Removed updatePositionsAndPnl and updateCurrentPnl - no longer needed
+// Daily Loss Used is updated via updateStatus() which is called in updateAll()
 
 // Check connectivity status
 async function checkConnectivity() {
+    if (!isAuthenticated) {
+        // Show not connected when not authenticated
+        const statusText = document.getElementById('statusText');
+        if (statusText) {
+            statusText.textContent = 'Not Connected';
+        }
+        updateStatusIndicator(false);
+        return;
+    }
     try {
-        const response = await fetch('/api/connectivity');
+        const response = await throttledFetch('/api/connectivity');
+        if (!response) return; // Request was throttled
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
@@ -175,6 +546,9 @@ async function checkConnectivity() {
 
 // Update all dashboard data
 async function updateAll() {
+    if (!isAuthenticated) {
+        return; // Don't fetch if not authenticated
+    }
     try {
         await Promise.all([
             updateStatus(),
@@ -196,53 +570,219 @@ async function updateAll() {
     }
 }
 
+// Update user profile (User ID and Name)
+async function updateUserProfile() {
+    try {
+        console.log('[User Profile] Fetching user profile...');
+        const response = await throttledFetch('/api/user/profile', {}, 5000);
+        if (!response) {
+            console.log('[User Profile] Request throttled');
+            return;
+        }
+        
+        if (!response.ok) {
+            const statusText = response.status === 401 ? 'Not authenticated' : `HTTP ${response.status}`;
+            console.log(`[User Profile] ${statusText} - hiding user info`);
+            // Not authenticated or error - hide user info
+            const userInfo = document.getElementById('userInfo');
+            const authStatus = document.getElementById('authStatus');
+            if (userInfo) {
+                userInfo.style.display = 'none';
+            }
+            if (authStatus) {
+                authStatus.style.display = 'block';
+            }
+            return;
+        }
+        
+        const data = await safeJsonResponse(response);
+        console.log('[User Profile] Response received:', data);
+        
+        if (data.success && data.profile) {
+            const userInfo = document.getElementById('userInfo');
+            const authStatus = document.getElementById('authStatus');
+            const userName = document.getElementById('userName');
+            const userId = document.getElementById('userId');
+            
+            if (!userInfo || !userName || !userId) {
+                console.error('[User Profile] DOM elements not found:', { userInfo: !!userInfo, userName: !!userName, userId: !!userId });
+                return;
+            }
+            
+            // Show user info, hide auth status
+            userInfo.style.display = 'block';
+            if (authStatus) {
+                authStatus.style.display = 'none';
+            }
+            
+            // Update user name and ID - handle various field name possibilities
+            const displayName = data.profile.user_shortname || data.profile.user_name || 'User';
+            const userIdValue = data.profile.user_id || 'N/A';
+            
+            if (displayName === 'User' && userIdValue === 'N/A') {
+                console.warn('[User Profile] No user data found in profile:', data.profile);
+                // Try to get from raw_profile if available
+                if (data.raw_profile) {
+                    console.log('[User Profile] Trying raw_profile:', data.raw_profile);
+                    const rawName = data.raw_profile.user_name || data.raw_profile.username || data.raw_profile.name || 'User';
+                    const rawId = data.raw_profile.user_id || data.raw_profile.userid || 'N/A';
+                    userName.textContent = `👤 ${rawName}`;
+                    userId.textContent = `ID: ${rawId}`;
+                    userInfo.title = `User: ${rawName}\nUser ID: ${rawId}`;
+                    console.log('[User Profile] Updated from raw_profile:', { rawName, rawId });
+                    return;
+                }
+            }
+            
+            userName.textContent = `👤 ${displayName}`;
+            userId.textContent = `ID: ${userIdValue}`;
+            
+            // Add title for hover tooltip
+            const tooltip = `User: ${data.profile.user_name || displayName}\nEmail: ${data.profile.email || 'N/A'}\nUser ID: ${userIdValue}`;
+            userInfo.title = tooltip;
+            
+            console.log('[User Profile] Successfully updated:', { displayName, userIdValue });
+        } else {
+            console.warn('[User Profile] Invalid response structure:', data);
+            // Hide user info if not authenticated
+            const userInfo = document.getElementById('userInfo');
+            const authStatus = document.getElementById('authStatus');
+            if (userInfo) {
+                userInfo.style.display = 'none';
+            }
+            if (authStatus) {
+                authStatus.style.display = 'block';
+            }
+        }
+    } catch (error) {
+        console.error('[User Profile] Error updating user profile:', error);
+        // Hide user info on error
+        const userInfo = document.getElementById('userInfo');
+        const authStatus = document.getElementById('authStatus');
+        if (userInfo) {
+            userInfo.style.display = 'none';
+        }
+        if (authStatus) {
+            authStatus.style.display = 'block';
+        }
+    }
+}
+
 // Authentication functions
 async function checkAuthStatus() {
     try {
-        const response = await fetch('/api/auth/status');
+        const response = await throttledFetch('/api/auth/status', {}, 10000);
+        if (!response) return; // Request was throttled
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         const data = await safeJsonResponse(response);
         
         const authStatusEl = document.getElementById('authStatus');
-        if (authStatusEl) {
-            if (data.authenticated) {
-                authStatusEl.textContent = '✅ Authenticated';
-                authStatusEl.style.background = '#28a745';
-                authStatusEl.onclick = null;
-                authStatusEl.style.cursor = 'default';
-            } else {
+        const statusText = document.getElementById('statusText');
+        const wasAuthenticated = isAuthenticated;
+        
+        if (data.authenticated) {
+            isAuthenticated = true;
+            
+            if (authStatusEl) {
+                authStatusEl.style.display = 'none'; // Hide auth button
+            }
+            
+            // Show user info
+            const userInfo = document.getElementById('userInfo');
+            if (userInfo) {
+                userInfo.style.display = 'flex';
+            }
+            
+            // Update status text
+            if (statusText) {
+                statusText.textContent = 'Connected';
+            }
+            updateStatusIndicator(true);
+            
+            // Fetch user profile when authenticated
+            updateUserProfile();
+            
+            // Start updates if not already started
+            if (!wasAuthenticated) {
+                startUpdates();
+            }
+        } else {
+            isAuthenticated = false;
+            
+            if (authStatusEl) {
                 authStatusEl.textContent = '🔒 Not Authenticated';
                 authStatusEl.style.background = '#dc3545';
                 authStatusEl.onclick = showAuthModal;
                 authStatusEl.style.cursor = 'pointer';
+                authStatusEl.style.display = 'block'; // Show auth button
+            }
+            
+            // Hide user info when not authenticated
+            const userInfo = document.getElementById('userInfo');
+            if (userInfo) {
+                userInfo.style.display = 'none';
+            }
+            
+            // Update status text
+            if (statusText) {
+                statusText.textContent = 'Not Connected';
+            }
+            updateStatusIndicator(false);
+            
+            // Stop updates if was authenticated before
+            if (wasAuthenticated) {
+                stopUpdates();
             }
         }
     } catch (error) {
         console.error('Error checking auth status:', error);
+        isAuthenticated = false;
+        const statusText = document.getElementById('statusText');
+        if (statusText) {
+            statusText.textContent = 'Error';
+        }
+        updateStatusIndicator(false);
     }
 }
 
-function showAuthModal() {
-    const modal = document.getElementById('authModal');
-    if (modal) {
-        modal.style.display = 'flex';
-    }
-}
+// showAuthModal is already defined above as window.showAuthModal
+// It's available globally for inline onclick handlers
 
 function hideAuthModal() {
+    console.log('[Auth] Hiding auth modal');
     const modal = document.getElementById('authModal');
     const errorEl = document.getElementById('authError');
     const errorElRequest = document.getElementById('authErrorRequest');
-    const tokenInput = document.getElementById('requestToken');
+    
+    // Clear Request Token form fields
+    const apiKeyInput = document.getElementById('apiKey');
+    const apiSecretInput = document.getElementById('apiSecret');
+    const requestTokenInput = document.getElementById('requestToken');
+    
+    // Clear Access Token form fields
+    const accessTokenApiKeyInput = document.getElementById('accessTokenApiKey');
+    const accessTokenApiSecretInput = document.getElementById('accessTokenApiSecret');
     const accessTokenInput = document.getElementById('accessToken');
     
-    if (modal) modal.style.display = 'none';
+    // Hide generated access token display
+    const accessTokenDisplay = document.getElementById('accessTokenDisplay');
+    
+    if (modal) {
+        modal.style.display = 'none';
+        modal.style.visibility = 'hidden';
+        modal.onclick = null; // Remove click handler
+    }
     if (errorEl) errorEl.style.display = 'none';
     if (errorElRequest) errorElRequest.style.display = 'none';
-    if (tokenInput) tokenInput.value = '';
+    if (apiKeyInput) apiKeyInput.value = '';
+    if (apiSecretInput) apiSecretInput.value = '';
+    if (requestTokenInput) requestTokenInput.value = '';
+    if (accessTokenApiKeyInput) accessTokenApiKeyInput.value = '';
+    if (accessTokenApiSecretInput) accessTokenApiSecretInput.value = '';
     if (accessTokenInput) accessTokenInput.value = '';
+    if (accessTokenDisplay) accessTokenDisplay.style.display = 'none';
 }
 
 function switchAuthTab(tab) {
@@ -284,8 +824,26 @@ function switchAuthTab(tab) {
 
 async function authenticateWithAccessToken(event) {
     event.preventDefault();
+    const apiKey = document.getElementById('accessTokenApiKey').value.trim();
+    const apiSecret = document.getElementById('accessTokenApiSecret').value.trim();
     const accessToken = document.getElementById('accessToken').value.trim();
     const errorEl = document.getElementById('authError');
+    
+    if (!apiKey) {
+        if (errorEl) {
+            errorEl.textContent = 'Please enter an API key';
+            errorEl.style.display = 'block';
+        }
+        return;
+    }
+    
+    if (!apiSecret) {
+        if (errorEl) {
+            errorEl.textContent = 'Please enter an API secret';
+            errorEl.style.display = 'block';
+        }
+        return;
+    }
     
     if (!accessToken) {
         if (errorEl) {
@@ -301,7 +859,11 @@ async function authenticateWithAccessToken(event) {
         const response = await fetch('/api/auth/set-access-token', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({access_token: accessToken})
+            body: JSON.stringify({
+                api_key: apiKey,
+                api_secret: apiSecret,
+                access_token: accessToken
+            })
         });
         
         if (!response.ok) {
@@ -310,13 +872,24 @@ async function authenticateWithAccessToken(event) {
         const data = await safeJsonResponse(response);
         
         if (data.success) {
+            // Save credentials to localStorage
+            saveAuthCredentials(apiKey, apiSecret, accessToken);
+            
+            // Update stored values and refresh auth details
+            await updateAuthDetails();
+            
             hideAuthModal();
-            checkAuthStatus();
+            // Check auth status which will start updates if authenticated
+            await checkAuthStatus();
             if (typeof addNotification === 'function') {
                 addNotification('Successfully connected with access token!', 'success');
             }
             // Refresh data after authentication
-            setTimeout(() => updateAll(), 2000);
+            setTimeout(() => {
+                if (isAuthenticated) {
+                    updateAll();
+                }
+            }, 2000);
         } else {
             if (errorEl) {
                 errorEl.textContent = data.error || 'Connection failed';
@@ -334,8 +907,29 @@ async function authenticateWithAccessToken(event) {
 
 async function authenticateWithRequestToken(event) {
     event.preventDefault();
+    const apiKey = document.getElementById('apiKey').value.trim();
+    const apiSecret = document.getElementById('apiSecret').value.trim();
     const requestToken = document.getElementById('requestToken').value.trim();
     const errorEl = document.getElementById('authErrorRequest');
+    const submitBtn = document.getElementById('authSubmitBtn');
+    const accessTokenDisplay = document.getElementById('accessTokenDisplay');
+    const generatedAccessToken = document.getElementById('generatedAccessToken');
+    
+    if (!apiKey) {
+        if (errorEl) {
+            errorEl.textContent = 'Please enter an API key';
+            errorEl.style.display = 'block';
+        }
+        return;
+    }
+    
+    if (!apiSecret) {
+        if (errorEl) {
+            errorEl.textContent = 'Please enter an API secret';
+            errorEl.style.display = 'block';
+        }
+        return;
+    }
     
     if (!requestToken) {
         if (errorEl) {
@@ -347,30 +941,66 @@ async function authenticateWithRequestToken(event) {
     
     try {
         if (errorEl) errorEl.style.display = 'none';
+        if (accessTokenDisplay) accessTokenDisplay.style.display = 'none';
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Generating...';
+        }
         
         const response = await fetch('/api/auth/authenticate', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({request_token: requestToken})
+            body: JSON.stringify({
+                api_key: apiKey,
+                api_secret: apiSecret,
+                request_token: requestToken
+            })
         });
         
         if (!response.ok) {
+            const errorText = await response.text();
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         const data = await safeJsonResponse(response);
         
-        if (data.success) {
-            hideAuthModal();
-            checkAuthStatus();
-            if (typeof addNotification === 'function') {
-                addNotification('Successfully authenticated with Zerodha!', 'success');
+        if (data.success && data.access_token) {
+            // Save credentials to localStorage
+            saveAuthCredentials(apiKey, apiSecret, data.access_token, requestToken);
+            
+            // Display the generated access token
+            if (generatedAccessToken) {
+                generatedAccessToken.value = data.access_token;
             }
-            // Refresh data after authentication
-            setTimeout(() => updateAll(), 2000);
+            if (accessTokenDisplay) {
+                accessTokenDisplay.style.display = 'block';
+            }
+            
+            // Update stored values and refresh auth details
+            await updateAuthDetails();
+            
+            // Wait a moment to show the access token, then close modal and connect
+            setTimeout(async () => {
+                hideAuthModal();
+                // Check auth status which will start updates if authenticated
+                await checkAuthStatus();
+                if (typeof addNotification === 'function') {
+                    addNotification('Successfully authenticated with Zerodha! Access token generated and saved.', 'success');
+                }
+                // Refresh data after authentication
+                setTimeout(() => {
+                    if (isAuthenticated) {
+                        updateAll();
+                    }
+                }, 2000);
+            }, 2000);
         } else {
             if (errorEl) {
                 errorEl.textContent = data.error || 'Authentication failed';
                 errorEl.style.display = 'block';
+            }
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Generate & Connect';
             }
         }
     } catch (error) {
@@ -378,6 +1008,10 @@ async function authenticateWithRequestToken(event) {
         if (errorEl) {
             errorEl.textContent = 'Error: ' + error.message;
             errorEl.style.display = 'block';
+        }
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Generate & Connect';
         }
     }
 }
@@ -391,8 +1025,12 @@ window.authenticateWithRequestToken = authenticateWithRequestToken;
 
 // Update system status
 async function updateStatus() {
+    if (!isAuthenticated) {
+        return; // Don't fetch if not authenticated
+    }
     try {
-        const response = await fetch('/api/status');
+        const response = await throttledFetch('/api/status', {}, 2000);
+        if (!response) return; // Request was throttled
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
@@ -400,67 +1038,10 @@ async function updateStatus() {
         
         if (data.error) {
             console.error('Status error:', data.error);
-            // Show error status
-            updatePnlStatus('error', 'Error loading P&L data');
             return;
         }
         
-        // Update protected profit
-        const protectedProfit = data.profit_protection?.protected_profit || 0;
-        updateValue('protectedProfit', formatCurrency(protectedProfit), 'profit-card');
-        
-        // Update current P&L with clear status
-        const currentPnl = data.profit_protection?.current_positions_pnl || 0;
-        const currentPnlEl = document.getElementById('currentPnl');
-        if (currentPnlEl) {
-            currentPnlEl.textContent = formatCurrency(currentPnl);
-            currentPnlEl.className = 'card-value ' + (currentPnl >= 0 ? 'positive' : 'negative');
-            currentPnlEl.title = `Current Positions P&L: ${formatCurrency(currentPnl)}`;
-        }
-        
-        // Calculate Total Day P&L = Protected Profit + Current Positions P&L
-        // Always calculate from the displayed values to ensure perfect sync
-        const totalPnl = protectedProfit + currentPnl;
-        
-        // Log for debugging if backend value doesn't match calculated value
-        const backendTotalPnl = data.profit_protection?.total_daily_pnl;
-        if (backendTotalPnl !== undefined && backendTotalPnl !== null && Math.abs(backendTotalPnl - totalPnl) > 0.01) {
-            console.warn('Total P&L mismatch detected:', {
-                backend: backendTotalPnl,
-                calculated: totalPnl,
-                protectedProfit: protectedProfit,
-                currentPnl: currentPnl,
-                difference: totalPnl - backendTotalPnl
-            });
-        }
-        
-        const totalPnlEl = document.getElementById('totalPnl');
-        if (totalPnlEl) {
-            totalPnlEl.textContent = formatCurrency(totalPnl);
-            totalPnlEl.className = 'card-value ' + (totalPnl >= 0 ? 'positive' : 'negative');
-            totalPnlEl.title = `Total Daily P&L: ${formatCurrency(totalPnl)} (Protected: ${formatCurrency(protectedProfit)} + Current: ${formatCurrency(currentPnl)})`;
-        }
-        updateValue('totalPnl', formatCurrency(totalPnl), 'total-card');
-        
-        // Update booked profit
-        const bookedProfit = data.booked_profit || 0;
-        updateValue('bookedProfit', formatCurrency(bookedProfit), 'booked-card');
-        
-        // Update net position P&L with clear status
-        const netPositionPnl = data.net_position_pnl || 0;
-        const netPnlEl = document.getElementById('netPositionPnl');
-        if (netPnlEl) {
-            netPnlEl.textContent = formatCurrency(netPositionPnl);
-            netPnlEl.className = 'card-value ' + (netPositionPnl >= 0 ? 'positive' : 'negative');
-            netPnlEl.title = `Net Position P&L: ${formatCurrency(netPositionPnl)}`;
-        }
-        
-        // Update P&L status indicator
-        const pnlStatus = data.connectivity?.connected ? 'connected' : 'disconnected';
-        const pnlStatusMessage = data.connectivity?.connected ? 'P&L Updated Successfully' : 'P&L Update Failed - Check Connection';
-        updatePnlStatus(pnlStatus, pnlStatusMessage);
-        
-        // Update loss protection
+        // Update Daily Loss Used widget (only widget remaining)
         const lossProtection = data.loss_protection || {};
         const dailyLoss = lossProtection.daily_loss || 0;
         const lossLimit = lossProtection.daily_loss_limit || 5000;
@@ -472,25 +1053,8 @@ async function updateStatus() {
         const lossPercentage = Math.min((dailyLoss / lossLimit) * 100, 100);
         document.getElementById('lossProgress').style.width = lossPercentage + '%';
         
-        // Update trailing SL
-        const trailingSl = data.trailing_sl || {};
-        const trailingSlActive = trailingSl.trailing_sl_active || false;
-        const trailingSlLevel = trailingSl.trailing_sl_level;
-        const trailingSlStatusEl = document.getElementById('trailingSlStatus');
-        trailingSlStatusEl.textContent = trailingSlActive ? 'Active' : 'Inactive';
-        trailingSlStatusEl.className = 'card-value ' + (trailingSlActive ? 'active' : '');
-        document.getElementById('trailingSlLevel').textContent = 
-            trailingSlLevel ? formatCurrency(trailingSlLevel) : '-';
-        
-        // Update trading status
-        const tradingStatus = data.trading_blocked ? 'Blocked' : 'Active';
-        const tradingStatusEl = document.getElementById('tradingStatus');
-        tradingStatusEl.textContent = tradingStatus;
-        tradingStatusEl.className = 'card-value ' + (data.trading_blocked ? 'blocked' : 'active');
-        
     } catch (error) {
         console.error('Error updating status:', error);
-        updatePnlStatus('error', 'Error: ' + error.message);
     }
 }
 
@@ -585,6 +1149,9 @@ window.toggleTradeFilter = toggleTradeFilter;
 
 // Update trades table
 async function updateTrades() {
+    if (!isAuthenticated) {
+        return; // Don't fetch if not authenticated
+    }
     const showAll = document.getElementById('showAllTrades').checked;
     const dateFilter = document.getElementById('tradeDateFilter');
     
@@ -597,7 +1164,8 @@ async function updateTrades() {
     }
     
     try {
-        const response = await fetch(url);
+        const response = await throttledFetch(url, {}, 5000);
+        if (!response) return; // Request was throttled
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
@@ -709,8 +1277,12 @@ function updateTradeSummary(summary) {
 
 // Update daily stats
 async function updateDailyStats() {
+    if (!isAuthenticated) {
+        return; // Don't fetch if not authenticated
+    }
     try {
-        const response = await fetch('/api/daily-stats');
+        const response = await throttledFetch('/api/daily-stats', {}, 5000);
+        if (!response) return; // Request was throttled
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
@@ -1314,18 +1886,40 @@ function initializePnlCalendar() {
     const applyBtn = document.getElementById('applyPnlFilters');
     if (applyBtn) {
         applyBtn.addEventListener('click', () => {
+            console.log('[P&L Filters] Apply button clicked');
+            // Read filter values from form inputs
+            updatePnlFilters();
             loadPnlCalendarData();
         });
     }
     
-    // Update filters on change
+    // Update filters on change (auto-apply for type)
     const pnlType = document.getElementById('pnlType');
     if (pnlType) {
         pnlType.addEventListener('change', () => {
-            pnlFilters.type = pnlType.value;
+            updatePnlFilters();
             loadPnlCalendarData();
         });
     }
+}
+
+// Update filter values from form inputs
+function updatePnlFilters() {
+    const segmentEl = document.getElementById('pnlSegment');
+    const symbolEl = document.getElementById('pnlSymbol');
+    const typeEl = document.getElementById('pnlType');
+    
+    if (segmentEl) {
+        pnlFilters.segment = segmentEl.value;
+    }
+    if (symbolEl) {
+        pnlFilters.symbol = symbolEl.value.trim().toUpperCase();
+    }
+    if (typeEl) {
+        pnlFilters.type = typeEl.value;
+    }
+    
+    console.log('[P&L Filters] Updated filters:', pnlFilters);
 }
 
 function updateDateRangeDisplay() {
@@ -1534,24 +2128,39 @@ function isDateInRange(date, fromDate, toDate) {
 }
 
 function applyDateRange() {
+    console.log('[Date Range Picker] Apply button clicked');
+    console.log('[Date Range Picker] From date:', dateRangePickerState.fromDate);
+    console.log('[Date Range Picker] To date:', dateRangePickerState.toDate);
+    
     if (dateRangePickerState.fromDate && dateRangePickerState.toDate) {
         updateDateRangeDisplay();
         closeDateRangePicker();
+        console.log('[Date Range Picker] Loading P&L calendar data...');
         loadPnlCalendarData();
     } else {
+        console.warn('[Date Range Picker] Dates not selected');
         alert('Please select both From and To dates');
     }
 }
 
 async function loadPnlCalendarData() {
     try {
+        console.log('[P&L Calendar] Loading data...');
+        
         if (!dateRangePickerState.fromDate || !dateRangePickerState.toDate) {
+            console.warn('[P&L Calendar] Date range not set');
             return;
         }
+        
+        // Ensure filters are up to date
+        updatePnlFilters();
         
         const startStr = formatDateForInput(dateRangePickerState.fromDate);
         const endStr = formatDateForInput(dateRangePickerState.toDate);
         const daysDiff = Math.ceil((dateRangePickerState.toDate - dateRangePickerState.fromDate) / (1000 * 60 * 60 * 24));
+        
+        console.log('[P&L Calendar] Date range:', startStr, 'to', endStr, `(${daysDiff + 1} days)`);
+        console.log('[P&L Calendar] Filters:', pnlFilters);
         
         // Update date range display
         const dateRangeText = document.getElementById('pnlDateRangeText');
@@ -1562,22 +2171,40 @@ async function loadPnlCalendarData() {
         // Fetch data
         let result = { success: false, data: [] };
         try {
-            const response = await fetch(`/api/live-trader/trades/daily-pnl?days=${daysDiff + 1}`);
+            const apiUrl = `/live/trades/daily-pnl?days=${daysDiff + 1}`;
+            console.log('[P&L Calendar] Fetching from:', apiUrl);
+            
+            const response = await fetch(apiUrl);
             if (response.ok) {
                 result = await response.json();
+                console.log('[P&L Calendar] Data received:', result.success ? `${result.data?.length || 0} days` : 'Failed');
             } else {
-                console.warn('P&L API returned non-OK status:', response.status);
+                console.warn('[P&L Calendar] API returned non-OK status:', response.status);
+                const errorText = await response.text();
+                console.warn('[P&L Calendar] Error response:', errorText);
             }
         } catch (fetchError) {
-            console.error('Error fetching P&L data:', fetchError);
+            console.error('[P&L Calendar] Error fetching P&L data:', fetchError);
         }
         
         // Always render calendar, even if no data
         pnlCalendarData = {};
         if (result.success && result.data && Array.isArray(result.data)) {
-            result.data.forEach(day => {
+            // Apply filters to the data
+            let filteredData = result.data;
+            
+            // Filter by segment and symbol if needed (these would need backend support)
+            // For now, we'll filter on the frontend if we have trade-level data
+            // Note: The current API only returns daily aggregates, so segment/symbol filtering
+            // would need to be implemented on the backend
+            
+            filteredData.forEach(day => {
                 pnlCalendarData[day.date] = day;
             });
+            
+            console.log('[P&L Calendar] Processed', filteredData.length, 'days of data');
+        } else {
+            console.warn('[P&L Calendar] No data received or invalid response');
         }
         
         // Calculate Realised P&L summary
@@ -1596,11 +2223,15 @@ async function loadPnlCalendarData() {
         
         totalRealisedPnl = totalPaperPnl + totalLivePnl;
         
+        console.log('[P&L Calendar] Summary - Realised:', totalRealisedPnl, 'Paper:', totalPaperPnl, 'Live:', totalLivePnl, 'Trades:', totalTrades);
+        
         // Update Realised P&L summary
         updateRealisedPnlSummary(totalRealisedPnl, totalPaperPnl, totalLivePnl, totalTrades);
         
         // Always render calendar grid for the selected period
+        console.log('[P&L Calendar] Rendering calendar...');
         renderPnlCalendar(dateRangePickerState.fromDate, dateRangePickerState.toDate);
+        console.log('[P&L Calendar] Calendar rendered');
     } catch (error) {
         console.error('Error loading P&L calendar data:', error);
         // Still render empty grid on error
@@ -1782,8 +2413,54 @@ function renderPnlCalendar(startDate, endDate) {
                             dayCell.className += ' no-data';
                         }
                         
-                        // Tooltip
-                        dayCell.title = `${dateStr}\nP&L: ₹${pnl.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                        // Enhanced tooltip with formatted currency
+                        const formattedPnl = formatCurrency(pnl);
+                        dayCell.title = `${dateStr}: ${formattedPnl}`;
+                        dayCell.setAttribute('data-pnl', pnl);
+                        dayCell.setAttribute('data-date', dateStr);
+                        
+                        // Enhanced hover tooltip (better styling)
+                        dayCell.addEventListener('mouseenter', function(e) {
+                            // Remove any existing tooltip
+                            const existingTooltip = document.getElementById('pnlDayTooltip');
+                            if (existingTooltip) {
+                                existingTooltip.remove();
+                            }
+                            
+                            const tooltip = document.createElement('div');
+                            tooltip.id = 'pnlDayTooltip';
+                            tooltip.style.cssText = `
+                                position: fixed;
+                                background: rgba(15, 23, 42, 0.95);
+                                color: white;
+                                padding: 8px 12px;
+                                border-radius: 6px;
+                                font-size: 12px;
+                                font-weight: 500;
+                                pointer-events: none;
+                                z-index: 10000;
+                                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                                border: 1px solid rgba(255, 255, 255, 0.1);
+                                white-space: nowrap;
+                            `;
+                            tooltip.textContent = `${dateStr}: ${formattedPnl}`;
+                            document.body.appendChild(tooltip);
+                            
+                            const rect = dayCell.getBoundingClientRect();
+                            const tooltipX = rect.left + rect.width / 2 - tooltip.offsetWidth / 2;
+                            const tooltipY = rect.top - tooltip.offsetHeight - 8;
+                            
+                            // Ensure tooltip stays within viewport
+                            tooltip.style.left = Math.max(8, Math.min(tooltipX, window.innerWidth - tooltip.offsetWidth - 8)) + 'px';
+                            tooltip.style.top = Math.max(8, tooltipY) + 'px';
+                        });
+                        
+                        dayCell.addEventListener('mouseleave', function() {
+                            const tooltip = document.getElementById('pnlDayTooltip');
+                            if (tooltip) {
+                                tooltip.remove();
+                            }
+                        });
                         
                         // Click handler for details
                         dayCell.addEventListener('click', () => {
@@ -1828,6 +2505,535 @@ function showDayDetails(dateStr, dayData) {
           `Live Trades: ${dayData.live_trades}`);
 }
 
+// Cumulative P&L Chart - Radial Bar Chart (Spiral-like)
+let cumulativePnlChart = null;
+let cumulativePnlCanvas = null;
+let cumulativePnlCtx = null;
+let cumulativePnlData = {
+    allTime: 0,
+    year: 0,
+    month: 0,
+    week: 0,
+    day: 0
+};
+
+function initializeCumulativePnlChart() {
+    const canvas = document.getElementById('cumulativePnlChart');
+    if (!canvas) return;
+    
+    cumulativePnlCanvas = canvas;
+    cumulativePnlCtx = canvas.getContext('2d');
+    
+    // Set canvas size based on container
+    function resizeCanvas() {
+        const container = canvas.parentElement;
+        const size = Math.min(container.clientWidth, container.clientHeight, 400);
+        // Account for device pixel ratio for crisp rendering
+        const dpr = window.devicePixelRatio || 1;
+        const displaySize = size;
+        canvas.width = displaySize * dpr;
+        canvas.height = displaySize * dpr;
+        canvas.style.width = displaySize + 'px';
+        canvas.style.height = displaySize + 'px';
+        cumulativePnlCtx.scale(dpr, dpr);
+        drawRadialBarChart();
+    }
+    
+    // Initial resize
+    resizeCanvas();
+    
+    // Resize on window resize
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(resizeCanvas, 100);
+    });
+}
+
+function drawRadialBarChart() {
+    if (!cumulativePnlCtx || !cumulativePnlCanvas) return;
+    
+    const ctx = cumulativePnlCtx;
+    const canvas = cumulativePnlCanvas;
+    // Use display size (not scaled size) for calculations
+        const displaySize = parseInt(canvas.style.width) || 480; // Updated to match new size
+    const centerX = displaySize / 2;
+    const centerY = displaySize / 2;
+    const maxRadius = Math.min(centerX, centerY) - 20;
+    
+    // Clear canvas (use display size)
+    ctx.clearRect(0, 0, displaySize, displaySize);
+    
+    // Get all values (use absolute values for proportional sizing)
+    const values = {
+        allTime: Math.abs(cumulativePnlData.allTime) || 0,
+        year: Math.abs(cumulativePnlData.year) || 0,
+        month: Math.abs(cumulativePnlData.month) || 0,
+        week: Math.abs(cumulativePnlData.week) || 0,
+        day: Math.abs(cumulativePnlData.day) || 0
+    };
+    
+    // Use Year as baseline (100%) - all arcs are proportional to Year
+    const baselineValue = Math.max(values.year, 1); // Ensure at least 1 to avoid division by zero
+    const maxArcPercentage = 0.92; // Never draw full circle (max 92% of full circle)
+    
+    // Define layers (from outer to inner) - each arc's length is proportional to its percentage of Year
+    // All arcs have the same line width
+    const lineWidth = 12; // Increased width for better visibility
+    
+    // Calculate proper radii for concentric circles with consistent spacing
+    // Order matches legend: Cumulative (outermost), Year, Month, Week, Day (innermost)
+    const radiusSpacing = 28; // Space between each arc
+    const layers = [
+        { 
+            value: cumulativePnlData.allTime,
+            absValue: values.allTime,
+            label: 'Cumulative Profit', 
+            color: 'rgba(34, 197, 94, 0.8)', 
+            borderColor: '#22c55e', // Bright green for cumulative
+            radius: maxRadius
+        },
+        { 
+            value: cumulativePnlData.year,
+            absValue: values.year,
+            label: 'Year', 
+            color: 'rgba(37, 99, 235, 0.8)', 
+            borderColor: '#2563eb', // Blue
+            radius: maxRadius - radiusSpacing
+        },
+        { 
+            value: cumulativePnlData.month,
+            absValue: values.month,
+            label: 'Month', 
+            color: 'rgba(139, 92, 246, 0.8)', 
+            borderColor: '#8b5cf6', // Purple
+            radius: maxRadius - (radiusSpacing * 2)
+        },
+        { 
+            value: cumulativePnlData.week,
+            absValue: values.week,
+            label: 'Week', 
+            color: 'rgba(20, 184, 166, 0.8)', 
+            borderColor: '#14b8a6', // Teal - matching legend
+            radius: maxRadius - (radiusSpacing * 3)
+        },
+        { 
+            value: cumulativePnlData.day,
+            absValue: values.day,
+            label: 'Day', 
+            color: 'rgba(249, 115, 22, 0.8)', 
+            borderColor: '#f97316', // Orange - matching legend
+            radius: maxRadius - (radiusSpacing * 4)
+        }
+    ];
+    
+    // Start angle (top, like the reference image)
+    const startAngle = -Math.PI / 2; // Start from top (12 o'clock)
+    const fullCircle = Math.PI * 2;
+    
+    // Draw each layer as an arc (never full circle)
+    // Arc length is proportional to the percentage of Year (baseline = 100%)
+    layers.forEach((layer, index) => {
+        if (layer.absValue > 0 && baselineValue > 0) {
+            // Calculate arc length proportional to Year (baseline = 100%)
+            // Arc length = (value / baselineValue) * maxArcPercentage * fullCircle
+            const percentageOfYear = layer.absValue / baselineValue;
+            const arcPercentage = Math.min(percentageOfYear * maxArcPercentage, maxArcPercentage);
+            const arcLength = arcPercentage * fullCircle;
+            const endAngle = startAngle + arcLength;
+            
+            // Determine color based on profit/loss
+            const isPositive = layer.value >= 0;
+            const strokeColor = isPositive ? layer.borderColor : 'rgba(239, 68, 68, 1)'; // Red for negative
+            
+            // Draw the arc
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, layer.radius, startAngle, endAngle);
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = lineWidth;
+            ctx.lineCap = 'round'; // Rounded ends like the reference image
+            ctx.stroke();
+        } else {
+            // If value is zero, show a green dot at the starting point
+            const dotX = centerX + layer.radius * Math.cos(startAngle);
+            const dotY = centerY + layer.radius * Math.sin(startAngle);
+            ctx.beginPath();
+            ctx.arc(dotX, dotY, 4, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(16, 185, 129, 1)'; // Green dot
+            ctx.fill();
+        }
+    });
+    
+    // Center dot removed as per user request
+    
+    // Store layer data for tooltip (including angle information)
+    cumulativePnlCanvas._layers = layers.map(layer => {
+        const arcPercentage = layer.absValue > 0 
+            ? Math.min((layer.absValue / baselineValue) * maxArcPercentage, maxArcPercentage)
+            : 0;
+        const arcLength = arcPercentage * fullCircle;
+        return {
+            ...layer,
+            startAngle: startAngle,
+            endAngle: startAngle + arcLength,
+            arcPercentage: arcPercentage
+        };
+    });
+}
+
+async function updateCumulativePnl(fullUpdate = false) {
+    if (!isAuthenticated) {
+        return; // Don't fetch if not authenticated
+    }
+    
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    // Check if we need a full update (once per day)
+    const needsFullUpdate = fullUpdate || 
+                           !cumulativePnlCache.lastFullUpdate || 
+                           cumulativePnlCache.lastFullUpdate < today;
+    
+    // Check if we need a Day update (every 5 minutes)
+    const fiveMinutesAgo = now.getTime() - (5 * 60 * 1000);
+    const needsDayUpdate = !cumulativePnlCache.lastDayUpdate || 
+                          cumulativePnlCache.lastDayUpdate < fiveMinutesAgo;
+    
+    // If we have cached data and don't need updates, use cache
+    if (cumulativePnlCache.data && !needsFullUpdate && !needsDayUpdate) {
+        console.log('[Cumulative P&L] Using cached data');
+        updateCumulativePnlDisplay(cumulativePnlCache.data);
+        return;
+    }
+    
+    try {
+        // Use day_only parameter for frequent Day updates
+        const url = needsFullUpdate ? '/api/cumulative-pnl' : '/api/cumulative-pnl?day_only=true';
+        // Throttle: full updates every 60s, day-only every 5s
+        const minInterval = needsFullUpdate ? 60000 : 5000;
+        const response = await throttledFetch(url, {}, minInterval);
+        if (!response) {
+            // Request was throttled, use cache if available
+            if (cumulativePnlCache.data) {
+                updateCumulativePnlDisplay(cumulativePnlCache.data);
+            }
+            return;
+        }
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        const data = await safeJsonResponse(response);
+        
+        if (!data.success) {
+            console.error('Cumulative P&L API error:', data.error || 'Unknown error');
+            // Show error message to user
+            const errorMsg = document.getElementById('cumulativePnlError');
+            if (errorMsg) {
+                errorMsg.textContent = `Error: ${data.error || 'Failed to load data'}`;
+                errorMsg.style.display = 'block';
+            }
+            // Use cached data if available
+            if (cumulativePnlCache.data) {
+                updateCumulativePnlDisplay(cumulativePnlCache.data);
+            }
+            return;
+        }
+        
+        if (!data.metrics) {
+            console.error('Invalid cumulative P&L data: missing metrics', data);
+            // Use cached data if available
+            if (cumulativePnlCache.data) {
+                updateCumulativePnlDisplay(cumulativePnlCache.data);
+            }
+            return;
+        }
+        
+        // Update cache
+        if (needsFullUpdate) {
+            // Full update - cache all metrics
+            cumulativePnlCache.data = data.metrics;
+            cumulativePnlCache.lastFullUpdate = now;
+            cumulativePnlCache.lastDayUpdate = now; // Also update Day timestamp
+            console.log('[Cumulative P&L] Full update - cached all metrics');
+        } else if (needsDayUpdate) {
+            // Day-only update - merge Day value with cached data
+            if (cumulativePnlCache.data) {
+                cumulativePnlCache.data.day = data.metrics.day;
+                cumulativePnlCache.lastDayUpdate = now;
+                console.log('[Cumulative P&L] Day-only update - updated Day metric');
+            } else {
+                // No cache, do full update
+                try {
+                    const fullResponse = await fetch('/api/cumulative-pnl');
+                    if (fullResponse.ok) {
+                        const fullData = await safeJsonResponse(fullResponse);
+                        if (fullData.success && fullData.metrics) {
+                            cumulativePnlCache.data = fullData.metrics;
+                            cumulativePnlCache.lastFullUpdate = now;
+                            cumulativePnlCache.lastDayUpdate = now;
+                        }
+                    }
+                } catch (fetchError) {
+                    console.debug(`Error fetching full cumulative P&L: ${fetchError}`);
+                    // Continue with empty cache
+                }
+            }
+        }
+        
+        console.log('Cumulative P&L data received:', cumulativePnlCache.data);
+        
+        // Update display with cached data
+        if (cumulativePnlCache.data) {
+            updateCumulativePnlDisplay(cumulativePnlCache.data);
+        }
+        
+    } catch (error) {
+        console.error('Error updating cumulative P&L:', error);
+        // Use cached data if available
+        if (cumulativePnlCache.data) {
+            updateCumulativePnlDisplay(cumulativePnlCache.data);
+        }
+    }
+}
+
+// Update the display with metrics data
+function updateCumulativePnlDisplay(metrics) {
+    try {
+        // Hide error message if data is valid
+        const errorMsg = document.getElementById('cumulativePnlError');
+        if (errorMsg) {
+            errorMsg.style.display = 'none';
+        }
+        
+        // Store actual values for tooltip
+        const actualValues = [
+            metrics.all_time.value,
+            metrics.year.value,
+            metrics.month.value,
+            metrics.week.value,
+            metrics.day.value
+        ];
+        
+        // Update radial bar chart data
+        cumulativePnlData = {
+            allTime: metrics.all_time.value,
+            year: metrics.year.value,
+            month: metrics.month.value,
+            week: metrics.week.value,
+            day: metrics.day.value
+        };
+        
+        // Redraw radial bar chart
+        drawRadialBarChart();
+        
+        // Add hover interaction with tooltips
+        if (cumulativePnlCanvas) {
+            let tooltip = null;
+            
+            // Create tooltip element
+            function createTooltip() {
+                if (tooltip) return tooltip;
+                tooltip = document.createElement('div');
+                tooltip.id = 'cumulativePnlTooltip';
+                tooltip.style.cssText = `
+                    position: absolute;
+                    background: rgba(15, 23, 42, 0.95);
+                    color: white;
+                    padding: 10px 14px;
+                    border-radius: 8px;
+                    font-size: 13px;
+                    font-weight: 500;
+                    pointer-events: none;
+                    z-index: 10000;
+                    display: none;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    line-height: 1.5;
+                `;
+                document.body.appendChild(tooltip);
+                return tooltip;
+            }
+            
+            cumulativePnlCanvas.onmousemove = function(e) {
+                if (!cumulativePnlCanvas._layers) return;
+                
+                const rect = cumulativePnlCanvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const displaySize = parseInt(cumulativePnlCanvas.style.width) || 400;
+                const centerX = displaySize / 2;
+                const centerY = displaySize / 2;
+                const dx = x - centerX;
+                const dy = y - centerY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx);
+                
+                // Normalize angle to 0-2π range
+                let normalizedAngle = angle < 0 ? angle + Math.PI * 2 : angle;
+                
+                // Find which layer is hovered based on distance and angle
+                let hoveredLayer = null;
+                const tolerance = 15; // Pixel tolerance for hover detection
+                
+                for (const layer of cumulativePnlCanvas._layers) {
+                    const radiusDiff = Math.abs(distance - layer.radius);
+                    
+                    // Check if mouse is near this layer's radius
+                    if (radiusDiff <= tolerance) {
+                        // Check if angle is within the arc range
+                        if (layer.absValue > 0 && layer.arcPercentage > 0) {
+                            let layerStartNormalized = layer.startAngle < 0 ? layer.startAngle + Math.PI * 2 : layer.startAngle;
+                            let layerEndNormalized = layer.endAngle < 0 ? layer.endAngle + Math.PI * 2 : layer.endAngle;
+                            
+                            // Handle wrap-around case
+                            let isWithinArc = false;
+                            if (layerEndNormalized > layerStartNormalized) {
+                                isWithinArc = normalizedAngle >= layerStartNormalized && normalizedAngle <= layerEndNormalized;
+                            } else {
+                                // Arc wraps around
+                                isWithinArc = normalizedAngle >= layerStartNormalized || normalizedAngle <= layerEndNormalized;
+                            }
+                            
+                            if (isWithinArc) {
+                                hoveredLayer = layer;
+                                break;
+                            }
+                        } else {
+                            // For zero values, check if near the starting point
+                            const dotX = centerX + layer.radius * Math.cos(layer.startAngle);
+                            const dotY = centerY + layer.radius * Math.sin(layer.startAngle);
+                            const dotDistance = Math.sqrt((x - dotX) * (x - dotX) + (y - dotY) * (y - dotY));
+                            if (dotDistance <= tolerance) {
+                                hoveredLayer = layer;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                if (hoveredLayer) {
+                    cumulativePnlCanvas.style.cursor = 'pointer';
+                    
+                    // Show tooltip
+                    const tooltipEl = createTooltip();
+                    const value = hoveredLayer.value;
+                    const formattedValue = formatCurrency(value);
+                    tooltipEl.innerHTML = `<strong>${hoveredLayer.label}</strong><br>P&L: ${formattedValue}`;
+                    tooltipEl.style.display = 'block';
+                    tooltipEl.style.left = (e.clientX + 15) + 'px';
+                    tooltipEl.style.top = (e.clientY - 40) + 'px';
+                } else {
+                    cumulativePnlCanvas.style.cursor = 'default';
+                    if (tooltip) {
+                        tooltip.style.display = 'none';
+                    }
+                }
+            };
+            
+            cumulativePnlCanvas.onmouseleave = function() {
+                cumulativePnlCanvas.style.cursor = 'default';
+                if (tooltip) {
+                    tooltip.style.display = 'none';
+                }
+            };
+        }
+        
+        // Update metric items
+        updateMetricItem('all-time', metrics.all_time);
+        updateMetricItem('year', metrics.year);
+        updateMetricItem('month', metrics.month);
+        updateMetricItem('week', metrics.week);
+        updateMetricItem('day', metrics.day);
+    } catch (error) {
+        console.error('Error updating cumulative P&L display:', error);
+    }
+}
+
+function updateMetricItem(id, metric) {
+    // Calculate percentage relative to Year (baseline) - matching the chart design
+    const yearValue = Math.abs(cumulativePnlData.year) || 1;
+    const currentValue = Math.abs(metric.value) || 0;
+    const percentage = yearValue > 0 ? (currentValue / yearValue) * 100 : 0;
+    
+    // Update value
+    const valueEl = document.getElementById(`value-${id}`);
+    if (valueEl) {
+        const formattedValue = formatCurrency(metric.value);
+        valueEl.textContent = formattedValue;
+        // Keep the base class but color will be set by CSS based on metric ID
+        valueEl.className = 'metric-value ' + (metric.value >= 0 ? 'positive' : 'negative');
+    }
+    
+    // Update percentage
+    const percentageEl = document.getElementById(`percentage-${id}`);
+    if (percentageEl) {
+        if (id === 'all-time') {
+            // For All Time, show percentage relative to Year
+            percentageEl.textContent = yearValue > 0 ? `(${percentage.toFixed(2)}%)` : '';
+        } else if (id === 'year') {
+            // Year is always 100%
+            percentageEl.textContent = '(100.00%)';
+        } else {
+            percentageEl.textContent = `(${percentage.toFixed(2)}%)`;
+        }
+    }
+    
+    // Update label if provided
+    const labelEl = document.getElementById(`label-${id}`);
+    if (labelEl && metric.label) {
+        labelEl.textContent = metric.label;
+    }
+}
+
+// Auth Details Functions
+function toggleAuthDetails() {
+    const widget = document.getElementById('authDetailsWidget');
+    const content = document.getElementById('authDetailsContent');
+    const chevron = document.getElementById('authDetailsChevron');
+    
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        widget.classList.add('expanded');
+        updateAuthDetails();
+    } else {
+        content.style.display = 'none';
+        widget.classList.remove('expanded');
+    }
+}
+
+async function updateAuthDetails() {
+    try {
+        const response = await fetch('/api/auth/details');
+        if (!response.ok) return;
+        
+        const data = await safeJsonResponse(response);
+        if (!data.success || !data.details) return;
+        
+        const details = data.details;
+        
+        // Update each field - display full values (stored after authentication)
+        const fields = {
+            'authApiKey': details.api_key || '-',
+            'authApiSecret': details.api_secret || '-',
+            'authAccessToken': details.access_token || '-',
+            'authRequestToken': details.request_token || 'Not stored after authentication',
+            'authEmail': details.email || '-',
+            'authBroker': details.broker || '-',
+            'authUserId': details.user_id || '-',
+            'authAccountName': details.account_name || '-'
+        };
+        
+        for (const [id, value] of Object.entries(fields)) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.textContent = value;
+            }
+        }
+    } catch (error) {
+        console.error('Error updating auth details:', error);
+    }
+}
+
 // Make functions globally available
 window.showHelp = showHelp;
 window.closeHelp = closeHelp;
@@ -1837,4 +3043,5 @@ window.setQuickDateRange = setQuickDateRange;
 window.changeMonth = changeMonth;
 window.selectDate = selectDate;
 window.applyDateRange = applyDateRange;
+window.toggleAuthDetails = toggleAuthDetails;
 

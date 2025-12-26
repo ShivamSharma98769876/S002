@@ -128,6 +128,12 @@ class QuantityManager:
             active_positions = self.position_repo.get_active_positions()
             total_pnl = sum(pos.unrealized_pnl for pos in active_positions)
             return total_pnl
+        except ValueError as e:
+            if "BrokerID not set" in str(e):
+                logger.debug("Skipping net position P&L calculation - BrokerID not set (not authenticated)")
+            else:
+                logger.error(f"Error calculating net position P&L: {e}")
+            return 0.0
         except Exception as e:
             logger.error(f"Error calculating net position P&L: {e}")
             return 0.0
@@ -155,6 +161,12 @@ class QuantityManager:
             
             return booked_profit
             
+        except ValueError as e:
+            if "BrokerID not set" in str(e):
+                logger.debug("Skipping booked profit calculation - BrokerID not set (not authenticated)")
+            else:
+                logger.error(f"Error getting booked profit: {e}")
+            return 0.0
         except Exception as e:
             logger.error(f"Error getting booked profit: {e}")
             return 0.0

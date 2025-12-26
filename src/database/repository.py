@@ -1,5 +1,6 @@
 """
 Data Repository for CRUD operations
+All operations are filtered by BrokerID for multi-tenancy support.
 """
 
 from sqlalchemy.orm import Session
@@ -10,6 +11,7 @@ from src.database.models import (
     Position, Trade, DailyStats, AuditLog, DatabaseManager, DailyPurgeFlag, Candle
 )
 from src.utils.logger import get_logger
+from src.utils.broker_context import BrokerContext
 
 logger = get_logger("app")
 
@@ -30,12 +32,14 @@ class PositionRepository:
         lot_size: int = 1,
         current_price: Optional[float] = None
     ) -> Position:
-        """Create new position or update existing"""
+        """Create new position or update existing (filtered by BrokerID)"""
+        broker_id = BrokerContext.require_broker_id()
         session = self.db_manager.get_session()
         try:
-            # Check if active position exists
+            # Check if active position exists for this broker
             position = session.query(Position).filter(
                 and_(
+                    Position.broker_id == broker_id,
                     Position.instrument_token == instrument_token,
                     Position.is_active == True
                 )
@@ -58,6 +62,7 @@ class PositionRepository:
             else:
                 # Create new position
                 position = Position(
+                    broker_id=broker_id,
                     instrument_token=instrument_token,
                     trading_symbol=trading_symbol,
                     exchange=exchange,
@@ -80,19 +85,27 @@ class PositionRepository:
             session.close()
     
     def get_active_positions(self) -> List[Position]:
-        """Get all active positions"""
-        session = self.db_manager.get_session()
-        try:
-            return session.query(Position).filter(Position.is_active == True).all()
-        finally:
-            session.close()
-    
-    def get_inactive_positions(self) -> List[Position]:
-        """Get all inactive positions (quantity=0 or is_active=False)"""
+        """Get all active positions (filtered by BrokerID)"""
+        broker_id = BrokerContext.require_broker_id()
         session = self.db_manager.get_session()
         try:
             return session.query(Position).filter(
                 and_(
+                    Position.broker_id == broker_id,
+                    Position.is_active == True
+                )
+            ).all()
+        finally:
+            session.close()
+    
+    def get_inactive_positions(self) -> List[Position]:
+        """Get all inactive positions (quantity=0 or is_active=False) filtered by BrokerID"""
+        broker_id = BrokerContext.require_broker_id()
+        session = self.db_manager.get_session()
+        try:
+            return session.query(Position).filter(
+                and_(
+                    Position.broker_id == broker_id,
                     Position.quantity == 0,
                     Position.is_active == True
                 )
@@ -101,34 +114,50 @@ class PositionRepository:
             session.close()
     
     def get_all_inactive_positions(self) -> List[Position]:
-        """Get all inactive positions (is_active=False or quantity=0)"""
+        """Get all inactive positions (is_active=False or quantity=0) filtered by BrokerID"""
+        broker_id = BrokerContext.require_broker_id()
         session = self.db_manager.get_session()
         try:
             from sqlalchemy import or_
             positions = session.query(Position).filter(
-                or_(
-                    Position.is_active == False,
-                    Position.quantity == 0
+                and_(
+                    Position.broker_id == broker_id,
+                    or_(
+                        Position.is_active == False,
+                        Position.quantity == 0
+                    )
                 )
             ).order_by(Position.updated_at.desc()).all()
-            logger.debug(f"Found {len(positions)} inactive positions")
+            logger.debug(f"Found {len(positions)} inactive positions for broker {broker_id}")
             return positions
         finally:
             session.close()
     
     def get_position_by_id(self, position_id: int) -> Optional[Position]:
-        """Get position by ID"""
+        """Get position by ID (filtered by BrokerID)"""
+        broker_id = BrokerContext.require_broker_id()
         session = self.db_manager.get_session()
         try:
-            return session.query(Position).filter(Position.id == position_id).first()
+            return session.query(Position).filter(
+                and_(
+                    Position.broker_id == broker_id,
+                    Position.id == position_id
+                )
+            ).first()
         finally:
             session.close()
     
     def update_position_pnl(self, position_id: int, current_price: float) -> Position:
-        """Update position P&L"""
+        """Update position P&L (filtered by BrokerID)"""
+        broker_id = BrokerContext.require_broker_id()
         session = self.db_manager.get_session()
         try:
-            position = session.query(Position).filter(Position.id == position_id).first()
+            position = session.query(Position).filter(
+                and_(
+                    Position.broker_id == broker_id,
+                    Position.id == position_id
+                )
+            ).first()
             if position:
                 position.current_price = current_price
                 # Calculate P&L correctly based on transaction type (quantity sign)
@@ -151,10 +180,16 @@ class PositionRepository:
             session.close()
     
     def deactivate_position(self, position_id: int):
-        """Mark position as inactive"""
+        """Mark position as inactive (filtered by BrokerID)"""
+        broker_id = BrokerContext.require_broker_id()
         session = self.db_manager.get_session()
         try:
-            position = session.query(Position).filter(Position.id == position_id).first()
+            position = session.query(Position).filter(
+                and_(
+                    Position.broker_id == broker_id,
+                    Position.id == position_id
+                )
+            ).first()
             if position:
                 position.is_active = False
                 position.updated_at = datetime.utcnow()
@@ -167,15 +202,21 @@ class PositionRepository:
             session.close()
     
     def clear_all_positions(self):
-        """Clear all active positions from cache (deactivate them)"""
+        """Clear all active positions from cache (deactivate them) filtered by BrokerID"""
+        broker_id = BrokerContext.require_broker_id()
         session = self.db_manager.get_session()
         try:
-            count = session.query(Position).filter(Position.is_active == True).update(
+            count = session.query(Position).filter(
+                and_(
+                    Position.broker_id == broker_id,
+                    Position.is_active == True
+                )
+            ).update(
                 {Position.is_active: False, Position.updated_at: datetime.utcnow()},
                 synchronize_session=False
             )
             session.commit()
-            logger.info(f"Cleared {count} positions from cache")
+            logger.info(f"Cleared {count} positions from cache for broker {broker_id}")
             return count
         except Exception as e:
             session.rollback()
@@ -205,7 +246,8 @@ class TradeRepository:
         position_id: Optional[int] = None,
         transaction_type: Optional[str] = None
     ) -> Trade:
-        """Create a completed trade record"""
+        """Create a completed trade record (with BrokerID)"""
+        broker_id = BrokerContext.require_broker_id()
         session = self.db_manager.get_session()
         try:
             # Determine transaction type from quantity sign if not provided
@@ -225,6 +267,7 @@ class TradeRepository:
             is_profit = realized_pnl > 0
             
             trade = Trade(
+                broker_id=broker_id,
                 position_id=position_id,
                 instrument_token=instrument_token,
                 trading_symbol=trading_symbol,
@@ -251,7 +294,8 @@ class TradeRepository:
             session.close()
     
     def get_trades_by_date(self, trade_date: date) -> List[Trade]:
-        """Get all trades for a specific date (in IST timezone)"""
+        """Get all trades for a specific date (in IST timezone) filtered by BrokerID"""
+        broker_id = BrokerContext.require_broker_id()
         from src.utils.date_utils import IST
         from pytz import UTC
         session = self.db_manager.get_session()
@@ -271,9 +315,10 @@ class TradeRepository:
             start_datetime_utc = start_datetime_ist.astimezone(UTC).replace(tzinfo=None)
             end_datetime_utc = end_datetime_ist.astimezone(UTC).replace(tzinfo=None)
             
-            # Query with UTC range (covers the full IST day)
+            # Query with UTC range (covers the full IST day) - filtered by BrokerID
             trades = session.query(Trade).filter(
                 and_(
+                    Trade.broker_id == broker_id,
                     Trade.exit_time >= start_datetime_utc,
                     Trade.exit_time <= end_datetime_utc
                 )
@@ -302,33 +347,43 @@ class TradeRepository:
             session.close()
     
     def get_all_trades(self, limit: Optional[int] = None) -> List[Trade]:
-        """Get all trades (inactive/completed trades)"""
+        """Get all trades (inactive/completed trades) filtered by BrokerID"""
+        broker_id = BrokerContext.require_broker_id()
         session = self.db_manager.get_session()
         try:
-            query = session.query(Trade).order_by(Trade.exit_time.desc())
+            query = session.query(Trade).filter(
+                Trade.broker_id == broker_id
+            ).order_by(Trade.exit_time.desc())
             if limit:
                 query = query.limit(limit)
             trades = query.all()
-            logger.debug(f"Found {len(trades)} completed trades")
+            logger.debug(f"Found {len(trades)} completed trades for broker {broker_id}")
             return trades
         finally:
             session.close()
     
     def get_trades_by_position_id(self, position_id: int) -> List[Trade]:
-        """Get trades for a specific position"""
+        """Get trades for a specific position (filtered by BrokerID)"""
+        broker_id = BrokerContext.require_broker_id()
         session = self.db_manager.get_session()
         try:
             return session.query(Trade).filter(
-                Trade.position_id == position_id
+                and_(
+                    Trade.broker_id == broker_id,
+                    Trade.position_id == position_id
+                )
             ).order_by(Trade.exit_time.desc()).all()
         finally:
             session.close()
     
     def get_trades_summary(self) -> Dict[str, Any]:
-        """Get summary of all trades (total profit, loss, count)"""
+        """Get summary of all trades (total profit, loss, count) filtered by BrokerID"""
+        broker_id = BrokerContext.require_broker_id()
         session = self.db_manager.get_session()
         try:
-            all_trades = session.query(Trade).all()
+            all_trades = session.query(Trade).filter(
+                Trade.broker_id == broker_id
+            ).all()
             
             total_profit = sum(t.realized_pnl for t in all_trades if t.realized_pnl > 0)
             total_loss = sum(t.realized_pnl for t in all_trades if t.realized_pnl < 0)
@@ -358,11 +413,13 @@ class TradeRepository:
         """
         session = self.db_manager.get_session()
         try:
+            broker_id = BrokerContext.require_broker_id()
             start_datetime = datetime.combine(trade_date, datetime.min.time())
             end_datetime = datetime.combine(trade_date, datetime.max.time())
-            # Sum ALL trades (both profit and loss) - not just profitable ones
+            # Sum ALL trades (both profit and loss) - not just profitable ones - filtered by BrokerID
             result = session.query(func.sum(Trade.realized_pnl)).filter(
                 and_(
+                    Trade.broker_id == broker_id,
                     Trade.exit_time >= start_datetime,
                     Trade.exit_time <= end_datetime
                 )
@@ -401,17 +458,20 @@ class TradeRepository:
             start_datetime_utc = start_datetime_ist.astimezone(UTC).replace(tzinfo=None)
             end_datetime_utc = end_datetime_ist.astimezone(UTC).replace(tzinfo=None)
             
-            # Count trades before deletion
+            broker_id = BrokerContext.require_broker_id()
+            # Count trades before deletion (filtered by BrokerID)
             count = session.query(Trade).filter(
                 and_(
+                    Trade.broker_id == broker_id,
                     Trade.exit_time >= start_datetime_utc,
                     Trade.exit_time <= end_datetime_utc
                 )
             ).count()
             
-            # Delete trades
+            # Delete trades (filtered by BrokerID)
             deleted = session.query(Trade).filter(
                 and_(
+                    Trade.broker_id == broker_id,
                     Trade.exit_time >= start_datetime_utc,
                     Trade.exit_time <= end_datetime_utc
                 )
@@ -427,26 +487,52 @@ class TradeRepository:
         finally:
             session.close()
     
-    def is_purge_done_for_today(self) -> bool:
-        """Check if Day-1 trades have been purged today"""
+    def is_purge_done_for_today(self, broker_id: Optional[str] = None) -> bool:
+        """Check if Day-1 trades have been purged today (filtered by BrokerID)"""
+        # If broker_id not provided, try to get from context, but allow None for system operations
+        if broker_id is None:
+            broker_id = BrokerContext.get_broker_id()
+            if broker_id is None:
+                # No BrokerID set - check all broker_ids (for system-wide purge check)
+                # This allows startup operations to work
+                session = self.db_manager.get_session()
+                try:
+                    from src.utils.date_utils import get_current_ist_time
+                    today_ist = get_current_ist_time().date()
+                    
+                    # Check if ANY purge flag exists for today (any broker)
+                    purge_flag = session.query(DailyPurgeFlag).filter(
+                        func.date(DailyPurgeFlag.purge_date) == today_ist
+                    ).first()
+                    
+                    return purge_flag is not None
+                finally:
+                    session.close()
+        
         session = self.db_manager.get_session()
         try:
             from src.utils.date_utils import get_current_ist_time
             today_ist = get_current_ist_time().date()
             
-            # Check if purge flag exists for today
+            # Check if purge flag exists for today (filtered by BrokerID)
             purge_flag = session.query(DailyPurgeFlag).filter(
-                func.date(DailyPurgeFlag.purge_date) == today_ist
+                and_(
+                    DailyPurgeFlag.broker_id == broker_id,
+                    func.date(DailyPurgeFlag.purge_date) == today_ist
+                )
             ).first()
             
             return purge_flag is not None
         finally:
             session.close()
     
-    def purge_day_minus_one_trades(self) -> int:
+    def purge_day_minus_one_trades(self, broker_id: Optional[str] = None) -> int:
         """
         Purge all Day-1 (previous day) trades from the system.
         This should be called once per day on system startup.
+        
+        Args:
+            broker_id: Optional broker_id. If None, purges for all brokers (system-wide)
         
         Returns:
             Number of trades deleted
@@ -459,12 +545,31 @@ class TradeRepository:
             today_ist = get_current_ist_time().date()
             
             # Check if purge already done for today
-            if self.is_purge_done_for_today():
-                logger.info(f"Day-1 trades already purged for {today_ist}")
-                return 0
+            if broker_id:
+                if self.is_purge_done_for_today(broker_id):
+                    logger.info(f"Day-1 trades already purged for {today_ist} (broker: {broker_id})")
+                    return 0
+            else:
+                if self.is_purge_done_for_today():
+                    logger.info(f"Day-1 trades already purged for {today_ist} (all brokers)")
+                    return 0
             
-            # Get all trades
-            all_trades = session.query(Trade).all()
+            # If broker_id not provided, try to get from context, but allow None for system operations
+            if broker_id is None:
+                broker_id = BrokerContext.get_broker_id()
+                if broker_id is None:
+                    # No BrokerID - purge for all brokers (system-wide purge during startup)
+                    logger.info("No BrokerID set - performing system-wide purge for all brokers")
+                    all_trades = session.query(Trade).all()
+                else:
+                    all_trades = session.query(Trade).filter(
+                        Trade.broker_id == broker_id
+                    ).all()
+            else:
+                # Get all trades for this specific broker
+                all_trades = session.query(Trade).filter(
+                    Trade.broker_id == broker_id
+                ).all()
             
             # Filter trades from Day-1 (previous day)
             from datetime import timedelta
@@ -493,12 +598,17 @@ class TradeRepository:
             
             if deleted_count > 0:
                 session.commit()
-                logger.info(f"Purged {deleted_count} Day-1 trades (from {day_minus_one})")
+                broker_info = f"broker {broker_id}" if broker_id else "all brokers"
+                logger.info(f"Purged {deleted_count} Day-1 trades (from {day_minus_one}) for {broker_info}")
             else:
-                logger.info(f"No Day-1 trades found to purge (from {day_minus_one})")
+                broker_info = f"broker {broker_id}" if broker_id else "all brokers"
+                logger.info(f"No Day-1 trades found to purge (from {day_minus_one}) for {broker_info}")
             
             # Record purge flag for today
+            # If broker_id is None, create a flag with 'SYSTEM' as broker_id
+            flag_broker_id = broker_id if broker_id else 'SYSTEM'
             purge_flag = DailyPurgeFlag(
+                broker_id=flag_broker_id,
                 purge_date=datetime.combine(today_ist, datetime.min.time()),
                 purge_timestamp=datetime.utcnow(),
                 trades_deleted=deleted_count
@@ -506,7 +616,7 @@ class TradeRepository:
             session.add(purge_flag)
             session.commit()
             
-            logger.info(f"Daily purge flag set for {today_ist}")
+            logger.info(f"Daily purge flag set for {today_ist} (broker: {flag_broker_id})")
             return deleted_count
             
         except Exception as e:
@@ -580,6 +690,124 @@ class DailyStatsRepository:
             session.rollback()
             logger.error(f"Error updating daily stats: {e}")
             raise
+        finally:
+            session.close()
+    
+    def get_cumulative_pnl_metrics(self) -> Dict[str, float]:
+        """
+        Calculate cumulative P&L metrics for different time periods.
+        Returns: Dict with 'all_time', 'year', 'month', 'week', 'day' P&L values.
+        Uses trades table for historical data and daily_stats for today's unrealized P&L.
+        All queries filtered by BrokerID.
+        """
+        broker_id = BrokerContext.require_broker_id()
+        session = self.db_manager.get_session()
+        try:
+            from datetime import timedelta
+            from src.utils.date_utils import get_current_ist_time
+            
+            now = get_current_ist_time()
+            today = now.date()
+            today_start = datetime.combine(today, datetime.min.time())
+            today_end = datetime.combine(today, datetime.max.time())
+            
+            # Day P&L: Realized from trades today + Unrealized from daily_stats
+            day_realized = session.query(func.sum(Trade.realized_pnl)).filter(
+                and_(
+                    Trade.broker_id == broker_id,
+                    Trade.exit_time >= today_start,
+                    Trade.exit_time <= today_end
+                )
+            ).scalar() or 0.0
+            
+            day_stats = session.query(DailyStats).filter(
+                and_(
+                    DailyStats.broker_id == broker_id,
+                    func.date(DailyStats.date) == today
+                )
+            ).first()
+            day_unrealized = (day_stats.total_unrealized_pnl or 0.0) if day_stats else 0.0
+            day_pnl = day_realized + day_unrealized
+            
+            # Week P&L: Realized from trades (current week, Monday to today) + Today's unrealized
+            # Calculate start of current week (Monday)
+            days_since_monday = today.weekday()  # Monday is 0, Sunday is 6
+            week_start = today - timedelta(days=days_since_monday)
+            week_start_datetime = datetime.combine(week_start, datetime.min.time())
+            week_realized = session.query(func.sum(Trade.realized_pnl)).filter(
+                and_(
+                    Trade.broker_id == broker_id,
+                    Trade.exit_time >= week_start_datetime,
+                    Trade.exit_time <= today_end
+                )
+            ).scalar() or 0.0
+            week_pnl = week_realized + day_unrealized  # Only add today's unrealized
+            
+            # Month P&L: Realized from trades (current month, 1st to today) + Today's unrealized
+            # Month should always be >= Week if Week is within the month
+            month_start = today.replace(day=1)
+            month_start_datetime = datetime.combine(month_start, datetime.min.time())
+            month_realized = session.query(func.sum(Trade.realized_pnl)).filter(
+                and_(
+                    Trade.broker_id == broker_id,
+                    Trade.exit_time >= month_start_datetime,
+                    Trade.exit_time <= today_end
+                )
+            ).scalar() or 0.0
+            month_pnl = month_realized + day_unrealized  # Only add today's unrealized
+            
+            # Ensure Month >= Week if current week is within the current month
+            # If week starts before month start, week might be larger (which is correct)
+            # But if week is within month, month should be >= week
+            if week_start >= month_start:
+                # Current week is within current month, so month should be >= week
+                if month_pnl < week_pnl:
+                    # This shouldn't happen, but if it does, log a warning
+                    logger.warning(
+                        f"Month P&L ({month_pnl:.2f}) is less than Week P&L ({week_pnl:.2f}). "
+                        f"Week start: {week_start}, Month start: {month_start}. "
+                        f"This may indicate data inconsistency."
+                    )
+            
+            # Year P&L: Realized from trades (current year) + Today's unrealized
+            year_start = today.replace(month=1, day=1)
+            year_start_datetime = datetime.combine(year_start, datetime.min.time())
+            year_realized = session.query(func.sum(Trade.realized_pnl)).filter(
+                and_(
+                    Trade.broker_id == broker_id,
+                    Trade.exit_time >= year_start_datetime,
+                    Trade.exit_time <= today_end
+                )
+            ).scalar() or 0.0
+            year_pnl = year_realized + day_unrealized  # Only add today's unrealized
+            
+            # All time P&L: All realized trades + Today's unrealized
+            all_time_realized = session.query(func.sum(Trade.realized_pnl)).filter(
+                Trade.broker_id == broker_id
+            ).scalar() or 0.0
+            all_time_pnl = all_time_realized + day_unrealized  # Only add today's unrealized
+            
+            logger.debug(
+                f"Cumulative P&L - Day: {day_pnl:.2f}, Week: {week_pnl:.2f}, "
+                f"Month: {month_pnl:.2f}, Year: {year_pnl:.2f}, All Time: {all_time_pnl:.2f}"
+            )
+            
+            return {
+                'all_time': all_time_pnl,
+                'year': year_pnl,
+                'month': month_pnl,
+                'week': week_pnl,
+                'day': day_pnl
+            }
+        except Exception as e:
+            logger.error(f"Error calculating cumulative P&L metrics: {e}", exc_info=True)
+            return {
+                'all_time': 0.0,
+                'year': 0.0,
+                'month': 0.0,
+                'week': 0.0,
+                'day': 0.0
+            }
         finally:
             session.close()
 

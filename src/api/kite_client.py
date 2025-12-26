@@ -4,9 +4,10 @@ Handles authentication, position monitoring, order execution, and account inform
 """
 
 from kiteconnect import KiteConnect
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional, Any, Callable
 from datetime import datetime
 import time
+import functools
 from src.utils.logger import get_logger
 from src.utils.exceptions import (
     APIError, AuthenticationError, OrderExecutionError
@@ -14,6 +15,48 @@ from src.utils.exceptions import (
 from src.config.config_manager import ConfigManager
 
 logger = get_logger("api")
+
+
+def retry_api_call(max_retries: int = 3, base_delay: float = 1.0, max_delay: float = 10.0):
+    """
+    Decorator to retry API calls with exponential backoff.
+    Handles transient network errors, timeouts, and rate limits.
+    """
+    def decorator(func: Callable) -> Callable:
+        @functools.wraps(func)
+        def wrapper(self, *args, **kwargs):
+            last_exception = None
+            for attempt in range(max_retries):
+                try:
+                    return func(self, *args, **kwargs)
+                except Exception as e:
+                    error_str = str(e).lower()
+                    last_exception = e
+                    
+                    # Check if error is retryable
+                    is_retryable = any(keyword in error_str for keyword in [
+                        'timeout', 'connection', 'network', 'temporarily unavailable',
+                        'too many requests', 'rate limit', 'service unavailable',
+                        'bad gateway', 'gateway timeout', 'internal server error',
+                        'connection reset', 'connection aborted', 'broken pipe'
+                    ])
+                    
+                    # Don't retry authentication errors or permanent failures
+                    if not is_retryable or attempt == max_retries - 1:
+                        raise
+                    
+                    # Calculate delay with exponential backoff
+                    delay = min(base_delay * (2 ** attempt), max_delay)
+                    logger.warning(
+                        f"API call failed (attempt {attempt + 1}/{max_retries}): {e}. "
+                        f"Retrying in {delay:.1f} seconds..."
+                    )
+                    time.sleep(delay)
+            
+            # If all retries failed, raise the last exception
+            raise last_exception
+        return wrapper
+    return decorator
 
 
 class KiteClient:
@@ -59,21 +102,79 @@ class KiteClient:
             raise AuthenticationError(f"Failed to set access token: {str(e)}")
     
     def is_authenticated(self) -> bool:
-        """Check if client is authenticated and token is valid"""
+        """Check if client is authenticated and token is valid (with caching to avoid rate limits)"""
         if not self._authenticated or self.kite is None:
             return False
         
-        # Verify token is valid by making a lightweight API call
+        # Cache validation result to avoid too many API calls
+        if not hasattr(self, '_last_auth_check'):
+            self._last_auth_check = 0
+            self._cached_auth_result = False
+        
+        # Only validate token every 60 seconds to avoid rate limits
+        current_time = time.time()
+        if current_time - self._last_auth_check < 60:
+            return self._cached_auth_result
+        
+        # Verify token is valid by making a lightweight API call with retry
         try:
-            # Try to get user profile (lightweight call)
-            self.kite.profile()
+            # Try to get user profile (lightweight call) with retry
+            self._call_with_retry(lambda: self.kite.profile())
+            self._cached_auth_result = True
+            self._last_auth_check = current_time
             return True
         except Exception as e:
-            logger.warning(f"Token validation failed: {e}")
+            error_str = str(e).lower()
+            # Don't mark as disconnected for transient network errors
+            is_transient = any(keyword in error_str for keyword in [
+                'timeout', 'connection', 'network', 'temporarily unavailable',
+                'service unavailable', 'bad gateway', 'gateway timeout'
+            ])
+            
+            if is_transient:
+                # Keep cached result for transient errors, but log warning
+                logger.warning(f"Token validation failed due to transient error: {e}. Keeping cached auth status.")
+                return self._cached_auth_result
+            
+            # Only log warning if it's not a rate limit error
+            if "too many requests" not in error_str and "rate limit" not in error_str:
+                logger.warning(f"Token validation failed: {e}")
             # Token might be expired or invalid
             self._authenticated = False
+            self._cached_auth_result = False
+            self._last_auth_check = current_time
             return False
     
+    def _call_with_retry(self, func: Callable, max_retries: int = 3, base_delay: float = 1.0):
+        """Helper method to retry API calls with exponential backoff"""
+        last_exception = None
+        for attempt in range(max_retries):
+            try:
+                return func()
+            except Exception as e:
+                error_str = str(e).lower()
+                last_exception = e
+                
+                # Check if error is retryable
+                is_retryable = any(keyword in error_str for keyword in [
+                    'timeout', 'connection', 'network', 'temporarily unavailable',
+                    'too many requests', 'rate limit', 'service unavailable',
+                    'bad gateway', 'gateway timeout', 'internal server error',
+                    'connection reset', 'connection aborted', 'broken pipe'
+                ])
+                
+                # Don't retry on last attempt or non-retryable errors
+                if not is_retryable or attempt == max_retries - 1:
+                    raise
+                
+                # Calculate delay with exponential backoff
+                delay = min(base_delay * (2 ** attempt), 10.0)
+                logger.debug(f"API call failed (attempt {attempt + 1}/{max_retries}): {e}. Retrying in {delay:.1f}s...")
+                time.sleep(delay)
+        
+        raise last_exception
+    
+    @retry_api_call(max_retries=3, base_delay=1.0, max_delay=10.0)
     def get_positions(self) -> List[Dict[str, Any]]:
         """Fetch current positions from Zerodha"""
         if not self.is_authenticated():
@@ -142,6 +243,7 @@ class KiteClient:
         exchange_upper = exchange.upper()
         return exchange_upper in ['NSE', 'BSE']
     
+    @retry_api_call(max_retries=3, base_delay=1.0, max_delay=10.0)
     def get_all_positions(self) -> Dict[str, Any]:
         """Fetch all positions (including non-options) for debugging"""
         if not self.is_authenticated():
@@ -155,6 +257,7 @@ class KiteClient:
             logger.error(f"Error fetching all positions: {e}")
             raise APIError(f"Failed to fetch all positions: {str(e)}")
     
+    @retry_api_call(max_retries=3, base_delay=1.0, max_delay=10.0)
     def get_orders(self) -> List[Dict[str, Any]]:
         """Fetch order book from Zerodha"""
         if not self.is_authenticated():
@@ -168,6 +271,7 @@ class KiteClient:
             logger.error(f"Error fetching orders: {e}")
             raise APIError(f"Failed to fetch orders: {str(e)}")
     
+    @retry_api_call(max_retries=3, base_delay=1.0, max_delay=10.0)
     def place_market_order(
         self,
         tradingsymbol: str,
@@ -217,6 +321,7 @@ class KiteClient:
             logger.error(f"Error placing market order: {e}")
             raise OrderExecutionError(f"Failed to place order: {str(e)}")
     
+    @retry_api_call(max_retries=3, base_delay=1.0, max_delay=10.0)
     def place_stop_loss_order(
         self,
         tradingsymbol: str,
@@ -321,6 +426,7 @@ class KiteClient:
             logger.error(f"Error placing stop loss order: {e}")
             raise OrderExecutionError(f"Failed to place stop loss order: {str(e)}")
     
+    @retry_api_call(max_retries=3, base_delay=1.0, max_delay=10.0)
     def modify_order(
         self,
         order_id: str,
@@ -461,6 +567,7 @@ class KiteClient:
             logger.error(f"Error getting order status: {e}")
             return {"error": str(e)}
     
+    @retry_api_call(max_retries=3, base_delay=1.0, max_delay=10.0)
     def get_margins(self) -> Dict[str, Any]:
         """Get account margins"""
         if not self.is_authenticated():
@@ -473,6 +580,7 @@ class KiteClient:
             logger.error(f"Error fetching margins: {e}")
             raise APIError(f"Failed to fetch margins: {str(e)}")
     
+    @retry_api_call(max_retries=3, base_delay=1.0, max_delay=10.0)
     def get_profile(self) -> Dict[str, Any]:
         """Get user profile"""
         if not self.is_authenticated():
@@ -487,6 +595,7 @@ class KiteClient:
     
     # === Live index data helpers for Live Trader ===
 
+    @retry_api_call(max_retries=3, base_delay=1.0, max_delay=10.0)
     def get_index_ltp(self, index_symbol: str) -> float:
         """
         Get the latest traded price (LTP) for a given index (e.g. NIFTY 50).
@@ -525,6 +634,7 @@ class KiteClient:
             logger.error(f"Error fetching LTP for {index_symbol}: {e}")
             raise APIError(f"Failed to fetch LTP for {index_symbol}: {str(e)}")
 
+    @retry_api_call(max_retries=3, base_delay=1.0, max_delay=10.0)
     def get_index_ohlc(self, index_symbol: str) -> Dict[str, float]:
         """
         Get the current day's OHLC for a given index.

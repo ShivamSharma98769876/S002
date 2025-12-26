@@ -17,6 +17,7 @@ from src.security.parameter_locker import ParameterLocker
 from src.security.version_control import VersionControl
 from src.config.config_manager import ConfigManager
 from src.database.models import DatabaseManager
+from src.utils.broker_context import BrokerContext
 
 logger = get_logger("ui")
 
@@ -47,6 +48,12 @@ class Dashboard:
         self.host = host
         self.port = port
         self.debug = debug
+        
+        # Store authentication details for display (persist after connection)
+        self.stored_api_key = None
+        self.stored_api_secret = None
+        self.stored_request_token = None
+        self.stored_access_token = None
         
         # Get absolute paths for templates and static files
         ui_dir = Path(__file__).parent
@@ -152,6 +159,60 @@ class Dashboard:
         equity_exchanges = ['NSE', 'BSE']
         return exchange_upper in equity_exchanges
     
+    def _ensure_broker_id(self):
+        """Ensure BrokerID is set from authenticated user's profile or cache"""
+        # First check if already set in this thread
+        if BrokerContext.get_broker_id():
+            return True  # Already set
+        
+        if self.kite_client and self.kite_client.is_authenticated():
+            access_token = self.kite_client.access_token
+            
+            # Try to get from cache first (avoids API rate limits)
+            if access_token:
+                cached_broker_id = BrokerContext.get_broker_id_from_cache(access_token)
+                if cached_broker_id:
+                    BrokerContext.set_broker_id(cached_broker_id)
+                    logger.debug(f"BrokerID retrieved from cache: {cached_broker_id}")
+                    return True
+            
+            # If not in cache, try to get from profile cache first
+            if access_token:
+                cached_profile = BrokerContext.get_profile_from_cache(access_token)
+                if cached_profile:
+                    broker_id = str(cached_profile.get('user_id', '') or cached_profile.get('userid', ''))
+                    if broker_id:
+                        BrokerContext.set_broker_id(broker_id, access_token=access_token)
+                        logger.debug(f"BrokerID set from cached profile: {broker_id}")
+                        return True
+            
+            # If not in cache, fetch from API (only if really needed)
+            try:
+                profile = self.kite_client.get_profile()
+                broker_id = str(profile.get('user_id', '') or profile.get('userid', ''))
+                if broker_id:
+                    # Set in thread-local and cache
+                    BrokerContext.set_broker_id(broker_id, access_token=access_token)
+                    # Also cache the profile
+                    if access_token:
+                        BrokerContext.set_profile_cache(access_token, profile)
+                    logger.debug(f"BrokerID set from profile: {broker_id}")
+                    return True
+                else:
+                    logger.warning("Could not get user_id from profile")
+                    return False
+            except Exception as e:
+                logger.debug(f"Error setting BrokerID (will use cache if available): {e}")
+                # If API call fails, try cache one more time
+                if access_token:
+                    cached_broker_id = BrokerContext.get_broker_id_from_cache(access_token)
+                    if cached_broker_id:
+                        BrokerContext.set_broker_id(cached_broker_id)
+                        logger.debug(f"BrokerID retrieved from cache after API error: {cached_broker_id}")
+                        return True
+                return False
+        return False
+    
     def _setup_routes(self):
         """Setup Flask routes"""
         
@@ -204,12 +265,29 @@ class Dashboard:
         def get_status():
             """Get current system status"""
             try:
+                # Ensure BrokerID is set if authenticated
+                self._ensure_broker_id()
+                
                 status = self.risk_monitor.get_current_status()
                 
-                # Add quantity manager metrics
-                quantity_manager = self.risk_monitor.quantity_manager
-                status["net_position_pnl"] = quantity_manager.get_net_position_pnl()
-                status["booked_profit"] = quantity_manager.get_booked_profit()
+                # Add quantity manager metrics (only if authenticated)
+                try:
+                    self._ensure_broker_id()
+                    quantity_manager = self.risk_monitor.quantity_manager
+                    status["net_position_pnl"] = quantity_manager.get_net_position_pnl()
+                    status["booked_profit"] = quantity_manager.get_booked_profit()
+                except ValueError as e:
+                    if "BrokerID not set" in str(e):
+                        # Not authenticated - set default values
+                        status["net_position_pnl"] = 0.0
+                        status["booked_profit"] = 0.0
+                    else:
+                        raise
+                except Exception as e:
+                    # Other errors - log but don't fail
+                    logger.debug(f"Error getting quantity manager metrics: {e}")
+                    status["net_position_pnl"] = 0.0
+                    status["booked_profit"] = 0.0
                 
                 # Add connectivity status
                 connectivity_status = {
@@ -319,6 +397,9 @@ class Dashboard:
         def clear_protected_profit():
             """Clear protected profit by deleting trades for a specific date (Admin only)"""
             try:
+                # Ensure BrokerID is set if authenticated
+                self._ensure_broker_id()
+                
                 # Check admin authentication
                 token = request.headers.get('Authorization', '').replace('Bearer ', '')
                 if not self.access_control.is_admin(token):
@@ -374,6 +455,9 @@ class Dashboard:
         def get_positions():
             """Get active positions with latest prices and P&L"""
             try:
+                # Ensure BrokerID is set if authenticated
+                self._ensure_broker_id()
+                
                 # Trigger position sync to get latest prices from API
                 if self.risk_monitor.position_sync:
                     kite_client = self.risk_monitor.position_sync.kite_client
@@ -427,6 +511,20 @@ class Dashboard:
         def get_trades():
             """Get trade history - fetch directly from Zerodha orderbook"""
             try:
+                # Ensure BrokerID is set if authenticated
+                # If not authenticated, return empty trades instead of error
+                if not self.kite_client or not self.kite_client.is_authenticated():
+                    return jsonify({
+                        "trades": [],
+                        "summary": {
+                            "total_pnl": 0.0,
+                            "total_trades": 0,
+                            "profitable_trades": 0,
+                            "loss_trades": 0
+                        }
+                    })
+                
+                self._ensure_broker_id()
                 # Get date range from query params
                 date_str = request.args.get('date', None)
                 all_trades_param = request.args.get('all', 'false').lower() == 'true'
@@ -666,18 +764,46 @@ class Dashboard:
                         pass
                 
                 # Fallback to database trades if orderbook fetch fails or not authenticated
+                trades = []
                 if not use_orderbook or not self.kite_client or not self.kite_client.is_authenticated():
-                    if all_trades_param or not date_str:
-                        # Get all trades (all inactive/completed trades)
-                        trades = self.trade_repo.get_all_trades()
-                    else:
-                        # Get trades for specific date
-                        try:
-                            trade_date = datetime.fromisoformat(date_str).date()
-                            trades = self.trade_repo.get_trades_by_date(trade_date)
-                        except ValueError as ve:
-                            logger.error(f"Invalid date format: {date_str} - {ve}")
-                            return jsonify({"error": f"Invalid date format: {date_str}"}), 400
+                    # If not authenticated, return empty trades
+                    if not self.kite_client or not self.kite_client.is_authenticated():
+                        return jsonify({
+                            "trades": [],
+                            "summary": {
+                                "total_pnl": 0.0,
+                                "total_trades": 0,
+                                "profitable_trades": 0,
+                                "loss_trades": 0
+                            }
+                        })
+                    
+                    # Try to get trades from database (only if authenticated)
+                    try:
+                        if all_trades_param or not date_str:
+                            # Get all trades (all inactive/completed trades)
+                            trades = self.trade_repo.get_all_trades()
+                        else:
+                            # Get trades for specific date
+                            try:
+                                trade_date = datetime.fromisoformat(date_str).date()
+                                trades = self.trade_repo.get_trades_by_date(trade_date)
+                            except ValueError as ve:
+                                logger.error(f"Invalid date format: {date_str} - {ve}")
+                                return jsonify({"error": f"Invalid date format: {date_str}"}), 400
+                    except ValueError as e:
+                        if "BrokerID not set" in str(e):
+                            # Not authenticated - return empty trades
+                            return jsonify({
+                                "trades": [],
+                                "summary": {
+                                    "total_pnl": 0.0,
+                                    "total_trades": 0,
+                                    "profitable_trades": 0,
+                                    "loss_trades": 0
+                                }
+                            })
+                        raise
                 
                 # Get both active and inactive positions
                 active_positions = []
@@ -688,6 +814,13 @@ class Dashboard:
                     
                     # Get inactive positions (quantity=0)
                     inactive_positions = self.position_repo.get_all_inactive_positions()
+                except ValueError as e:
+                    if "BrokerID not set" in str(e):
+                        # Not authenticated - use empty positions
+                        active_positions = []
+                        inactive_positions = []
+                    else:
+                        raise
                     # Filter inactive positions by date if date is specified
                     if date_str and not all_trades_param:
                         try:
@@ -1015,6 +1148,9 @@ class Dashboard:
         def get_daily_stats():
             """Get daily statistics"""
             try:
+                # Ensure BrokerID is set if authenticated
+                self._ensure_broker_id()
+                
                 from src.database.repository import DailyStatsRepository
                 from src.database.models import DatabaseManager
                 
@@ -1040,6 +1176,111 @@ class Dashboard:
                 logger.error(f"Error getting daily stats: {e}")
                 return jsonify({"error": str(e)}), 500
         
+        @self.app.route('/api/cumulative-pnl')
+        def get_cumulative_pnl():
+            """Get cumulative P&L metrics (all time, year, month, week, day)"""
+            try:
+                # Check if only Day is requested (query parameter)
+                day_only = request.args.get('day_only', 'false').lower() == 'true'
+                
+                # Try to ensure BrokerID is set, but handle gracefully if not authenticated
+                try:
+                    self._ensure_broker_id()
+                except Exception as e:
+                    # Not authenticated - return empty/default metrics
+                    logger.debug(f"Cumulative P&L: Not authenticated - {e}")
+                    if day_only:
+                        return jsonify({
+                            "success": True,
+                            "metrics": {
+                                "day": {
+                                    "label": "Day",
+                                    "value": 0.0,
+                                    "description": "Profit of the day"
+                                }
+                            }
+                        })
+                    else:
+                        from datetime import datetime
+                        now = datetime.now()
+                        current_month = now.strftime("%b")
+                        current_year = now.year
+                        return jsonify({
+                            "success": True,
+                            "metrics": {
+                                "all_time": {"label": "Cumulative Profit", "value": 0.0, "description": "Profit till date"},
+                                "year": {"label": f"Year ({current_year})", "value": 0.0, "description": f"Profit till date in {current_year}"},
+                                "month": {"label": f"Month ({current_month})", "value": 0.0, "description": f"Profit till date in {current_month}"},
+                                "week": {"label": "Week", "value": 0.0, "description": "Profit till date in this week"},
+                                "day": {"label": "Day", "value": 0.0, "description": "Profit of the day"}
+                            }
+                        })
+                
+                from src.database.repository import DailyStatsRepository
+                from src.database.models import DatabaseManager
+                from datetime import datetime
+                
+                db_manager = DatabaseManager()
+                daily_stats_repo = DailyStatsRepository(db_manager)
+                
+                # Calculate metrics (function is already optimized)
+                metrics = daily_stats_repo.get_cumulative_pnl_metrics()
+                
+                if day_only:
+                    # Return only Day for frequent updates (reduces response size)
+                    return jsonify({
+                        "success": True,
+                        "metrics": {
+                            "day": {
+                                "label": "Day",
+                                "value": metrics.get('day', 0.0),
+                                "description": "Profit of the day"
+                            }
+                        }
+                    })
+                
+                # Get current date info for labels
+                now = datetime.now()
+                current_month = now.strftime("%b")
+                current_year = now.year
+                
+                logger.debug(f"Cumulative P&L API called - Metrics: {metrics}")
+                
+                return jsonify({
+                    "success": True,
+                    "metrics": {
+                        "all_time": {
+                            "label": "Cumulative Profit",
+                            "value": metrics['all_time'],
+                            "description": "Profit till date"
+                        },
+                        "year": {
+                            "label": f"Year ({current_year})",
+                            "value": metrics['year'],
+                            "description": f"Profit till date in {current_year}"
+                        },
+                        "month": {
+                            "label": f"Month ({current_month})",
+                            "value": metrics['month'],
+                            "description": f"Profit till date in {current_month}"
+                        },
+                        "week": {
+                            "label": "Week",
+                            "value": metrics['week'],
+                            "description": "Profit till date in this week"
+                        },
+                        "day": {
+                            "label": "Day",
+                            "value": metrics['day'],
+                            "description": "Profit of the day"
+                        }
+                    },
+                    "last_updated": now.isoformat()
+                })
+            except Exception as e:
+                logger.error(f"Error getting cumulative P&L: {e}", exc_info=True)
+                return jsonify({"success": False, "error": str(e)}), 500
+        
         @self.app.route('/api/auth/status', methods=['GET'])
         def auth_status():
             """Check authentication status"""
@@ -1059,9 +1300,93 @@ class Dashboard:
                 logger.error(f"Error checking auth status: {e}")
                 return jsonify({"error": str(e), "authenticated": False}), 500
         
-        @self.app.route('/api/auth/authenticate', methods=['POST'])
-        def authenticate():
-            """Authenticate with Zerodha using request token"""
+        @self.app.route('/api/auth/details', methods=['GET'])
+        def get_auth_details():
+            """Get authentication details for display in header"""
+            try:
+                auth_details = {
+                    "api_key": "",
+                    "api_secret": "",
+                    "access_token": "",
+                    "request_token": "",
+                    "email": "",
+                    "broker": "",
+                    "user_id": "",
+                    "account_name": ""
+                }
+                
+                # Get stored authentication details (prefer stored values over current client)
+                if self.stored_api_key:
+                    auth_details["api_key"] = self.stored_api_key
+                elif self.kite_client:
+                    auth_details["api_key"] = self.kite_client.api_key or ""
+                else:
+                    auth_details["api_key"] = ""
+                
+                # Show full API secret (stored after authentication)
+                if self.stored_api_secret:
+                    auth_details["api_secret"] = self.stored_api_secret
+                elif self.kite_client and self.kite_client.api_secret:
+                    auth_details["api_secret"] = self.kite_client.api_secret
+                else:
+                    auth_details["api_secret"] = ""
+                
+                # Show full access token (stored after authentication)
+                if self.stored_access_token:
+                    auth_details["access_token"] = self.stored_access_token
+                elif self.kite_client and self.kite_client.access_token:
+                    auth_details["access_token"] = self.kite_client.access_token
+                else:
+                    auth_details["access_token"] = ""
+                
+                # Show stored request token if available
+                if self.stored_request_token:
+                    auth_details["request_token"] = self.stored_request_token
+                
+                # Get email from config
+                try:
+                    user_config = self.config_manager.get_user_config()
+                    auth_details["email"] = user_config.notification_email or ""
+                except:
+                    pass
+                
+                # Get user profile if authenticated
+                if self.kite_client and self.kite_client.is_authenticated():
+                    try:
+                        access_token = self.kite_client.access_token
+                        profile = None
+                        if access_token:
+                            profile = BrokerContext.get_profile_from_cache(access_token)
+                        
+                        if not profile:
+                            try:
+                                profile = self.kite_client.get_profile()
+                                if access_token:
+                                    BrokerContext.set_profile_cache(access_token, profile)
+                            except:
+                                pass
+                        
+                        if profile:
+                            auth_details["broker"] = profile.get("broker", "") or profile.get("user_id", "") or ""
+                            auth_details["user_id"] = profile.get("user_id", "") or profile.get("userid", "") or ""
+                            auth_details["account_name"] = profile.get("user_name", "") or profile.get("username", "") or profile.get("name", "") or ""
+                    except Exception as e:
+                        logger.debug(f"Error fetching profile for auth details: {e}")
+                
+                return jsonify({
+                    "success": True,
+                    "details": auth_details
+                })
+            except Exception as e:
+                logger.error(f"Error getting auth details: {e}")
+                return jsonify({
+                    "success": False,
+                    "error": str(e)
+                }), 500
+        
+        @self.app.route('/api/user/profile', methods=['GET'])
+        def get_user_profile():
+            """Get user profile (User ID and Name) from Kite API"""
             try:
                 if not self.kite_client:
                     return jsonify({
@@ -1069,8 +1394,111 @@ class Dashboard:
                         "error": "Kite client not initialized"
                     }), 500
                 
+                if not self.kite_client.is_authenticated():
+                    return jsonify({
+                        "success": False,
+                        "authenticated": False,
+                        "error": "Not authenticated"
+                    }), 401
+                
+                # Try to get from cache first to avoid API rate limits
+                access_token = self.kite_client.access_token
+                profile = None
+                if access_token:
+                    profile = BrokerContext.get_profile_from_cache(access_token)
+                
+                # If not in cache, fetch from API
+                if not profile:
+                    try:
+                        profile = self.kite_client.get_profile()
+                        # Cache the profile for future requests
+                        if access_token:
+                            BrokerContext.set_profile_cache(access_token, profile)
+                    except Exception as e:
+                        logger.error(f"Error fetching user profile: {e}")
+                        # If API call fails, try to get broker_id from cache and return minimal info
+                        if access_token:
+                            cached_broker_id = BrokerContext.get_broker_id_from_cache(access_token)
+                            if cached_broker_id:
+                                return jsonify({
+                                    "success": True,
+                                    "user_id": cached_broker_id,
+                                    "user_name": "Unknown",
+                                    "cached": True
+                                })
+                        return jsonify({
+                            "success": False,
+                            "error": f"Failed to fetch profile: {str(e)}"
+                        }), 500
+                
+                # Kite API profile fields can vary - try multiple possible field names
+                # Common variations: user_id/userid, user_name/username/name
+                user_id = (
+                    profile.get('user_id') or 
+                    profile.get('userid') or 
+                    profile.get('userID') or 
+                    str(profile.get('user_id', 'N/A'))
+                )
+                
+                user_name = (
+                    profile.get('user_name') or 
+                    profile.get('username') or 
+                    profile.get('name') or 
+                    profile.get('userName') or 
+                    'N/A'
+                )
+                
+                user_shortname = (
+                    profile.get('user_shortname') or 
+                    profile.get('shortname') or 
+                    profile.get('short_name') or 
+                    user_name
+                )
+                
+                email = profile.get('email') or profile.get('Email') or 'N/A'
+                
+                # Log the profile for debugging
+                logger.info(f"User profile fetched - User ID: {user_id}, Name: {user_name}")
+                logger.debug(f"Full profile data: {profile}")
+                
+                return jsonify({
+                    "success": True,
+                    "authenticated": True,
+                    "profile": {
+                        "user_id": str(user_id) if user_id else 'N/A',
+                        "user_name": str(user_name) if user_name else 'N/A',
+                        "user_shortname": str(user_shortname) if user_shortname else str(user_name),
+                        "email": str(email) if email else 'N/A'
+                    },
+                    "raw_profile": profile  # Include raw for debugging
+                })
+            except Exception as e:
+                logger.error(f"Error fetching user profile: {e}", exc_info=True)
+                return jsonify({
+                    "success": False,
+                    "error": str(e)
+                }), 500
+        
+        @self.app.route('/api/auth/authenticate', methods=['POST'])
+        def authenticate():
+            """Authenticate with Zerodha using API key, secret, and request token"""
+            try:
                 data = request.get_json()
+                api_key = data.get('api_key', '').strip()
+                api_secret = data.get('api_secret', '').strip()
                 request_token = data.get('request_token', '').strip()
+                
+                if not api_key:
+                    return jsonify({
+                        "success": False,
+                        "error": "API key is required"
+                    }), 400
+                
+                if not api_secret:
+                    return jsonify({
+                        "success": False,
+                        "error": "API secret is required"
+                    }), 400
                 
                 if not request_token:
                     return jsonify({
@@ -1078,11 +1506,54 @@ class Dashboard:
                         "error": "Request token is required"
                     }), 400
                 
+                # Create a temporary KiteClient with provided credentials
+                from src.api.kite_client import KiteClient
+                from src.config.config_manager import ConfigManager
+                
+                # Create a temporary config for authentication
+                temp_config = ConfigManager()
+                temp_kite_client = KiteClient(temp_config)
+                temp_kite_client.api_key = api_key
+                temp_kite_client.api_secret = api_secret
+                
                 # Authenticate with Zerodha
-                success = self.kite_client.authenticate(request_token)
+                try:
+                    success = temp_kite_client.authenticate(request_token)
+                except Exception as auth_error:
+                    logger.error(f"Authentication failed: {auth_error}")
+                    return jsonify({
+                        "success": False,
+                        "error": f"Authentication failed: {str(auth_error)}"
+                    }), 401
                 
                 if success:
                     logger.info("User authenticated successfully via dashboard (request token)")
+                    
+                    # Update the main kite_client with new credentials
+                    self.kite_client.api_key = api_key
+                    self.kite_client.api_secret = api_secret
+                    self.kite_client.access_token = temp_kite_client.access_token
+                    self.kite_client.kite = temp_kite_client.kite
+                    self.kite_client._authenticated = True
+                    
+                    # Store authentication details for future reference
+                    self.stored_api_key = api_key
+                    self.stored_api_secret = api_secret
+                    self.stored_request_token = request_token
+                    self.stored_access_token = temp_kite_client.access_token
+                    
+                    # Set BrokerID from user profile and cache it
+                    try:
+                        profile = self.kite_client.get_profile()
+                        broker_id = str(profile.get('user_id', ''))
+                        if broker_id:
+                            BrokerContext.set_broker_id(broker_id, access_token=self.kite_client.access_token)
+                            logger.info(f"BrokerID set to: {broker_id}")
+                        else:
+                            logger.warning("Could not get user_id from profile")
+                    except Exception as e:
+                        logger.error(f"Error setting BrokerID: {e}")
+                    
                     # Update Live Trader panel's kite client
                     try:
                         from src.ui.live_trader_panel import set_kite_client
@@ -1113,14 +1584,22 @@ class Dashboard:
         def set_access_token():
             """Set access token directly (if user already has one)"""
             try:
-                if not self.kite_client:
+                data = request.get_json()
+                api_key = data.get('api_key', '').strip()
+                api_secret = data.get('api_secret', '').strip()
+                access_token = data.get('access_token', '').strip()
+                
+                if not api_key:
                     return jsonify({
                         "success": False,
-                        "error": "Kite client not initialized"
-                    }), 500
+                        "error": "API key is required"
+                    }), 400
                 
-                data = request.get_json()
-                access_token = data.get('access_token', '').strip()
+                if not api_secret:
+                    return jsonify({
+                        "success": False,
+                        "error": "API secret is required"
+                    }), 400
                 
                 if not access_token:
                     return jsonify({
@@ -1128,9 +1607,24 @@ class Dashboard:
                         "error": "Access token is required"
                     }), 400
                 
+                # Update kite_client with provided credentials
+                if not self.kite_client:
+                    from src.api.kite_client import KiteClient
+                    from src.config.config_manager import ConfigManager
+                    temp_config = ConfigManager()
+                    self.kite_client = KiteClient(temp_config)
+                
+                # Update API credentials
+                self.kite_client.api_key = api_key
+                self.kite_client.api_secret = api_secret
+                
                 # Set access token directly
                 try:
                     self.kite_client.set_access_token(access_token)
+                    # Store authentication details
+                    self.stored_api_key = api_key
+                    self.stored_api_secret = api_secret
+                    self.stored_access_token = access_token
                 except Exception as auth_error:
                     logger.error(f"Failed to set access token: {auth_error}")
                     return jsonify({
@@ -1142,6 +1636,19 @@ class Dashboard:
                 # is_authenticated() now validates the token with an API call
                 if self.kite_client.is_authenticated():
                     logger.info("User connected successfully via access token")
+                    
+                    # Set BrokerID from user profile
+                    try:
+                        profile = self.kite_client.get_profile()
+                        broker_id = str(profile.get('user_id', ''))
+                        if broker_id:
+                            BrokerContext.set_broker_id(broker_id, access_token=self.kite_client.access_token)
+                            logger.info(f"BrokerID set to: {broker_id}")
+                        else:
+                            logger.warning("Could not get user_id from profile")
+                    except Exception as e:
+                        logger.error(f"Error setting BrokerID: {e}")
+                    
                     # Update Live Trader panel's kite client
                     try:
                         from src.ui.live_trader_panel import set_kite_client

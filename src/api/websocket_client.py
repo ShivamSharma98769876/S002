@@ -24,9 +24,11 @@ class WebSocketClient:
         self.subscribed_instruments: List[int] = []
         self._is_connected = False
         self.reconnect_attempts = 0
-        self.max_reconnect_attempts = 10
+        self.max_reconnect_attempts = 20  # Increased from 10 to 20 for Azure
         self.reconnect_delay = 1  # Start with 1 second
-        self.max_reconnect_delay = 60  # Max 60 seconds
+        self.max_reconnect_delay = 120  # Increased from 60 to 120 seconds for Azure
+        self._last_tick_time = 0  # Track last tick received for health monitoring
+        self._reconnecting = False  # Flag to prevent multiple simultaneous reconnection attempts
         
         # Callbacks
         self.on_ticks: Optional[Callable] = None
@@ -149,6 +151,14 @@ class WebSocketClient:
     def _on_ticks(self, ws, ticks):
         """Handle incoming price ticks"""
         try:
+            # Update last tick time for health monitoring
+            self._last_tick_time = time.time()
+            
+            # Reset reconnect attempts on successful tick
+            if self.reconnect_attempts > 0:
+                self.reconnect_attempts = 0
+                logger.debug("WebSocket health restored - resetting reconnect counter")
+            
             if self.on_ticks:
                 self.on_ticks(ticks)
         except Exception as e:
@@ -203,23 +213,95 @@ class WebSocketClient:
     
     def _attempt_reconnect(self):
         """Attempt to reconnect with exponential backoff"""
-        if self.reconnect_attempts >= self.max_reconnect_attempts:
-            logger.error("Max reconnection attempts reached. Manual intervention required.")
+        # Prevent multiple simultaneous reconnection attempts
+        if self._reconnecting:
+            logger.debug("Reconnection already in progress, skipping duplicate attempt")
             return
         
-        self.reconnect_attempts += 1
-        delay = min(self.reconnect_delay * (2 ** (self.reconnect_attempts - 1)), self.max_reconnect_delay)
+        if self.reconnect_attempts >= self.max_reconnect_attempts:
+            logger.error(
+                f"Max reconnection attempts ({self.max_reconnect_attempts}) reached. "
+                f"WebSocket will continue attempting to reconnect periodically."
+            )
+            # Reset counter after a longer delay to allow periodic retries
+            time.sleep(300)  # Wait 5 minutes before allowing more attempts
+            self.reconnect_attempts = 0
+            return
         
-        logger.info(f"Attempting WebSocket reconnection {self.reconnect_attempts}/{self.max_reconnect_attempts} in {delay} seconds...")
-        
-        time.sleep(delay)
-        
+        self._reconnecting = True
         try:
-            self.connect()
+            self.reconnect_attempts += 1
+            delay = min(self.reconnect_delay * (2 ** (self.reconnect_attempts - 1)), self.max_reconnect_delay)
+            
+            logger.info(
+                f"Attempting WebSocket reconnection {self.reconnect_attempts}/{self.max_reconnect_attempts} "
+                f"in {delay:.1f} seconds..."
+            )
+            
+            time.sleep(delay)
+            
+            # Verify authentication before reconnecting
+            if not self.kite_client.is_authenticated():
+                logger.error("Kite client not authenticated. Cannot reconnect WebSocket.")
+                self._reconnecting = False
+                return
+            
+            # Attempt reconnection
+            if self.connect():
+                logger.info("WebSocket reconnection successful")
+                self._reconnecting = False
+            else:
+                logger.warning("WebSocket reconnection attempt failed, will retry")
+                # Schedule another reconnection attempt
+                threading.Timer(5.0, self._attempt_reconnect).start()
         except Exception as e:
             logger.error(f"Reconnection attempt failed: {e}")
+            # Schedule another reconnection attempt after delay
+            threading.Timer(10.0, self._attempt_reconnect).start()
+        finally:
+            self._reconnecting = False
     
     def is_connected(self) -> bool:
         """Check if WebSocket is connected"""
+        if not self._is_connected:
+            return False
+        
+        # Health check: if no ticks received in last 5 minutes, consider disconnected
+        if self._last_tick_time > 0:
+            time_since_last_tick = time.time() - self._last_tick_time
+            if time_since_last_tick > 300:  # 5 minutes
+                logger.warning(
+                    f"No WebSocket ticks received in {time_since_last_tick:.0f} seconds. "
+                    f"Connection may be stale."
+                )
+                # Don't mark as disconnected, but log warning
+                # The on_close/on_error handlers will handle actual disconnection
+        
         return self._is_connected
+    
+    def check_connection_health(self) -> bool:
+        """
+        Check WebSocket connection health and attempt recovery if needed.
+        Returns True if connection is healthy, False otherwise.
+        """
+        if not self._is_connected:
+            return False
+        
+        # Check if we have subscribed instruments but haven't received ticks recently
+        if self.subscribed_instruments and self._last_tick_time > 0:
+            time_since_last_tick = time.time() - self._last_tick_time
+            if time_since_last_tick > 180:  # 3 minutes without ticks
+                logger.warning(
+                    f"WebSocket health check: No ticks for {time_since_last_tick:.0f} seconds. "
+                    f"Attempting to resubscribe..."
+                )
+                # Try to resubscribe to refresh connection
+                try:
+                    if self.subscribed_instruments:
+                        self.subscribe(self.subscribed_instruments)
+                except Exception as e:
+                    logger.error(f"Failed to resubscribe during health check: {e}")
+                    return False
+        
+        return True
 
