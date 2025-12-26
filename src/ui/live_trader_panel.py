@@ -1110,66 +1110,51 @@ def get_ps_vs_data():
                 if today_data and len(today_data) > 0:
                     use_today = True
                     file_path = today_file_path
+                    data_date = today
                     logger.debug(f"Using today's ({today}) PS/VS data for {segment}: {len(today_data)} points")
             except (json.JSONDecodeError, IOError) as e:
                 logger.warning(f"Today's file exists but couldn't read it: {e}")
         
-        # If today's data is not available, get previous trading day's data
-        data_date = None
+        # If today's data is not available, find the most recent available file
         if not use_today:
-            # Calculate previous trading day (skip weekends)
-            from datetime import timedelta
-            prev_date = ist_now.date() - timedelta(days=1)
-            while prev_date.weekday() >= 5:  # Skip weekends (Saturday=5, Sunday=6)
-                prev_date -= timedelta(days=1)
+            # First, try to find the most recent file (this will get the latest date available, e.g., 26th Dec)
+            pattern = f"ps_vs_{segment}_*.json"
+            matching_files = sorted(ps_vs_dir.glob(pattern), key=lambda p: p.stat().st_mtime, reverse=True)
             
-            prev_date_str = prev_date.strftime("%Y-%m-%d")
-            prev_file_path = ps_vs_dir / f"ps_vs_{segment}_{prev_date_str}.json"
-            
-            if prev_file_path.exists():
+            if matching_files:
+                # Use the most recent file (should be the latest date, e.g., 26th Dec)
+                file_path = matching_files[0]
+                # Extract date from filename
                 try:
-                    with open(prev_file_path, 'r', encoding='utf-8') as f:
-                        prev_data = json.load(f)
-                    if prev_data and len(prev_data) > 0:
-                        file_path = prev_file_path
-                        data_date = prev_date_str
-                        logger.debug(f"Using previous trading day's ({prev_date_str}) PS/VS data for {segment}: {len(prev_data)} points")
-                    else:
-                        # Try to find the most recent file as fallback
-                        pattern = f"ps_vs_{segment}_*.json"
-                        matching_files = sorted(ps_vs_dir.glob(pattern), key=lambda p: p.stat().st_mtime, reverse=True)
-                        if matching_files:
-                            file_path = matching_files[0]
-                            # Extract date from filename
-                            try:
-                                data_date = file_path.stem.split('_')[-1]  # Extract date from filename
-                            except:
-                                pass
-                            logger.debug(f"Using most recent file: {file_path.name}")
-                except (json.JSONDecodeError, IOError) as e:
-                    logger.warning(f"Previous day's file exists but couldn't read it: {e}")
-                    # Try to find the most recent file as fallback
-                    pattern = f"ps_vs_{segment}_*.json"
-                    matching_files = sorted(ps_vs_dir.glob(pattern), key=lambda p: p.stat().st_mtime, reverse=True)
-                    if matching_files:
-                        file_path = matching_files[0]
-                        # Extract date from filename
-                        try:
-                            data_date = file_path.stem.split('_')[-1]  # Extract date from filename
-                        except:
-                            pass
-            else:
-                # Try to find the most recent file as fallback
-                pattern = f"ps_vs_{segment}_*.json"
-                matching_files = sorted(ps_vs_dir.glob(pattern), key=lambda p: p.stat().st_mtime, reverse=True)
-                if matching_files:
-                    file_path = matching_files[0]
-                    # Extract date from filename
+                    data_date = file_path.stem.split('_')[-1]  # Extract date from filename
+                    logger.debug(f"Using most recent file: {file_path.name} (date: {data_date})")
+                except Exception as e:
+                    logger.warning(f"Could not extract date from filename {file_path.name}: {e}")
+                    # Try to get date from file modification time as fallback
                     try:
-                        data_date = file_path.stem.split('_')[-1]  # Extract date from filename
+                        mtime = file_path.stat().st_mtime
+                        data_date = datetime.fromtimestamp(mtime).strftime("%Y-%m-%d")
                     except:
                         pass
-                    logger.debug(f"Using most recent file as fallback: {file_path.name}")
+            else:
+                # No files found - try previous trading day as fallback
+                prev_date = ist_now.date() - timedelta(days=1)
+                while prev_date.weekday() >= 5:  # Skip weekends (Saturday=5, Sunday=6)
+                    prev_date -= timedelta(days=1)
+                
+                prev_date_str = prev_date.strftime("%Y-%m-%d")
+                prev_file_path = ps_vs_dir / f"ps_vs_{segment}_{prev_date_str}.json"
+                
+                if prev_file_path.exists():
+                    try:
+                        with open(prev_file_path, 'r', encoding='utf-8') as f:
+                            prev_data = json.load(f)
+                        if prev_data and len(prev_data) > 0:
+                            file_path = prev_file_path
+                            data_date = prev_date_str
+                            logger.debug(f"Using previous trading day's ({prev_date_str}) PS/VS data for {segment}: {len(prev_data)} points")
+                    except (json.JSONDecodeError, IOError) as e:
+                        logger.warning(f"Previous day's file exists but couldn't read it: {e}")
         
         if not file_path or not file_path.exists():
             return jsonify({

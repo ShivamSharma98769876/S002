@@ -19277,3 +19277,7 @@
 2025-12-26 19:09:59 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
 2025-12-26 19:10:05 - api - INFO - Fetched 0 non-equity positions from 6 total positions
 2025-12-26 19:10:05 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-26 19:14:47 - api - INFO - WebSocket connection initiated
+2025-12-26 19:14:47 - api - INFO - WebSocket connected successfully
+2025-12-26 19:14:47 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 19:14:47 - api - INFO - No active positions to subscribe to
