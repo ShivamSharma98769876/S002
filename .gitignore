@@ -25,10 +25,17 @@ ENV/
 #logs/*.log
 #logs/*.txt
 
+
+
 # Database
-#data/*.db
-#data/*.sqlite
-#data/*.sqlite3
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+
+# Live Trade
+data/live_trader/ps_vs_data/*.json
+
+
 
 # OS
 .DS_Store

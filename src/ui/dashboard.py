@@ -666,7 +666,8 @@ class Dashboard:
                                                 "realized_pnl": pnl,
                                                 "is_profit": pnl > 0,
                                                 "exit_type": "orderbook",
-                                                "source": "orderbook"
+                                                "source": "orderbook",
+                                                "is_open": False  # Mark as closed trade
                                             })
                                             
                                             remaining_qty -= match_qty
@@ -707,7 +708,8 @@ class Dashboard:
                                                 "realized_pnl": pnl,
                                                 "is_profit": pnl > 0,
                                                 "exit_type": "orderbook",
-                                                "source": "orderbook"
+                                                "source": "orderbook",
+                                                "is_open": False  # Mark as closed trade
                                             })
                                             
                                             remaining_qty -= match_qty
@@ -741,6 +743,96 @@ class Dashboard:
                                 total_trades_count += 2  # Entry + Exit
                             else:
                                 total_trades_count += 1  # Single trade
+                        
+                        win_rate = (profitable_trades / total_trades_count * 100) if total_trades_count > 0 else 0.0
+                        
+                        # Get active positions to add as open trades
+                        active_positions = []
+                        try:
+                            active_positions = self.position_repo.get_active_positions()
+                        except ValueError as e:
+                            if "BrokerID not set" in str(e):
+                                active_positions = []
+                            else:
+                                raise
+                        except Exception as pos_error:
+                            logger.error(f"Error getting active positions for orderbook: {pos_error}")
+                            active_positions = []
+                        
+                        # Add active positions as open trades
+                        from src.utils.date_utils import IST
+                        from pytz import UTC
+                        logger.info(f"Adding {len(active_positions)} active positions to orderbook trades")
+                        for position in active_positions:
+                            try:
+                                # Filter out equity trades (NSE, BSE)
+                                if self._is_equity_trade(position.exchange):
+                                    continue
+                                
+                                # Format entry time
+                                entry_time = position.entry_time
+                                if entry_time:
+                                    if isinstance(entry_time, datetime):
+                                        if entry_time.tzinfo:
+                                            entry_time = entry_time.astimezone(IST)
+                                        else:
+                                            entry_time = IST.localize(entry_time)
+                                    elif isinstance(entry_time, str):
+                                        entry_time = datetime.fromisoformat(entry_time)
+                                        if entry_time.tzinfo is None:
+                                            entry_time = IST.localize(entry_time)
+                                    entry_time_str = entry_time.isoformat()
+                                else:
+                                    entry_time_str = None
+                                
+                                # Determine transaction type from quantity
+                                transaction_type = "SELL" if (position.quantity or 0) < 0 else "BUY"
+                                
+                                # Use unrealized P&L for active positions
+                                unrealized_pnl = position.unrealized_pnl or 0.0
+                                is_profit = unrealized_pnl > 0
+                                
+                                trades_data.append({
+                                    "id": f"active_pos_{position.id}",
+                                    "trading_symbol": position.trading_symbol or "",
+                                    "exchange": position.exchange or "",
+                                    "entry_time": entry_time_str,
+                                    "exit_time": None,  # No exit time for open positions
+                                    "entry_price": position.entry_price or 0.0,
+                                    "exit_price": None,  # No exit price for open positions
+                                    "quantity": position.quantity or 0,
+                                    "transaction_type": transaction_type,
+                                    "realized_pnl": unrealized_pnl,  # Use unrealized P&L
+                                    "is_profit": is_profit,
+                                    "exit_type": None,  # No exit type for open positions
+                                    "source": "active_position",  # Mark as active position
+                                    "is_open": True  # Flag to indicate this is an open position
+                                })
+                                logger.debug(f"Added active position {position.id} ({position.trading_symbol}) to orderbook trades")
+                            except Exception as pos_error:
+                                logger.error(f"Error processing active position {getattr(position, 'id', 'unknown')}: {pos_error}", exc_info=True)
+                                continue
+                        
+                        # Recalculate summary including active positions
+                        total_profit = sum(t.get('realized_pnl', 0) for t in trades_data if t.get('realized_pnl', 0) > 0)
+                        total_loss = sum(abs(t.get('realized_pnl', 0)) for t in trades_data if t.get('realized_pnl', 0) < 0)
+                        total_pnl = sum(t.get('realized_pnl', 0) for t in trades_data)
+                        profitable_trades = sum(1 for t in trades_data if t.get('realized_pnl', 0) > 0)
+                        loss_trades = sum(1 for t in trades_data if t.get('realized_pnl', 0) < 0)
+                        
+                        # Count trades: closed trades count as 2 (entry + exit), open trades count as 1
+                        total_trades_count = 0
+                        for trade in trades_data:
+                            is_open = trade.get('is_open', False)
+                            if is_open:
+                                total_trades_count += 1  # Open position counts as 1
+                            else:
+                                has_entry = trade.get('entry_time') is not None and trade.get('entry_time') != ''
+                                has_exit = trade.get('exit_time') is not None and trade.get('exit_time') != ''
+                                if has_entry and has_exit:
+                                    total_trades_count += 2  # Entry + Exit
+                                else:
+                                    total_trades_count += 1  # Single trade
                         
                         win_rate = (profitable_trades / total_trades_count * 100) if total_trades_count > 0 else 0.0
                         

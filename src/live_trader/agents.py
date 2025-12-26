@@ -2039,12 +2039,31 @@ class LiveSegmentAgent(threading.Thread):
                     tradingsymbol = kite_position.get('tradingsymbol', 'N/A')
                     quantity = int(kite_position.get('quantity', 0))
                     exchange = kite_position.get('exchange', 'N/A')
-                    self.logger.warning(
-                        f" ⛔ BLOCKING ENTRY: {option_type.value} position already exists in Kite! "
-                        f"{exchange}:{tradingsymbol} with quantity={quantity}. "
-                        f"Skipping new {option_type.value} entry signal to prevent duplicate position."
-                    )
-                    return
+                    
+                    # Only block if quantity is significantly non-zero
+                    # If quantity is 0 or very small, position is likely closing/closed
+                    # Allow new entries in this case (SL might have executed but Kite hasn't updated yet)
+                    if abs(quantity) == 0:
+                        self.logger.info(
+                            f"ℹ️ {option_type.value} position in Kite has quantity=0 (closing/closed). "
+                            f"Allowing new entry."
+                        )
+                        # Don't block - position is effectively closed
+                    elif abs(quantity) < self.segment_cfg.lot_size:
+                        # Quantity is less than one lot - position is likely closing
+                        self.logger.info(
+                            f"ℹ️ {option_type.value} position in Kite has small quantity={quantity} "
+                            f"(less than 1 lot). Allowing new entry."
+                        )
+                        # Don't block - position is effectively closed
+                    else:
+                        # Significant quantity - block entry to prevent duplicate
+                        self.logger.warning(
+                            f" ⛔ BLOCKING ENTRY: {option_type.value} position already exists in Kite! "
+                            f"{exchange}:{tradingsymbol} with quantity={quantity}. "
+                            f"Skipping new {option_type.value} entry signal to prevent duplicate position."
+                        )
+                        return
             except Exception as e:
                 # Log error gracefully but don't block entry if check fails
                 self.logger.error(
@@ -2397,10 +2416,55 @@ class LiveSegmentAgent(threading.Thread):
             sl_status = self.execution.get_sl_order_status(self._position_key)
             
             if sl_status == 'COMPLETE':
-                # SL order executed - log it but don't automatically square off
-                # Keep monitoring the position
-                self.logger.warning(f"🛡️ STOP LOSS ORDER EXECUTED: SL triggered but position remains open (monitoring continues)")
-                # Don't set should_exit = True - keep position open and continue monitoring
+                # SL order executed - clear position tracking immediately to allow new trades
+                # SL order COMPLETE means the position should be closed (or closing)
+                # Don't wait for Kite API confirmation - clear tracking now
+                self.logger.info(
+                    f"🛡️ STOP LOSS ORDER EXECUTED: SL order completed. "
+                    f"Clearing position tracking to allow new trades immediately."
+                )
+                
+                # Clear position tracking immediately
+                self._position_key = None
+                
+                # Clear position from agent's internal state
+                if option_type and self.agent._has_position(option_type):
+                    self.agent.positions[option_type] = None
+                    if self.agent.current_position == option_type:
+                        self.agent.current_position = None
+                
+                # Verify position status in Kite (for logging only, don't block on it)
+                try:
+                    kite_position = self.execution.check_kite_position_by_option_type(
+                        self.params.segment,
+                        option_type.value if option_type else 'CE'
+                    )
+                    
+                    if kite_position:
+                        quantity = int(kite_position.get('quantity', 0))
+                        if quantity == 0:
+                            self.logger.info(
+                                f"✅ Position confirmed CLOSED in Kite (quantity=0). "
+                                f"New trades are now allowed."
+                            )
+                        else:
+                            self.logger.warning(
+                                f"⚠️ Note: Position still shows in Kite with quantity={quantity} "
+                                f"(may be closing). Position tracking cleared - new trades allowed."
+                            )
+                    else:
+                        self.logger.info(
+                            f"✅ Position NOT found in Kite (closed). "
+                            f"New trades are now allowed."
+                        )
+                except Exception as e:
+                    # Log but don't block - tracking is already cleared
+                    self.logger.debug(
+                        f"Could not verify position status in Kite: {e}. "
+                        f"Position tracking cleared - new trades allowed."
+                    )
+                
+                # Exit the exit handler - position is cleared, new trades can proceed
                 return
             elif sl_status == 'CANCELLED':
                 # SL was cancelled, allow new trades
@@ -3387,7 +3451,27 @@ class LiveSegmentAgent(threading.Thread):
                         # Parse position data
                         try:
                             entry_strike = float(row.get('strike_price', 0))
-                            entry_price = float(row.get('entry_price', 0))
+                            # Validate entry_price - ensure it's a valid float, not None or empty
+                            entry_price_raw = row.get('entry_price', '0')
+                            if entry_price_raw is None or entry_price_raw == '':
+                                self.logger.warning(f"Missing entry_price in CSV for {tradingsymbol}, using 0 as fallback")
+                                entry_price = 0.0
+                            else:
+                                try:
+                                    entry_price = float(entry_price_raw)
+                                    if entry_price <= 0:
+                                        self.logger.warning(f"Invalid entry_price ({entry_price}) in CSV for {tradingsymbol}, using average_price from Kite")
+                                        # Try to get average_price from Kite if available
+                                        kite_pos = self.execution.check_kite_position_by_option_type(
+                                            self.params.segment,
+                                            option_type.value
+                                        )
+                                        if kite_pos:
+                                            entry_price = float(kite_pos.get('average_price', 0))
+                                except (ValueError, TypeError):
+                                    self.logger.warning(f"Could not parse entry_price '{entry_price_raw}' from CSV, using 0")
+                                    entry_price = 0.0
+                            
                             entry_time_str = row.get('entry_time', '')
                             expiry = row.get('expiry', '')
                             lots = int(row.get('current_lots', 1))
@@ -3403,12 +3487,20 @@ class LiveSegmentAgent(threading.Thread):
                                 except:
                                     pass
                             
+                            # Validate entry_price before restoring
+                            if entry_price is None or entry_price <= 0:
+                                self.logger.error(
+                                    f"❌ Cannot restore {option_type.value} position from CSV: "
+                                    f"Invalid entry_price ({entry_price}). Skipping restoration."
+                                )
+                                return None
+                            
                             # Restore position in agent
                             # Calculate total_investment from entry_price and lots
                             total_investment = entry_price * lots if entry_price > 0 and lots > 0 else 0
                             position_data = {
                                 'entry_strike': entry_strike,
-                                'entry_price': entry_price,
+                                'entry_price': float(entry_price),  # Ensure it's a float
                                 'entry_time': entry_time,
                                 'lots': lots,
                                 'quantity': quantity,
@@ -3451,7 +3543,29 @@ class LiveSegmentAgent(threading.Thread):
         try:
             tradingsymbol = kite_pos.get('tradingsymbol', '')
             quantity = int(kite_pos.get('quantity', 0))
-            average_price = float(kite_pos.get('average_price', 0))
+            
+            # Validate average_price - ensure it's a valid float
+            average_price_raw = kite_pos.get('average_price', 0)
+            if average_price_raw is None or average_price_raw == '':
+                self.logger.error(
+                    f"❌ Cannot restore {option_type.value} position from Kite: "
+                    f"average_price is None or empty for {tradingsymbol}"
+                )
+                return
+            try:
+                average_price = float(average_price_raw)
+                if average_price <= 0:
+                    self.logger.error(
+                        f"❌ Cannot restore {option_type.value} position from Kite: "
+                        f"Invalid average_price ({average_price}) for {tradingsymbol}"
+                    )
+                    return
+            except (ValueError, TypeError) as e:
+                self.logger.error(
+                    f"❌ Cannot restore {option_type.value} position from Kite: "
+                    f"Could not parse average_price '{average_price_raw}': {e}"
+                )
+                return
             
             # Extract strike from tradingsymbol (e.g., NIFTY25DEC2325800CE -> 25800)
             strike = None

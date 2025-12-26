@@ -1981,19 +1981,47 @@ class RSITradingAgent:
             if not self._has_position(option_type):
                 return 0.0
             pos = self._get_position(option_type)
+            entry_price = pos.get("entry_price")
+            lots = pos.get("lots", 0)
+            
+            # Validate entry_price before calculation
+            if entry_price is None:
+                logger.warning(f"⚠️ Cannot calculate P&L for {option_type.value}: entry_price is None")
+                return 0.0
+            
+            try:
+                entry_price = float(entry_price)
+            except (ValueError, TypeError):
+                logger.warning(f"⚠️ Invalid entry_price for {option_type.value}: {entry_price}")
+                return 0.0
+            
             if option_type == OptionType.CE:
-                return (current_price - pos["entry_price"]) * pos["lots"]
+                return (current_price - entry_price) * lots
             else:  # PE
-                return (pos["entry_price"] - current_price) * pos["lots"]
+                return (entry_price - current_price) * lots
         else:
             # Calculate total P&L for all open positions (backward compatibility)
             total_pnl = 0.0
             for opt_type, pos in self.positions.items():
                 if pos is not None:
+                    entry_price = pos.get("entry_price")
+                    lots = pos.get("lots", 0)
+                    
+                    # Skip if entry_price is None
+                    if entry_price is None:
+                        logger.debug(f"Skipping P&L calculation for {opt_type.value}: entry_price is None")
+                        continue
+                    
+                    try:
+                        entry_price = float(entry_price)
+                    except (ValueError, TypeError):
+                        logger.warning(f"Invalid entry_price for {opt_type.value}: {entry_price}")
+                        continue
+                    
                     if opt_type == OptionType.CE:
-                        total_pnl += (current_price - pos["entry_price"]) * pos["lots"]
+                        total_pnl += (current_price - entry_price) * lots
                     else:  # PE
-                        total_pnl += (pos["entry_price"] - current_price) * pos["lots"]
+                        total_pnl += (entry_price - current_price) * lots
             return total_pnl
     
     def check_exit_conditions(
@@ -2034,6 +2062,27 @@ class RSITradingAgent:
             return False, None, None
         
         pos = self._get_position(option_type)
+        
+        # Validate entry_price is not None (critical for positions recovered from Kite)
+        entry_price = pos.get("entry_price")
+        if entry_price is None:
+            logger.warning(
+                f"⚠️ Cannot check exit conditions for {option_type.value}: entry_price is None. "
+                f"Position may need to be manually closed or re-entered."
+            )
+            return False, None, None
+        
+        # Ensure entry_price is a float
+        try:
+            entry_price = float(entry_price)
+            pos["entry_price"] = entry_price  # Update position with validated value
+        except (ValueError, TypeError) as e:
+            logger.error(
+                f"❌ Invalid entry_price for {option_type.value}: {entry_price}. "
+                f"Cannot check exit conditions: {e}"
+            )
+            return False, None, None
+        
         pnl = self.calculate_pnl(current_price, option_type)
         
         # Initialize highest_profit if not present (for positions recovered from Kite/CSV)
