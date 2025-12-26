@@ -3,12 +3,14 @@ Position Synchronization
 Syncs positions from Zerodha API to local database
 """
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from datetime import datetime
+from pytz import UTC
 from src.utils.logger import get_logger
 from src.api.kite_client import KiteClient
 from src.database.repository import PositionRepository
 from src.database.models import Position
+from src.utils.date_utils import IST
 
 logger = get_logger("api")
 
@@ -19,6 +21,31 @@ class PositionSync:
     def __init__(self, kite_client: KiteClient, position_repo: PositionRepository):
         self.kite_client = kite_client
         self.position_repo = position_repo
+    
+    def _parse_order_timestamp(self, timestamp_str: str) -> datetime:
+        """
+        Parse order timestamp from Kite API.
+        Kite returns timestamps in IST format: 'YYYY-MM-DD HH:MM:SS'
+        """
+        if not timestamp_str:
+            return datetime.utcnow()
+        
+        try:
+            if isinstance(timestamp_str, datetime):
+                dt = timestamp_str
+            else:
+                # Parse as IST (Kite returns IST timestamps)
+                dt = datetime.strptime(str(timestamp_str), '%Y-%m-%d %H:%M:%S')
+            
+            # If no timezone info, assume IST
+            if dt.tzinfo is None:
+                dt = IST.localize(dt)
+            
+            # Convert to UTC for storage
+            return dt.astimezone(UTC).replace(tzinfo=None)
+        except Exception as e:
+            logger.debug(f"Error parsing timestamp '{timestamp_str}': {e}")
+            return datetime.utcnow()
     
     def sync_positions_from_api(self) -> List[Position]:
         """
@@ -68,10 +95,66 @@ class PositionSync:
                     if existing_position:
                         # Store original quantity before setting to 0 (for trade history display)
                         original_quantity = existing_position.quantity
+                        
+                        # Try to get exit price and time from orderbook
+                        exit_price = api_pos.get('last_price', existing_position.current_price)
+                        exit_time = datetime.utcnow()
+                        
+                        # Try to find the exit order from orderbook to get actual exit price and time
+                        try:
+                            if self.kite_client and self.kite_client.is_authenticated():
+                                orders = self.kite_client.get_orders()
+                                # Find the most recent COMPLETE order for this symbol that would close the position
+                                # For SELL positions (negative qty), look for BUY orders
+                                # For BUY positions (positive qty), look for SELL orders
+                                exit_transaction_type = "BUY" if original_quantity < 0 else "SELL"
+                                
+                                matching_orders = [
+                                    o for o in orders
+                                    if (o.get('tradingsymbol', '').upper() == trading_symbol.upper() and
+                                        o.get('exchange', '').upper() == exchange.upper() and
+                                        o.get('transaction_type', '').upper() == exit_transaction_type and
+                                        o.get('status', '').upper() == 'COMPLETE' and
+                                        o.get('filled_quantity', 0) > 0)
+                                ]
+                                
+                                if matching_orders:
+                                    # Sort by timestamp (most recent first)
+                                    matching_orders.sort(
+                                        key=lambda x: self._parse_order_timestamp(x.get('order_timestamp', '')),
+                                        reverse=True
+                                    )
+                                    # Get the most recent exit order
+                                    exit_order = matching_orders[0]
+                                    exit_price = float(exit_order.get('average_price', exit_price))
+                                    exit_time_str = exit_order.get('order_timestamp', '')
+                                    if exit_time_str:
+                                        try:
+                                            exit_time = self._parse_order_timestamp(exit_time_str)
+                                            # Convert to UTC if needed
+                                            if exit_time.tzinfo:
+                                                exit_time = exit_time.astimezone(UTC).replace(tzinfo=None)
+                                        except:
+                                            pass
+                                    
+                                    logger.info(
+                                        f"Found exit order for {trading_symbol}: "
+                                        f"Exit price=₹{exit_price:.2f}, Exit time={exit_time}"
+                                    )
+                        except Exception as e:
+                            logger.debug(f"Could not fetch exit order from orderbook: {e}")
+                        
                         existing_position.quantity = 0
                         existing_position.is_active = False
-                        existing_position.current_price = api_pos.get('last_price', existing_position.current_price)
-                        existing_position.updated_at = datetime.utcnow()
+                        existing_position.current_price = exit_price  # Use exit price as current price
+                        existing_position.updated_at = exit_time
+                        
+                        # Store exit price and time if Position model supports it
+                        if hasattr(existing_position, 'exit_price'):
+                            existing_position.exit_price = exit_price
+                        if hasattr(existing_position, 'exit_time'):
+                            existing_position.exit_time = exit_time
+                        
                         # Update P&L to final value using original quantity
                         if existing_position.current_price:
                             from src.utils.position_utils import calculate_position_pnl
@@ -87,7 +170,10 @@ class PositionSync:
                             session.commit()
                         finally:
                             session.close()
-                        logger.info(f"Position {trading_symbol} marked as inactive (quantity=0, original qty was {original_quantity})")
+                        logger.info(
+                            f"Position {trading_symbol} marked as inactive (quantity=0, original qty was {original_quantity}, "
+                            f"exit price=₹{exit_price:.2f})"
+                        )
                     continue
                 
                 # Get prices

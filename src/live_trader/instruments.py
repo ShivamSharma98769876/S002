@@ -6,7 +6,7 @@ per segment.
 """
 
 from dataclasses import dataclass
-from typing import Dict, Tuple, Optional
+from typing import Dict, Tuple, Optional, List, Any
 
 from src.utils.logger import get_logger
 
@@ -52,6 +52,97 @@ def select_itm_strike(spot_price: float, segment: str, itm_offset: float, option
     return strike_int
 
 
+def select_strike_by_delta(
+    kite_client,
+    segment: str,
+    option_type: str,
+    expiry: str,
+    min_delta: float,
+    max_delta: float,
+    spot_price: Optional[float] = None,
+    prefer_closest_to_atm: bool = True
+) -> Optional[Dict[str, Any]]:
+    """
+    Select strike based on Delta range instead of fixed ITM offset.
+    
+    This method fetches the option chain, filters by Delta range, and selects
+    the best strike within that range.
+    
+    Args:
+        kite_client: Authenticated KiteClient instance
+        segment: Trading segment (NIFTY, BANKNIFTY, SENSEX)
+        option_type: CE or PE
+        expiry: Expiry date in YYYY-MM-DD format
+        min_delta: Minimum Delta value (e.g., 0.3)
+        max_delta: Maximum Delta value (e.g., 0.4)
+        spot_price: Optional spot price (used for ATM preference if provided)
+        prefer_closest_to_atm: If True, prefer strikes closest to ATM when multiple options match
+    
+    Returns:
+        Dict with strike details (strike, delta, premium, tradingsymbol, etc.) or None if no match
+    """
+    try:
+        # Get option chain with Delta values
+        option_chain = kite_client.get_option_chain_with_delta(
+            segment=segment,
+            option_type=option_type,
+            expiry=expiry
+        )
+        
+        if not option_chain:
+            logger.warning(f"No option chain found for {segment} {option_type} expiry {expiry}")
+            return None
+        
+        # Filter by Delta range
+        # Note: For PE options, Delta is negative, so we need to handle absolute values
+        matching_options = []
+        for opt in option_chain:
+            delta = opt['delta']
+            # For PE, Delta is negative, so use absolute value for comparison
+            delta_abs = abs(delta)
+            
+            if min_delta <= delta_abs <= max_delta:
+                matching_options.append(opt)
+        
+        if not matching_options:
+            logger.warning(
+                f"No options found in Delta range [{min_delta}, {max_delta}] for "
+                f"{segment} {option_type} expiry {expiry}. Available Delta range: "
+                f"[{min(abs(o['delta']) for o in option_chain):.3f}, "
+                f"{max(abs(o['delta']) for o in option_chain):.3f}]"
+            )
+            return None
+        
+        # Select best option from matching ones
+        if prefer_closest_to_atm and spot_price is not None:
+            # Prefer strike closest to ATM
+            atm = calculate_atm_strike(spot_price, segment)
+            best_option = min(
+                matching_options,
+                key=lambda x: abs(x['strike'] - atm)
+            )
+        else:
+            # Prefer option with Delta closest to middle of range
+            target_delta = (min_delta + max_delta) / 2.0
+            best_option = min(
+                matching_options,
+                key=lambda x: abs(abs(x['delta']) - target_delta)
+            )
+        
+        logger.info(
+            f"Delta-based strike selection: {segment} {option_type} expiry {expiry} - "
+            f"Selected strike={best_option['strike']}, Delta={best_option['delta']:.3f}, "
+            f"Premium=₹{best_option['premium']:.2f} "
+            f"(Range: [{min_delta}, {max_delta}], {len(matching_options)} matches)"
+        )
+        
+        return best_option
+        
+    except Exception as e:
+        logger.error(f"Error selecting strike by Delta: {e}", exc_info=True)
+        return None
+
+
 @dataclass
 class SegmentConfig:
     """Configuration for a trading segment used by Live Trader."""
@@ -62,6 +153,10 @@ class SegmentConfig:
     max_quantity: int
     itm_offset: float  # ITM offset in points (can be negative for OTM)
     stop_loss: float  # Stop loss: points for Buy regime, percentage (%) for Sell regime (per segment)
+    # Delta-based strike selection (alternative to itm_offset)
+    min_delta: Optional[float] = None  # Minimum Delta value (e.g., 0.3)
+    max_delta: Optional[float] = None  # Maximum Delta value (e.g., 0.4)
+    # If min_delta and max_delta are set, they take precedence over itm_offset
 
 
 DEFAULT_SEGMENT_CONFIGS: Dict[str, SegmentConfig] = {

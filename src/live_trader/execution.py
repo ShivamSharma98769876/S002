@@ -513,6 +513,15 @@ class LiveExecutionClient:
             logger.error(f"Failed to place stop loss order: {e}", exc_info=True)
             return None
     
+    def get_all_open_position_keys(self) -> List[str]:
+        """
+        Get all position keys for currently open positions.
+        
+        Returns:
+            List of position keys (format: {segment}_{strike}_{CE|PE})
+        """
+        return list(self._open_positions.keys())
+    
     def get_sl_order_status(self, position_key: str) -> Optional[str]:
         """
         Get current status of SL order for a position.

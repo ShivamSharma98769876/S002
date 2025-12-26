@@ -674,3 +674,144 @@ class KiteClient:
             logger.error(f"Error fetching OHLC for {index_symbol}: {e}")
             raise APIError(f"Failed to fetch OHLC for {index_symbol}: {str(e)}")
     
+    @retry_api_call(max_retries=3, base_delay=1.0, max_delay=10.0)
+    def get_option_chain_with_delta(
+        self,
+        segment: str,
+        option_type: str,
+        expiry: str,
+        exchange: str = "NFO"
+    ) -> List[Dict[str, Any]]:
+        """
+        Get option chain with Delta values for a given segment, option type, and expiry.
+        
+        Args:
+            segment: Trading segment (NIFTY, BANKNIFTY, SENSEX)
+            option_type: CE or PE
+            expiry: Expiry date in YYYY-MM-DD format
+            exchange: Exchange name (default: NFO)
+        
+        Returns:
+            List of dicts with keys: strike, tradingsymbol, delta, premium, instrument_token, etc.
+            Sorted by strike price.
+        """
+        if not self.is_authenticated():
+            raise AuthenticationError("Not authenticated. Please authenticate first.")
+        
+        try:
+            # Get all instruments for the exchange
+            instruments = self.kite.instruments(exchange)
+            
+            # Filter instruments for the segment, option type, and expiry
+            # Expiry format in Kite: YYMMDD (e.g., 251230 for 2025-12-30)
+            expiry_parts = expiry.split('-')
+            if len(expiry_parts) != 3:
+                raise ValueError(f"Invalid expiry format: {expiry}. Expected YYYY-MM-DD")
+            
+            year_short = expiry_parts[0][-2:]  # Last 2 digits of year
+            month = expiry_parts[1]
+            day = expiry_parts[2]
+            expiry_kite = f"{year_short}{month}{day}"  # YYMMDD
+            
+            segment_upper = segment.upper()
+            option_type_upper = option_type.upper()
+            
+            # Filter instruments
+            matching_instruments = []
+            for inst in instruments:
+                name = inst.get('name', '')
+                instrument_type = inst.get('instrument_type', '')
+                exp = inst.get('expiry', '')
+                
+                # Check if it matches segment, option type, and expiry
+                if (segment_upper in name and 
+                    instrument_type == option_type_upper and 
+                    exp == expiry_kite):
+                    matching_instruments.append(inst)
+            
+            if not matching_instruments:
+                logger.warning(
+                    f"No instruments found for {segment} {option_type} expiry {expiry} "
+                    f"(Kite format: {expiry_kite})"
+                )
+                return []
+            
+            # Build list of tradingsymbols for quote request
+            tradingsymbols = []
+            for inst in matching_instruments:
+                tradingsymbol = inst.get('tradingsymbol')
+                if tradingsymbol:
+                    kite_symbol = f"{exchange}:{tradingsymbol}"
+                    tradingsymbols.append((kite_symbol, inst))
+            
+            if not tradingsymbols:
+                return []
+            
+            # Fetch quotes for all instruments (Kite allows batch quotes)
+            # Split into batches of 50 (Kite API limit)
+            all_quotes = {}
+            batch_size = 50
+            for i in range(0, len(tradingsymbols), batch_size):
+                batch = tradingsymbols[i:i + batch_size]
+                batch_symbols = [sym for sym, _ in batch]
+                
+                try:
+                    quotes = self.kite.quote(batch_symbols)
+                    all_quotes.update(quotes)
+                except Exception as e:
+                    logger.warning(f"Error fetching quotes for batch {i//batch_size + 1}: {e}")
+                    continue
+            
+            # Build result list with Delta values
+            result = []
+            for kite_symbol, inst in tradingsymbols:
+                quote_data = all_quotes.get(kite_symbol, {})
+                if not quote_data:
+                    continue
+                
+                # Extract Delta from Greeks
+                greeks = quote_data.get('greeks', {})
+                delta = greeks.get('delta')
+                
+                # Skip if Delta is not available
+                if delta is None:
+                    continue
+                
+                # Get premium (LTP or last traded price)
+                premium = quote_data.get('last_price') or quote_data.get('ohlc', {}).get('close')
+                if premium is None:
+                    continue
+                
+                strike = inst.get('strike', 0)
+                tradingsymbol = inst.get('tradingsymbol', '')
+                instrument_token = inst.get('instrument_token', 0)
+                
+                result.append({
+                    'strike': int(strike),
+                    'tradingsymbol': tradingsymbol,
+                    'delta': float(delta),
+                    'premium': float(premium),
+                    'instrument_token': instrument_token,
+                    'exchange': exchange,
+                    'instrument_type': option_type_upper,
+                    'expiry': expiry,
+                    'volume': quote_data.get('volume', 0),
+                    'oi': quote_data.get('oi', 0),
+                    'greeks': greeks  # Include all Greeks for reference
+                })
+            
+            # Sort by strike price
+            result.sort(key=lambda x: x['strike'])
+            
+            logger.debug(
+                f"Fetched {len(result)} options with Delta for {segment} {option_type} "
+                f"expiry {expiry} (Delta range: {min(r['delta'] for r in result):.3f} to "
+                f"{max(r['delta'] for r in result):.3f})"
+            )
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error fetching option chain with Delta: {e}", exc_info=True)
+            raise APIError(f"Failed to fetch option chain with Delta: {str(e)}")
+    

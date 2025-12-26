@@ -155,6 +155,8 @@ class LiveSegmentAgent(threading.Thread):
                 max_quantity=cfg_dict.get("max_quantity", default_cfg.max_quantity),
                 itm_offset=cfg_dict.get("itm_offset", default_cfg.itm_offset),  # Per-segment ITM offset
                 stop_loss=cfg_dict.get("stop_loss", default_cfg.stop_loss),  # Per-segment stop loss
+                min_delta=cfg_dict.get("min_delta", default_cfg.min_delta if hasattr(default_cfg, 'min_delta') else None),  # Delta range (optional)
+                max_delta=cfg_dict.get("max_delta", default_cfg.max_delta if hasattr(default_cfg, 'max_delta') else None),  # Delta range (optional)
             )
             self.logger.info(
                 f"Segment config loaded from params for {params.segment}: "
@@ -704,41 +706,151 @@ class LiveSegmentAgent(threading.Thread):
                 except Exception as e:
                     self.logger.warning(f"Error updating P&L before market close: {e}")
                 
-                # Square off all open positions
-                if self.current_position is not None:
-                    self.logger.warning(
-                        f"🕐 Market close approaching (15:15 IST). Squaring off all open positions..."
-                    )
+                # Get ALL open positions (CE and PE can both be open)
+                # First, get all position keys from execution client (source of truth for LIVE mode)
+                positions_to_square_off = []
+                
+                if isinstance(self.execution, LiveExecutionClient):
+                    # LIVE mode: Get all positions from execution client
                     try:
-                        # Square off current position
-                        if isinstance(self.execution, LiveExecutionClient) and self._position_key:
-                            square_off_result = self.execution.square_off_position(
-                                position_key=self._position_key,
-                                reason="Market close - Auto square off at 15:15 IST",
-                                trade_regime=self.trade_regime
-                            )
+                        # Get all position keys from execution client
+                        positions_to_square_off = self.execution.get_all_open_position_keys()
+                        if positions_to_square_off:
                             self.logger.info(
-                                f"✅ Position squared off at market close: Exit price = ₹{square_off_result.get('exit_price', 0):.2f}, "
-                                f"P&L = ₹{square_off_result.get('pnl_value', 0):.2f}"
+                                f"Found {len(positions_to_square_off)} position(s) in execution client: "
+                                f"{positions_to_square_off}"
                             )
-                        else:
-                            # Paper mode or no position key - use logical exit
-                            if self.current_position:
-                                self._handle_exit(
-                                    price=price,
-                                    timestamp=ist_time.replace(tzinfo=None),
-                                    option_type=self.current_position
-                                )
-                                self.logger.info(f"✅ Position logically exited at market close (Paper mode)")
+                        
+                        # Also verify with Kite API to catch any positions not tracked internally
+                        kite_positions = []
+                        for opt_type in [OptionType.CE, OptionType.PE]:
+                            kite_pos = self.execution.check_kite_position_by_option_type(
+                                self.params.segment,
+                                opt_type.value
+                            )
+                            if kite_pos:
+                                quantity = int(kite_pos.get('quantity', 0))
+                                if abs(quantity) > 0:  # Only if position has non-zero quantity
+                                    entry_strike = kite_pos.get('strike', '')
+                                    tradingsymbol = kite_pos.get('tradingsymbol', '')
+                                    # Build position key to check if it's already in our list
+                                    position_key = f"{self.params.segment}_{entry_strike}_{opt_type.value}"
+                                    if position_key not in positions_to_square_off:
+                                        # Position exists in Kite but not tracked internally - add it
+                                        self.logger.warning(
+                                            f"⚠️ Found untracked {opt_type.value} position in Kite: {tradingsymbol}. "
+                                            f"Will attempt emergency square off."
+                                        )
+                                        kite_positions.append(position_key)
                     except Exception as e:
-                        self.logger.error(f"❌ Failed to square off position at market close: {e}", exc_info=True)
-                        # Try emergency square off via Kite API directly
+                        self.logger.warning(f"Error checking positions for market close: {e}")
+                        # Fall back to internal state
+                        for opt_type in [OptionType.CE, OptionType.PE]:
+                            if self.agent._has_position(opt_type):
+                                pos = self.agent._get_position(opt_type)
+                                if pos:
+                                    entry_strike = pos.get('entry_strike')
+                                    if entry_strike:
+                                        position_key = f"{self.params.segment}_{entry_strike}_{opt_type.value}"
+                                        positions_to_square_off.append(position_key)
+                else:
+                    # PAPER mode: Use internal state
+                    for opt_type in [OptionType.CE, OptionType.PE]:
+                        if self.agent._has_position(opt_type):
+                            pos = self.agent._get_position(opt_type)
+                            if pos:
+                                entry_strike = pos.get('entry_strike')
+                                if entry_strike:
+                                    position_key = f"{self.params.segment}_{entry_strike}_{opt_type.value}"
+                                    positions_to_square_off.append(position_key)
+                
+                # Square off ALL open positions
+                if positions_to_square_off:
+                    self.logger.warning(
+                        f"🕐 Market close approaching (15:15 IST). Squaring off {len(positions_to_square_off)} "
+                        f"open position(s): {positions_to_square_off}"
+                    )
+                    
+                    squared_off_count = 0
+                    failed_count = 0
+                    failed_position_keys = []
+                    
+                    for position_key in positions_to_square_off:
                         try:
                             if isinstance(self.execution, LiveExecutionClient):
-                                order_ids = self.execution.kite_client.square_off_all_positions()
-                                self.logger.info(f"✅ Emergency square off executed: {order_ids}")
+                                # LIVE mode: Square off via execution client
+                                square_off_result = self.execution.square_off_position(
+                                    position_key=position_key,
+                                    reason="Market close - Auto square off at 15:15 IST",
+                                    trade_regime=self.trade_regime,
+                                    check_kite_first=True  # Verify position exists before squaring off
+                                )
+                                
+                                # Check if square off was skipped (position already closed)
+                                if square_off_result.get('skipped', False):
+                                    self.logger.info(
+                                        f"ℹ️ {position_key} already closed in Kite. Marked as closed internally."
+                                    )
+                                    squared_off_count += 1
+                                else:
+                                    self.logger.info(
+                                        f"✅ {position_key} squared off at market close: "
+                                        f"Exit price = ₹{square_off_result.get('exit_price', 0):.2f}, "
+                                        f"P&L = ₹{square_off_result.get('pnl_value', 0):.2f}"
+                                    )
+                                    squared_off_count += 1
+                            else:
+                                # PAPER mode: Extract option type from position key and use logical exit
+                                # Position key format: {segment}_{strike}_{CE|PE}
+                                parts = position_key.split('_')
+                                if len(parts) >= 3:
+                                    opt_type_str = parts[-1]  # Last part is CE or PE
+                                    opt_type = OptionType.CE if opt_type_str == "CE" else OptionType.PE
+                                    self._handle_exit(
+                                        price=price,
+                                        timestamp=ist_time.replace(tzinfo=None),
+                                        option_type=opt_type
+                                    )
+                                    self.logger.info(f"✅ {position_key} logically exited at market close (Paper mode)")
+                                    squared_off_count += 1
+                                
+                        except Exception as e:
+                            self.logger.error(
+                                f"❌ Failed to square off {position_key} at market close: {e}",
+                                exc_info=True
+                            )
+                            failed_count += 1
+                            failed_position_keys.append(position_key)
+                    
+                    # If any positions failed to square off, try emergency square off via Kite API directly
+                    if failed_count > 0 and isinstance(self.execution, LiveExecutionClient):
+                        self.logger.warning(
+                            f"⚠️ {failed_count} position(s) failed to square off: {failed_position_keys}. "
+                            f"Attempting emergency square off via Kite API..."
+                        )
+                        try:
+                            order_ids = self.execution.kite_client.square_off_all_positions()
+                            self.logger.info(f"✅ Emergency square off executed: {len(order_ids)} order(s) - {order_ids}")
+                            squared_off_count += len(order_ids)
                         except Exception as e2:
-                            self.logger.critical(f"❌ CRITICAL: Emergency square off also failed: {e2}")
+                            self.logger.critical(
+                                f"❌ CRITICAL: Emergency square off also failed: {e2}. "
+                                f"Please manually close positions before market close!"
+                            )
+                    
+                    # Clear all position tracking after square off
+                    for opt_type in [OptionType.CE, OptionType.PE]:
+                        self.agent.positions[opt_type] = None
+                        if self.agent.current_position == opt_type:
+                            self.agent.current_position = None
+                    
+                    # Clear position keys
+                    self._position_key = None
+                    
+                    self.logger.info(
+                        f"✅ Market close square off completed: {squared_off_count} position(s) squared off, "
+                        f"{failed_count} failed"
+                    )
                     
                     # Update P&L again after square off
                     try:
@@ -754,6 +866,8 @@ class LiveSegmentAgent(threading.Thread):
                     
                     # After square off, continue with normal tick processing (but won't enter new positions)
                     return
+                else:
+                    self.logger.info("ℹ️ No open positions to square off at market close (15:15 IST)")
             # Use IST time for all calculations (critical for Azure which runs in GMT)
             from src.utils.date_utils import get_current_ist_time
             ist_now = get_current_ist_time()
@@ -2157,26 +2271,81 @@ class LiveSegmentAgent(threading.Thread):
             self.agent.clear_reentry_mode()
             self.logger.info(f" ✅ Re-entry executed: {signal.value} - {reason}")
 
-        # Determine ITM option and lot size (use segment config ITM offset)
-        strike = select_itm_strike(price, self.params.segment, self.segment_cfg.itm_offset, option_type.value)
+        # Determine strike selection method: Delta range (if configured) or ITM offset (fallback)
+        expiry_str = self._get_expiry_date(timestamp)
+        
+        # Check if Delta-based selection is configured
+        if (self.segment_cfg.min_delta is not None and 
+            self.segment_cfg.max_delta is not None and 
+            isinstance(self.execution, LiveExecutionClient) and
+            self.kite_client and 
+            self.kite_client.is_authenticated() and
+            expiry_str):
+            # Use Delta-based strike selection
+            from src.live_trader.instruments import select_strike_by_delta
+            
+            delta_result = select_strike_by_delta(
+                kite_client=self.kite_client,
+                segment=self.params.segment,
+                option_type=option_type.value,
+                expiry=expiry_str,
+                min_delta=self.segment_cfg.min_delta,
+                max_delta=self.segment_cfg.max_delta,
+                spot_price=price,
+                prefer_closest_to_atm=True
+            )
+            
+            if delta_result:
+                strike = delta_result['strike']
+                # Use tradingsymbol from Delta result if available
+                if delta_result.get('tradingsymbol'):
+                    trading_symbol = delta_result['tradingsymbol']
+                else:
+                    # Fall back to building tradingsymbol
+                    expiry_cfg = self._load_expiry_config()
+                    trading_symbol = build_tradingsymbol(
+                        self.params.segment,
+                        strike,
+                        option_type.value,
+                        expiry_str,
+                        expiry_cfg,
+                    ) if expiry_cfg else None
+                
+                self.logger.info(
+                    f"📊 Delta-based strike selection: Strike={strike} {option_type.value}, "
+                    f"Delta={delta_result['delta']:.3f}, Premium=₹{delta_result['premium']:.2f}"
+                )
+            else:
+                # Delta selection failed, fall back to ITM offset
+                self.logger.warning(
+                    f"⚠️ Delta-based strike selection failed for {option_type.value}. "
+                    f"Falling back to ITM offset method."
+                )
+                strike = select_itm_strike(price, self.params.segment, self.segment_cfg.itm_offset, option_type.value)
+                trading_symbol = None
+        else:
+            # Use traditional ITM offset method
+            strike = select_itm_strike(price, self.params.segment, self.segment_cfg.itm_offset, option_type.value)
+            trading_symbol = None
+        
         lots = 1  # For now always 1 lot; quantity is handled via segment config
         quantity = self.segment_cfg.lot_size * lots
 
-        # Compute expiry using config and build proper trading symbol
-        expiry_str = self._get_expiry_date(timestamp)
-        expiry_cfg = self._load_expiry_config()
-        trading_symbol = None
-        if expiry_str:
-            try:
-                trading_symbol = build_tradingsymbol(
-                    self.params.segment,
-                    strike,
-                    option_type.value,
-                    expiry_str,
-                    expiry_cfg,
-                )
-            except Exception as e:
-                self.logger.debug(f"Could not build trading symbol: {e}")
+        # Build proper trading symbol if not already set (for ITM offset method)
+        if not trading_symbol:
+            expiry_cfg = self._load_expiry_config()
+            if expiry_str and expiry_cfg:
+                try:
+                    trading_symbol = build_tradingsymbol(
+                        self.params.segment,
+                        strike,
+                        option_type.value,
+                        expiry_str,
+                        expiry_cfg,
+                    )
+                except Exception as e:
+                    self.logger.debug(f"Could not build trading symbol: {e}")
+                    trading_symbol = None
 
         # Fetch option premium from Kite API (like backtesting)
         entry_premium, entry_premium_source = self._estimate_option_premium(

@@ -746,10 +746,21 @@ class Dashboard:
                         
                         win_rate = (profitable_trades / total_trades_count * 100) if total_trades_count > 0 else 0.0
                         
+                        # Force position sync before getting active positions to detect manual exits
+                        # This ensures positions manually closed in Kite are marked as inactive
+                        if self.risk_monitor and self.risk_monitor.position_sync:
+                            try:
+                                logger.info("Forcing position sync to detect manual exits...")
+                                self.risk_monitor.position_sync.sync_positions_from_api()
+                                logger.info("Position sync completed")
+                            except Exception as sync_error:
+                                logger.warning(f"Position sync error (non-critical): {sync_error}")
+                        
                         # Get active positions to add as open trades
                         active_positions = []
                         try:
                             active_positions = self.position_repo.get_active_positions()
+                            logger.info(f"Found {len(active_positions)} active positions after sync")
                         except ValueError as e:
                             if "BrokerID not set" in str(e):
                                 active_positions = []
