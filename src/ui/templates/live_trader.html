@@ -1317,6 +1317,8 @@
                                             <th style="text-align: center;">Enable</th>
                                             <th style="text-align: right;">Lot Size</th>
                                             <th style="text-align: right;">ITM Offset</th>
+                                            <th style="text-align: right;">Min Delta</th>
+                                            <th style="text-align: right;">Max Delta</th>
                                             <th style="text-align: right;">Stop Loss(%)</th>
                                             <th style="text-align: right;">Pyramid Points</th>
                                             <th style="text-align: right;">Lot Addition</th>
@@ -1333,7 +1335,13 @@
                                                 <input type="number" id="pyramid_lot_size_nifty" name="pyramid_lot_size_NIFTY" class="form-input" value="75" min="1" step="1" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
                                             </td>
                                             <td style="text-align: right;">
-                                                <input type="number" id="itm_offset_nifty" name="itm_offset_NIFTY" class="form-input" value="-200" step="10" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
+                                                <input type="number" id="itm_offset_nifty" name="itm_offset_NIFTY" class="form-input" value="-200" step="10" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;" title="ITM Offset (points) - fallback if Delta not set">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="min_delta_nifty" name="min_delta_NIFTY" class="form-input" value="" min="0" max="1" step="0.01" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;" placeholder="0.30" title="Minimum Delta (0.0-1.0) - optional, takes precedence over ITM Offset">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="max_delta_nifty" name="max_delta_NIFTY" class="form-input" value="" min="0" max="1" step="0.01" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;" placeholder="0.40" title="Maximum Delta (0.0-1.0) - optional, takes precedence over ITM Offset">
                                             </td>
                                             <td style="text-align: right;">
                                                 <input type="number" id="stop_loss_nifty" name="stop_loss_NIFTY" class="form-input" value="30" min="1" step="1" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
@@ -1357,7 +1365,13 @@
                                                 <input type="number" id="pyramid_lot_size_banknifty" name="pyramid_lot_size_BANKNIFTY" class="form-input" value="35" min="1" step="1" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
                                             </td>
                                             <td style="text-align: right;">
-                                                <input type="number" id="itm_offset_banknifty" name="itm_offset_BANKNIFTY" class="form-input" value="-300" step="10" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
+                                                <input type="number" id="itm_offset_banknifty" name="itm_offset_BANKNIFTY" class="form-input" value="-300" step="10" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;" title="ITM Offset (points) - fallback if Delta not set">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="min_delta_banknifty" name="min_delta_BANKNIFTY" class="form-input" value="" min="0" max="1" step="0.01" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;" placeholder="0.30" title="Minimum Delta (0.0-1.0) - optional, takes precedence over ITM Offset">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="max_delta_banknifty" name="max_delta_BANKNIFTY" class="form-input" value="" min="0" max="1" step="0.01" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;" placeholder="0.40" title="Maximum Delta (0.0-1.0) - optional, takes precedence over ITM Offset">
                                             </td>
                                             <td style="text-align: right;">
                                                 <input type="number" id="stop_loss_banknifty" name="stop_loss_BANKNIFTY" class="form-input" value="40" min="1" step="1" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
@@ -1381,7 +1395,13 @@
                                                 <input type="number" id="pyramid_lot_size_sensex" name="pyramid_lot_size_SENSEX" class="form-input" value="20" min="1" step="1" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
                                             </td>
                                             <td style="text-align: right;">
-                                                <input type="number" id="itm_offset_sensex" name="itm_offset_SENSEX" class="form-input" value="-500" step="10" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">
+                                                <input type="number" id="itm_offset_sensex" name="itm_offset_SENSEX" class="form-input" value="-500" step="10" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;" title="ITM Offset (points) - fallback if Delta not set">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="min_delta_sensex" name="min_delta_SENSEX" class="form-input" value="" min="0" max="1" step="0.01" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;" placeholder="0.30" title="Minimum Delta (0.0-1.0) - optional, takes precedence over ITM Offset">
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <input type="number" id="max_delta_sensex" name="max_delta_SENSEX" class="form-input" value="" min="0" max="1" step="0.01" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;" placeholder="0.40" title="Maximum Delta (0.0-1.0) - optional, takes precedence over ITM Offset">
                                             </td>
                                             <td style="text-align: right;">
                                                 <input type="number" id="stop_loss_sensex" name="stop_loss_SENSEX" class="form-input" value="50" min="1" step="1" style="width: 100px; padding: 8px; text-align: right; margin: 0 auto;">

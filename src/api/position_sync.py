@@ -58,6 +58,19 @@ class PositionSync:
             # Get positions from Zerodha
             api_positions = self.kite_client.get_positions()
             
+            # Get all active positions from database BEFORE processing API positions
+            # This helps us detect positions that disappeared from API (closed manually)
+            db_active_positions = {}
+            try:
+                active_positions = self.position_repo.get_active_positions()
+                for pos in active_positions:
+                    db_active_positions[str(pos.instrument_token)] = pos
+            except Exception as e:
+                logger.debug(f"Error getting active positions for sync: {e}")
+            
+            # Track which positions are still in API
+            api_instrument_tokens = set()
+            
             synced_positions = []
             
             for api_pos in api_positions:
@@ -65,6 +78,9 @@ class PositionSync:
                 trading_symbol = api_pos.get('tradingsymbol', '')
                 exchange = api_pos.get('exchange', '')
                 instrument_token = str(api_pos.get('instrument_token', ''))
+                
+                # Track this instrument as present in API
+                api_instrument_tokens.add(instrument_token)
                 
                 # Exclude equity positions (NSE, BSE) if configured
                 if self._should_exclude_equity(exchange):
@@ -221,6 +237,91 @@ class PositionSync:
                             f"Quantity change detected for {trading_symbol}: "
                             f"{old_quantity} -> {quantity} (change: {quantity - old_quantity})"
                         )
+            
+            # After processing all API positions, check for positions that disappeared from API
+            # These are positions that were in database but not in API response (manually closed)
+            for instrument_token, db_position in db_active_positions.items():
+                if instrument_token not in api_instrument_tokens:
+                    # Position exists in database but not in API - it was closed
+                    logger.info(
+                        f"Detected closed position (not in API): {db_position.trading_symbol} "
+                        f"(Token: {instrument_token})"
+                    )
+                    
+                    # Mark as inactive and try to get exit details from orderbook
+                    original_quantity = db_position.quantity
+                    exit_price = db_position.current_price or db_position.entry_price
+                    exit_time = datetime.utcnow()
+                    
+                    # Try to find exit order from orderbook
+                    try:
+                        if self.kite_client and self.kite_client.is_authenticated():
+                            orders = self.kite_client.get_orders()
+                            exit_transaction_type = "BUY" if original_quantity < 0 else "SELL"
+                            
+                            matching_orders = [
+                                o for o in orders
+                                if (o.get('tradingsymbol', '').upper() == db_position.trading_symbol.upper() and
+                                    o.get('exchange', '').upper() == db_position.exchange.upper() and
+                                    o.get('transaction_type', '').upper() == exit_transaction_type and
+                                    o.get('status', '').upper() == 'COMPLETE' and
+                                    o.get('filled_quantity', 0) > 0)
+                            ]
+                            
+                            if matching_orders:
+                                matching_orders.sort(
+                                    key=lambda x: self._parse_order_timestamp(x.get('order_timestamp', '')),
+                                    reverse=True
+                                )
+                                exit_order = matching_orders[0]
+                                exit_price = float(exit_order.get('average_price', exit_price))
+                                exit_time_str = exit_order.get('order_timestamp', '')
+                                if exit_time_str:
+                                    try:
+                                        exit_time = self._parse_order_timestamp(exit_time_str)
+                                        if exit_time.tzinfo:
+                                            exit_time = exit_time.astimezone(UTC).replace(tzinfo=None)
+                                    except:
+                                        pass
+                                
+                                logger.info(
+                                    f"Found exit order for {db_position.trading_symbol}: "
+                                    f"Exit price=₹{exit_price:.2f}, Exit time={exit_time}"
+                                )
+                    except Exception as e:
+                        logger.debug(f"Could not fetch exit order from orderbook: {e}")
+                    
+                    # Update position to inactive
+                    db_position.quantity = 0
+                    db_position.is_active = False
+                    db_position.current_price = exit_price
+                    db_position.updated_at = exit_time
+                    
+                    if hasattr(db_position, 'exit_price'):
+                        db_position.exit_price = exit_price
+                    if hasattr(db_position, 'exit_time'):
+                        db_position.exit_time = exit_time
+                    
+                    # Update P&L
+                    if db_position.current_price:
+                        from src.utils.position_utils import calculate_position_pnl
+                        db_position.unrealized_pnl = calculate_position_pnl(
+                            db_position.entry_price,
+                            db_position.current_price,
+                            original_quantity,
+                            db_position.lot_size
+                        )
+                    
+                    session = self.position_repo.db_manager.get_session()
+                    try:
+                        session.commit()
+                    finally:
+                        session.close()
+                    
+                    logger.info(
+                        f"Position {db_position.trading_symbol} marked as inactive "
+                        f"(disappeared from API, exit price=₹{exit_price:.2f})"
+                    )
             
             logger.debug(f"Synced {len(synced_positions)} positions from API")
             return synced_positions
