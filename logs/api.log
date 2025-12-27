@@ -19281,3 +19281,139 @@
 2025-12-26 19:14:47 - api - INFO - WebSocket connected successfully
 2025-12-26 19:14:47 - api - INFO - Fetched 0 non-equity positions from 6 total positions
 2025-12-26 19:14:47 - api - INFO - No active positions to subscribe to
+2025-12-26 21:11:11 - api - ERROR - WebSocket error: code=1006, reason=connection was closed uncleanly (peer dropped the TCP connection without previous WebSocket closing handshake)
+2025-12-26 21:11:11 - api - INFO - Attempting WebSocket reconnection 1/20 in 1.0 seconds...
+2025-12-26 21:36:51 - api - INFO - WebSocket connection initiated
+2025-12-26 21:37:00 - api - INFO - WebSocket reconnection successful
+2025-12-26 21:37:00 - api - WARNING - WebSocket closed: code=1006, reason=connection was closed uncleanly (peer dropped the TCP connection without previous WebSocket closing handshake)
+2025-12-26 21:37:00 - api - INFO - Attempting WebSocket reconnection 2/20 in 2.0 seconds...
+2025-12-26 21:37:02 - api - INFO - WebSocket connection initiated
+2025-12-26 21:37:02 - api - INFO - WebSocket reconnection successful
+2025-12-26 21:37:02 - api - INFO - WebSocket connected successfully
+2025-12-26 21:37:03 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 21:37:03 - api - INFO - No active positions to subscribe to
+2025-12-26 21:37:03 - api - INFO - WebSocket connected successfully
+2025-12-26 21:37:03 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 21:37:03 - api - INFO - No active positions to subscribe to
+2025-12-26 21:37:05 - api - INFO - WebSocket connected successfully
+2025-12-26 21:37:06 - api - INFO - Fetched 0 non-equity positions from 6 total positions
+2025-12-26 21:37:06 - api - INFO - No active positions to subscribe to
+2025-12-26 22:11:25 - api - INFO - WebSocket disconnected
+2025-12-26 22:11:25 - api - WARNING - WebSocket closed: code=None, reason=None
+2025-12-26 22:11:25 - api - INFO - Attempting WebSocket reconnection 1/20 in 1.0 seconds...
+2025-12-27 14:34:40 - api - ERROR - Kite client not authenticated. Cannot connect WebSocket.
+2025-12-27 14:35:16 - api - INFO - Access token set successfully
+2025-12-27 14:35:16 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 14:35:16 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-27 14:35:26 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 14:35:26 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-27 14:35:36 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 14:35:36 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-27 14:35:46 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 14:35:46 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-27 14:35:56 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 14:35:56 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-27 14:38:57 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 14:38:57 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-27 14:40:20 - api - INFO - WebSocket connection initiated
+2025-12-27 14:40:20 - api - INFO - WebSocket connected successfully
+2025-12-27 14:40:20 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 14:40:20 - api - INFO - No active positions to subscribe to
+2025-12-27 14:53:26 - api - ERROR - WebSocket error: code=1006, reason=connection was closed uncleanly (None)
+2025-12-27 14:53:26 - api - INFO - Attempting WebSocket reconnection 1/20 in 1.0 seconds...
+2025-12-27 14:53:27 - api - INFO - WebSocket connection initiated
+2025-12-27 14:53:27 - api - INFO - WebSocket reconnection successful
+2025-12-27 14:53:27 - api - WARNING - WebSocket closed: code=1006, reason=connection was closed uncleanly (None)
+2025-12-27 14:53:27 - api - INFO - Attempting WebSocket reconnection 2/20 in 2.0 seconds...
+2025-12-27 14:53:29 - api - INFO - WebSocket connection initiated
+2025-12-27 14:53:29 - api - INFO - WebSocket reconnection successful
+2025-12-27 14:53:29 - api - INFO - WebSocket connected successfully
+2025-12-27 14:53:29 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 14:53:29 - api - INFO - No active positions to subscribe to
+2025-12-27 14:53:29 - api - INFO - WebSocket connected successfully
+2025-12-27 14:53:29 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 14:53:29 - api - INFO - No active positions to subscribe to
+2025-12-27 14:53:32 - api - INFO - WebSocket connected successfully
+2025-12-27 14:53:32 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 14:53:32 - api - INFO - No active positions to subscribe to
+2025-12-27 16:23:38 - api - ERROR - WebSocket error: code=1006, reason=connection was closed uncleanly (None)
+2025-12-27 16:23:38 - api - INFO - Attempting WebSocket reconnection 1/20 in 1.0 seconds...
+2025-12-27 19:26:32 - api - INFO - WebSocket connection initiated
+2025-12-27 19:26:32 - api - INFO - WebSocket reconnection successful
+2025-12-27 19:26:32 - api - WARNING - WebSocket closed: code=1006, reason=connection was closed uncleanly (None)
+2025-12-27 19:26:32 - api - INFO - Attempting WebSocket reconnection 2/20 in 2.0 seconds...
+2025-12-27 19:26:34 - api - INFO - WebSocket connection initiated
+2025-12-27 19:26:34 - api - INFO - WebSocket reconnection successful
+2025-12-27 19:26:34 - api - ERROR - WebSocket error: code=1006, reason=connection was closed uncleanly (None)
+2025-12-27 19:26:34 - api - INFO - Attempting WebSocket reconnection 3/20 in 4.0 seconds...
+2025-12-27 19:26:38 - api - INFO - WebSocket connection initiated
+2025-12-27 19:26:39 - api - INFO - WebSocket reconnection successful
+2025-12-27 19:26:39 - api - WARNING - WebSocket closed: code=1006, reason=connection was closed uncleanly (None)
+2025-12-27 19:26:39 - api - INFO - Attempting WebSocket reconnection 4/20 in 8.0 seconds...
+2025-12-27 19:26:47 - api - INFO - WebSocket connection initiated
+2025-12-27 19:26:47 - api - INFO - WebSocket reconnection successful
+2025-12-27 19:26:47 - api - ERROR - WebSocket error: code=1006, reason=connection was closed uncleanly (None)
+2025-12-27 19:26:47 - api - INFO - Attempting WebSocket reconnection 5/20 in 16.0 seconds...
+2025-12-27 19:27:03 - api - INFO - WebSocket connection initiated
+2025-12-27 19:27:03 - api - INFO - WebSocket reconnection successful
+2025-12-27 19:27:03 - api - WARNING - WebSocket closed: code=1006, reason=connection was closed uncleanly (None)
+2025-12-27 19:27:03 - api - INFO - Attempting WebSocket reconnection 6/20 in 32.0 seconds...
+2025-12-27 19:27:35 - api - INFO - WebSocket connection initiated
+2025-12-27 19:27:35 - api - INFO - WebSocket reconnection successful
+2025-12-27 19:27:35 - api - INFO - WebSocket connected successfully
+2025-12-27 19:27:35 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 19:27:35 - api - INFO - No active positions to subscribe to
+2025-12-27 19:27:35 - api - INFO - WebSocket connected successfully
+2025-12-27 19:27:35 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 19:27:35 - api - INFO - No active positions to subscribe to
+2025-12-27 19:27:35 - api - INFO - WebSocket connected successfully
+2025-12-27 19:27:35 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 19:27:35 - api - INFO - No active positions to subscribe to
+2025-12-27 19:27:37 - api - INFO - WebSocket connected successfully
+2025-12-27 19:27:37 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 19:27:37 - api - INFO - No active positions to subscribe to
+2025-12-27 19:27:37 - api - INFO - WebSocket connected successfully
+2025-12-27 19:27:38 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 19:27:38 - api - INFO - No active positions to subscribe to
+2025-12-27 19:27:38 - api - INFO - WebSocket connected successfully
+2025-12-27 19:27:38 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 19:27:38 - api - INFO - No active positions to subscribe to
+2025-12-27 19:27:38 - api - INFO - WebSocket connected successfully
+2025-12-27 19:27:38 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 19:27:38 - api - INFO - No active positions to subscribe to
+2025-12-27 19:27:38 - api - INFO - WebSocket connected successfully
+2025-12-27 19:27:38 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 19:27:38 - api - INFO - No active positions to subscribe to
+2025-12-27 19:27:38 - api - INFO - WebSocket connected successfully
+2025-12-27 19:27:38 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 19:27:38 - api - INFO - No active positions to subscribe to
+2025-12-27 19:48:03 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 19:48:03 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-27 19:48:13 - api - INFO - WebSocket disconnected
+2025-12-27 19:48:13 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 19:48:13 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-27 19:48:13 - api - WARNING - WebSocket closed: code=None, reason=None
+2025-12-27 19:48:13 - api - INFO - Attempting WebSocket reconnection 1/20 in 1.0 seconds...
+2025-12-27 19:48:14 - api - INFO - WebSocket connection initiated
+2025-12-27 19:48:14 - api - INFO - WebSocket reconnection successful
+2025-12-27 19:48:14 - api - INFO - WebSocket connected successfully
+2025-12-27 19:48:14 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 19:48:14 - api - INFO - No active positions to subscribe to
+2025-12-27 19:48:28 - api - ERROR - Kite client not authenticated. Cannot connect WebSocket.
+2025-12-27 19:48:43 - api - INFO - Access token set successfully
+2025-12-27 19:48:44 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 19:48:44 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-27 19:48:53 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 19:48:53 - api - INFO - Position sync: Found 0 active positions in DB, 0 positions in API response
+2025-12-27 19:53:48 - api - INFO - WebSocket connection initiated
+2025-12-27 19:53:48 - api - INFO - WebSocket connected successfully
+2025-12-27 19:53:49 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 19:53:49 - api - INFO - No active positions to subscribe to
+2025-12-27 20:06:14 - api - INFO - WebSocket disconnected
+2025-12-27 20:06:14 - api - WARNING - WebSocket closed: code=None, reason=None
+2025-12-27 20:06:14 - api - INFO - Attempting WebSocket reconnection 1/20 in 1.0 seconds...
+2025-12-27 20:06:15 - api - INFO - WebSocket connection initiated
+2025-12-27 20:06:15 - api - INFO - WebSocket reconnection successful
+2025-12-27 20:06:16 - api - INFO - WebSocket connected successfully
+2025-12-27 20:06:16 - api - INFO - Fetched 0 non-equity positions from 0 total positions
+2025-12-27 20:06:16 - api - INFO - No active positions to subscribe to

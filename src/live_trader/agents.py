@@ -3392,7 +3392,12 @@ class LiveSegmentAgent(threading.Thread):
         """
         Save PS/VS data to JSON file for time series chart visualization.
         Stores data per segment per day, preserving ALL historical data across restarts.
-        Data is appended to existing files, never deleted.
+        
+        Append-equivalent behavior for JSON:
+        - Loads existing data from file if it exists (same day)
+        - Adds new data points to the existing array
+        - Writes entire array back to file
+        - This preserves all data across application restarts on the same day
         
         Args:
             price_strength: Current PS value
@@ -3416,6 +3421,8 @@ class LiveSegmentAgent(threading.Thread):
             file_path = ps_vs_dir / f"ps_vs_{self.params.segment}_{date_str}.json"
             
             # Load existing data or create new (preserves all historical data)
+            # This is the JSON equivalent of append mode - we load existing data, add new points, and write back
+            # This ensures data is preserved across application restarts on the same day
             data = []
             existing_timestamps = set()  # Track existing timestamps to avoid duplicates
             if file_path.exists():
@@ -3511,7 +3518,10 @@ class LiveSegmentAgent(threading.Thread):
             # Sort data by timestamp to maintain chronological order
             data.sort(key=lambda x: datetime.fromisoformat(x["timestamp"]) if x.get("timestamp") else datetime.min)
             
-            # Save to file (preserves all historical data)
+            # Save to file (preserves all historical data across restarts)
+            # Note: We use 'w' mode here, but since we loaded existing data above and merged new points,
+            # this effectively appends to the file. This is the correct approach for JSON files since
+            # JSON must be a valid structure - we can't append raw text like with log files.
             with open(file_path, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
             

@@ -859,6 +859,10 @@ def get_live_trader_logs():
     """
     Get recent log entries related to Live Trader for a specific segment.
     
+    Always shows the latest available data:
+    - If today's log file exists and has data, shows it (even after market hours)
+    - If today's log is not available, shows the previous trading day's log
+    
     Query params:
     - segment: Segment name (NIFTY, BANKNIFTY, SENSEX) - required
     - mode: Mode type (PAPER or LIVE) - required
@@ -1066,12 +1070,14 @@ def get_ps_vs_data():
     
     Always shows the latest available data:
     - If today's data is available, shows it (even after market hours)
-    - If today's data is not available, shows the previous trading day's data
+      - During market hours: Filters by hours parameter (default: 10 hours)
+      - After market close: Shows full day's data (all trading hours)
+    - If today's data is not available, shows the previous trading day's data (full day)
     
     Query params:
     - segment: Segment name (NIFTY, BANKNIFTY, SENSEX) - required
     - hours: Number of hours of data to fetch (default: 10, max: 24)
-              Note: This is only used for filtering today's data. Previous day's data is shown in full.
+              Note: Only used during market hours. After market close, full day's data is shown.
     """
     try:
         segment = request.args.get("segment", "").upper()
@@ -1168,40 +1174,54 @@ def get_ps_vs_data():
             with open(file_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
             
-            # If using today's data, filter by hours (user preference)
+            # If using today's data, check if market is closed
+            # If market is closed, show full day's data; otherwise filter by hours (user preference)
             # If using previous day's data, show all data (full trading day)
+            market_closed = False
             if use_today:
-                # Filter to last N hours (use IST to match timestamp format)
-                cutoff_time = ist_now - timedelta(hours=num_hours)
-                # Make cutoff_time timezone-naive for comparison if timestamps are naive
-                if cutoff_time.tzinfo is not None:
-                    cutoff_time = cutoff_time.replace(tzinfo=None)
+                # Check if market is closed - if so, show full day's data
+                from src.utils.date_utils import is_market_open, get_market_hours
+                market_closed = not is_market_open()
                 
-                filtered_data = []
-                for d in data:
-                    try:
-                        d_timestamp = datetime.fromisoformat(d["timestamp"])
-                        # Make timezone-naive if needed for comparison
-                        if d_timestamp.tzinfo is not None:
-                            d_timestamp = d_timestamp.replace(tzinfo=None)
-                        if d_timestamp >= cutoff_time:
-                            filtered_data.append(d)
-                    except (ValueError, KeyError) as e:
-                        logger.warning(f"Skipping invalid data point in PS/VS file: {e}")
-                        continue
-                
-                logger.debug(f"Filtered today's data to last {num_hours} hours: {len(filtered_data)} points")
+                if market_closed:
+                    # Market is closed - show full day's data
+                    filtered_data = data
+                    logger.debug(f"Market closed - showing full day's PS/VS data: {len(filtered_data)} points")
+                else:
+                    # Market is open - filter to last N hours (use IST to match timestamp format)
+                    cutoff_time = ist_now - timedelta(hours=num_hours)
+                    # Make cutoff_time timezone-naive for comparison if timestamps are naive
+                    if cutoff_time.tzinfo is not None:
+                        cutoff_time = cutoff_time.replace(tzinfo=None)
+                    
+                    filtered_data = []
+                    for d in data:
+                        try:
+                            d_timestamp = datetime.fromisoformat(d["timestamp"])
+                            # Make timezone-naive if needed for comparison
+                            if d_timestamp.tzinfo is not None:
+                                d_timestamp = d_timestamp.replace(tzinfo=None)
+                            if d_timestamp >= cutoff_time:
+                                filtered_data.append(d)
+                        except (ValueError, KeyError) as e:
+                            logger.warning(f"Skipping invalid data point in PS/VS file: {e}")
+                            continue
+                    
+                    logger.debug(f"Market open - filtered today's data to last {num_hours} hours: {len(filtered_data)} points")
             else:
                 # For previous day's data, return all data (full trading day)
                 filtered_data = data
                 logger.debug(f"Returning full previous trading day data: {len(filtered_data)} points")
+            
+            # Determine if we're showing filtered or full data for response
+            hours_info = None if (not use_today or market_closed) else num_hours  # None means full day
             
             return jsonify({
                 "success": True,
                 "data": filtered_data,
                 "segment": segment,
                 "total_points": len(filtered_data),
-                "hours": num_hours if use_today else None,
+                "hours": hours_info,  # None = full day, number = filtered by hours
                 "date": today if use_today else data_date
             })
         except (json.JSONDecodeError, IOError) as e:

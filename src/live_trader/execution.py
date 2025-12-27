@@ -15,16 +15,24 @@ import os
 from src.api.kite_client import KiteClient
 from src.utils.logger import get_logger
 from src.utils.exceptions import OrderExecutionError
+from src.utils.date_utils import get_current_ist_time
 
 logger = get_logger("live_trader")
 
 
-LOG_DIR = Path("data") / "live_trader"
+# Use file-based path (relative to project root) for consistency across Local and Azure
+# This ensures the same behavior regardless of current working directory
+LOG_DIR = Path(__file__).parent.parent.parent / "data" / "live_trader"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def _today_str() -> str:
-    return datetime.now().strftime("%Y-%m-%d")
+    """
+    Get today's date string in IST timezone.
+    Uses IST to ensure consistent date calculation across different server timezones
+    (e.g., Azure servers may be in UTC, while local might be IST).
+    """
+    return get_current_ist_time().strftime("%Y-%m-%d")
 
 
 @dataclass
@@ -147,7 +155,7 @@ class PaperExecutionClient:
         record_dict = asdict(record)
         # Ensure update_time is set
         if record_dict.get('update_time') is None:
-            record_dict['update_time'] = datetime.now()
+            record_dict['update_time'] = get_current_ist_time()
         
         # Convert datetime fields to ISO format
         for k, v in record_dict.items():

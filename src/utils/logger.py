@@ -113,8 +113,10 @@ class Logger:
             return logger
         
         # File handler with rotation
+        # mode='a' ensures we append to existing log files on restart
         file_handler = logging.handlers.RotatingFileHandler(
             log_file,
+            mode='a',  # Append mode - preserves existing logs on restart
             maxBytes=max_bytes,
             backupCount=backup_count,
             encoding='utf-8'
@@ -231,8 +233,10 @@ def get_segment_logger(segment: str, mode: str, log_dir: Optional[Path] = None) 
     logger.setLevel(logging.INFO)
     
     # File handler with rotation (daily rotation)
+    # mode='a' ensures we append to existing log files on restart (same day)
     file_handler = logging.handlers.RotatingFileHandler(
         log_file,
+        mode='a',  # Append mode - preserves existing logs on restart
         maxBytes=50 * 1024 * 1024,  # 50MB per file
         backupCount=30,  # Keep 30 days of backups
         encoding='utf-8'
